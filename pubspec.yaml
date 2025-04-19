@@ -1,0 +1,71 @@
+name: kingz_cut_mobile
+description: "Mobile app for Kingz Cut salon shop used by Barbers and customers."
+
+publish_to: "none"
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.7.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  provider: ^6.1.4
+  shared_preferences: ^2.3.2
+  # flutter_local_notifications: ^19.1.0
+  dartx: ^1.2.0
+  dio: 5.7.0
+  jiffy: 6.3.1
+  google_fonts: 6.2.1
+  flutter_native_splash: 2.4.2
+  flex_color_scheme: ^8.2.0
+  logger: 2.4.0
+  go_router: 14.3.0
+  introduction_screen: ^3.1.11
+  dropdown_button2: 2.3.9
+  uiblock: 2.0.3
+  json_annotation: 4.9.0
+  flutter_secure_storage: 9.2.2
+  shimmer: 3.0.0
+  cached_network_image: 3.4.1
+  readmore: 3.0.0
+  mime: 2.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^5.0.0
+  build_runner: 2.4.13
+  flutter_launcher_icons: 0.13.1
+  json_serializable: 6.8.0
+  rename: 3.0.2
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/to/font-from-package
