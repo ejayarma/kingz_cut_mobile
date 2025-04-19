@@ -1,6 +1,6 @@
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
-import 'package:kingz_cut_mobile/home_screen.dart';
+import 'package:kingz_cut_mobile/screens/splash_screen.dart';
 
 class KCutApp extends StatelessWidget {
   const KCutApp({super.key});
@@ -10,12 +10,18 @@ class KCutApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       // The Mandy red, light theme.
-      theme: FlexThemeData.light(scheme: FlexScheme.tealM3),
+      theme: FlexThemeData.light(
+        scheme: FlexScheme.tealM3,
+        secondary: Color(0xFFFF9600),
+      ),
       // The Mandy red, dark theme.
-      darkTheme: FlexThemeData.dark(scheme: FlexScheme.tealM3),
+      darkTheme: FlexThemeData.dark(
+        scheme: FlexScheme.tealM3,
+        secondary: Color(0xFFFF9600),
+      ),
       // Use dark or light theme based on system setting.
-      themeMode: ThemeMode.system,
-      home: const HomeScreen(title: 'Flutter Demo Home Page'),
+      themeMode: ThemeMode.light,
+      home: const SplashScreen(),
     );
   }
 }

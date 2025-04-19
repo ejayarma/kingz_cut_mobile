@@ -1,0 +1,1 @@
+enum PillTagShape { stadium, roundedRectangle }
