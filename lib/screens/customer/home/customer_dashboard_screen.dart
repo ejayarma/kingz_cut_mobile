@@ -35,9 +35,7 @@ class _CustomerDashboardScreenState extends State<CustomerDashboardScreen> {
         currentIndex: _pageIndex,
 
         onTap: (value) {
-          setState(() {
-            _pageIndex = value;
-          });
+          setState(() => _pageIndex = value);
         },
         items: const [
           BottomNavigationBarItem(

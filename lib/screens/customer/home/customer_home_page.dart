@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kingz_cut_mobile/enums/service_type.dart';
+import 'package:kingz_cut_mobile/screens/customer/haircut_stye_screen.dart';
 
 class CustomerHomePage extends StatelessWidget {
   const CustomerHomePage({super.key});
@@ -111,17 +112,23 @@ class CustomerHomePage extends StatelessWidget {
           alignment: Alignment.centerRight,
           child: TextButton.icon(
             onPressed: () {},
-            icon: const Icon(Icons.location_on, color: Colors.blue),
+            icon: const Icon(
+              Icons.location_on_rounded,
+              color: Colors.blueAccent,
+            ),
             label: const Text(
               'View on Map',
-              style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w500),
+              style: TextStyle(
+                color: Colors.blueAccent,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ),
 
         // Services section
         const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8.0),
           child: Text(
             'Services',
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
@@ -130,39 +137,49 @@ class CustomerHomePage extends StatelessWidget {
 
         // Service grid
         Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: GridView.count(
-              crossAxisCount: 2,
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
-              children: [
-                _buildServiceCard(
+          child: GridView.count(
+            crossAxisCount: 2,
+            mainAxisSpacing: 16,
+            crossAxisSpacing: 16,
+            childAspectRatio: 4 / 3,
+            padding: EdgeInsets.all(16),
+            children: [
+              InkWell(
+                onTap: () {
+                  // Navigator.of(context).pushReplacement(
+                  //   MaterialPageRoute(
+                  //     builder: (context) {
+                  //       return HaircutStylesScreen();
+                  //     },
+                  //   ),
+                  // );
+                },
+                child: _buildServiceCard(
                   title: 'Haircuts',
                   serviceType: SalonServiceType.haircut,
                   color: Colors.blue.shade100,
                   iconColor: Colors.blue.shade600,
                 ),
-                _buildServiceCard(
-                  title: 'Beard Grooming',
-                  serviceType: SalonServiceType.beardGrooming,
-                  color: Colors.pink.shade100,
-                  iconColor: Colors.red,
-                ),
-                _buildServiceCard(
-                  title: 'Hair Coloring',
-                  serviceType: SalonServiceType.hairColoring,
-                  color: Colors.amber.shade100,
-                  iconColor: Colors.orange,
-                ),
-                _buildServiceCard(
-                  title: 'Wash & Styling',
-                  serviceType: SalonServiceType.washStyling,
-                  color: Colors.indigo.shade100,
-                  iconColor: Colors.purple,
-                ),
-              ],
-            ),
+              ),
+              _buildServiceCard(
+                title: 'Beard Grooming',
+                serviceType: SalonServiceType.beardGrooming,
+                color: Colors.pink.shade100,
+                iconColor: Colors.red,
+              ),
+              _buildServiceCard(
+                title: 'Hair Coloring',
+                serviceType: SalonServiceType.hairColoring,
+                color: Colors.amber.shade100,
+                iconColor: Colors.orange,
+              ),
+              _buildServiceCard(
+                title: 'Wash & Styling',
+                serviceType: SalonServiceType.washStyling,
+                color: Colors.indigo.shade100,
+                iconColor: Colors.purple,
+              ),
+            ],
           ),
         ),
       ],
@@ -188,6 +205,18 @@ class CustomerHomePage extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade400,
+            blurRadius: 10,
+            spreadRadius: 0.5,
+            offset: Offset(0, 3),
+          ),
+        ],
+        border: Border.all(
+          style: BorderStyle.solid,
+          color: iconColor.withAlpha(50),
+        ),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -196,7 +225,7 @@ class CustomerHomePage extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             title,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
           ),
         ],
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kingz_cut_mobile/screens/auth/login_screen.dart';
 import 'package:kingz_cut_mobile/screens/customer/home/customer_dashboard_screen.dart';
 
 class LaunchScreen extends StatelessWidget {
@@ -53,7 +54,7 @@ class LaunchScreen extends StatelessWidget {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) {
-                              return CustomerDashboardScreen();
+                              return LoginScreen();
                             },
                           ),
                         ),

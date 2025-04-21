@@ -9,6 +9,7 @@ class KCutApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       // The Mandy red, light theme.
       theme: FlexThemeData.light(
         scheme: FlexScheme.tealM3,
