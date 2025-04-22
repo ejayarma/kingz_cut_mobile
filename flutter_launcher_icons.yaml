@@ -1,0 +1,9 @@
+flutter_launcher_icons:
+  # android: true
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/kingz_cut_logo_transparent.png"
+  adaptive_icon_background: "#ffffff"
+  adaptive_icon_foreground: "assets/images/kingz_cut_logo_transparent.png"
+  min_sdk_android: 21
+  remove_alpha_ios: true

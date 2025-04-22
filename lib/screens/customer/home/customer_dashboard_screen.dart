@@ -40,25 +40,25 @@ class _CustomerDashboardScreenState extends State<CustomerDashboardScreen> {
         items: const [
           BottomNavigationBarItem(
             tooltip: 'Home',
-            icon: Icon(CupertinoIcons.home),
+            icon: ImageIcon(AssetImage('assets/images/icons/home.png')),
             label: 'Home',
           ),
           BottomNavigationBarItem(
             tooltip: 'Bookings',
-            icon: Icon(CupertinoIcons.doc_append),
+            icon: ImageIcon(AssetImage('assets/images/icons/bookings.png')),
             label: 'Bookings',
           ),
           BottomNavigationBarItem(
             tooltip: 'Messaging',
-            icon: Icon(CupertinoIcons.chat_bubble_text),
-            activeIcon: Icon(CupertinoIcons.chat_bubble_text_fill),
+            icon: ImageIcon(AssetImage('assets/images/icons/messaging.png')),
+            // activeIcon: Icon(CupertinoIcons.chat_bubble_text_fill),
             label: 'Messaging',
           ),
           BottomNavigationBarItem(
             tooltip: 'Profile',
-            icon: Icon(CupertinoIcons.person),
-            activeIcon: Icon(CupertinoIcons.person_fill),
+            icon: ImageIcon(AssetImage('assets/images/icons/profile.png')),
 
+            // activeIcon: Icon(CupertinoIcons.person_fill),
             label: 'Profile',
           ),
         ],

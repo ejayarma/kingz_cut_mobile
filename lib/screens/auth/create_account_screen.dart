@@ -63,6 +63,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                 const SizedBox(height: 8),
                 TextField(
                   controller: _nameController,
+                  textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -95,6 +96,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                 TextField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kingz_cut_mobile/screens/customer/service_selection_screen.dart';
 
 // Main page widget
 class HaircutStylesScreen extends StatelessWidget {
@@ -76,7 +77,6 @@ class HaircutStyleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final tealColor = Color(0xFF1D9B89); // Using the teal color from the image
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16.0),
@@ -85,6 +85,7 @@ class HaircutStyleCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             // Style image
             ClipRRect(
@@ -105,7 +106,7 @@ class HaircutStyleCard extends StatelessWidget {
                 children: [
                   Text(
                     haircutStyle.name,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -127,8 +128,9 @@ class HaircutStyleCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     '${haircutStyle.currency} ${haircutStyle.price.toStringAsFixed(2)}',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w500,
+                      color: colorScheme.primary,
                     ),
                   ),
                 ],
@@ -136,17 +138,18 @@ class HaircutStyleCard extends StatelessWidget {
             ),
 
             // Book button
-            ElevatedButton(
+            FilledButton(
               onPressed: () {
-                // Implement booking functionality
+                // ServiceSelectionScreen
+                 Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return ServiceSelectionScreen();
+                      },
+                    ),
+                  );
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: tealColor,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 10.0,
-                ),
+              style: FilledButton.styleFrom(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -164,35 +167,35 @@ class HaircutStyleCard extends StatelessWidget {
 final List<HaircutStyle> haircutStyles = [
   HaircutStyle(
     name: 'Fading',
-    imagePath: 'assets/images/fading.jpg',
+    imagePath: 'assets/images/hairstyles/fading.jpg',
     durationInMinutes: 30,
     price: 15.00,
     currency: 'GHS',
   ),
   HaircutStyle(
     name: 'Lowcut',
-    imagePath: 'assets/images/lowcut.jpg',
+    imagePath: 'assets/images/hairstyles/low_cut.jpg',
     durationInMinutes: 30,
     price: 15.00,
     currency: 'GHS',
   ),
   HaircutStyle(
     name: 'Buzz cut',
-    imagePath: 'assets/images/buzz_cut.jpg',
+    imagePath: 'assets/images/hairstyles/buzz_cut.jpg',
     durationInMinutes: 30,
     price: 15.00,
     currency: 'GHS',
   ),
   HaircutStyle(
     name: 'Curls cut',
-    imagePath: 'assets/images/curls_cut.jpg',
+    imagePath: 'assets/images/hairstyles/curls_cut.jpg',
     durationInMinutes: 30,
     price: 15.00,
     currency: 'GHS',
   ),
   HaircutStyle(
     name: 'Side part',
-    imagePath: 'assets/images/side_part.jpg',
+    imagePath: 'assets/images/hairstyles/side_part.jpg',
     durationInMinutes: 30,
     price: 15.00,
     currency: 'GHS',

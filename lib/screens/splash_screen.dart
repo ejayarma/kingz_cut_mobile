@@ -20,7 +20,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void _navigate() {
     Future.delayed(Durations.extralong4, () {
       if (mounted) {
-        Navigator.of(context).push(
+        Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) {
               return OnBoardingScreen();

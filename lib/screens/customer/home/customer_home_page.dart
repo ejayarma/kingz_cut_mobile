@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kingz_cut_mobile/enums/service_type.dart';
 import 'package:kingz_cut_mobile/screens/customer/haircut_stye_screen.dart';
@@ -108,23 +107,23 @@ class CustomerHomePage extends StatelessWidget {
         ),
 
         // View on Map button
-        Align(
-          alignment: Alignment.centerRight,
-          child: TextButton.icon(
-            onPressed: () {},
-            icon: const Icon(
-              Icons.location_on_rounded,
-              color: Colors.blueAccent,
-            ),
-            label: const Text(
-              'View on Map',
-              style: TextStyle(
-                color: Colors.blueAccent,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ),
+        // Align(
+        //   alignment: Alignment.centerRight,
+        //   child: TextButton.icon(
+        //     onPressed: () {},
+        //     icon: const Icon(
+        //       Icons.location_on_rounded,
+        //       color: Colors.blueAccent,
+        //     ),
+        //     label: const Text(
+        //       'View on Map',
+        //       style: TextStyle(
+        //         color: Colors.blueAccent,
+        //         fontWeight: FontWeight.w500,
+        //       ),
+        //     ),
+        //   ),
+        // ),
 
         // Services section
         const Padding(
@@ -146,13 +145,13 @@ class CustomerHomePage extends StatelessWidget {
             children: [
               InkWell(
                 onTap: () {
-                  // Navigator.of(context).pushReplacement(
-                  //   MaterialPageRoute(
-                  //     builder: (context) {
-                  //       return HaircutStylesScreen();
-                  //     },
-                  //   ),
-                  // );
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return HaircutStylesScreen();
+                      },
+                    ),
+                  );
                 },
                 child: _buildServiceCard(
                   title: 'Haircuts',
@@ -202,6 +201,7 @@ class CustomerHomePage extends StatelessWidget {
     };
 
     return Container(
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(16),
@@ -225,7 +225,7 @@ class CustomerHomePage extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             title,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
           ),
         ],
       ),
