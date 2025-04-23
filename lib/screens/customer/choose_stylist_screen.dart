@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kingz_cut_mobile/screens/customer/booking_screen.dart'; // Import the booking screen
 
 class ChooseStylistScreen extends StatefulWidget {
   const ChooseStylistScreen({super.key});
@@ -62,13 +63,14 @@ class _ChooseStylistScreenState extends State<ChooseStylistScreen> {
   // Navigate to next screen with selected stylist
   void _selectStylist(Map<String, dynamic> stylist) {
     showModalBottomSheet(
-      showDragHandle: true,
       context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
       builder: (context) {
-        return Padding(
+        return SingleChildScrollView(
           padding: const EdgeInsets.all(16).copyWith(top: 0),
           child: Column(
-            mainAxisSize: MainAxisSize.max,
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Align(
@@ -82,9 +84,9 @@ class _ChooseStylistScreenState extends State<ChooseStylistScreen> {
               Text(
                 stylist['name'],
                 textAlign: TextAlign.center,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               SizedBox(height: 8),
               Text(
@@ -110,7 +112,9 @@ class _ChooseStylistScreenState extends State<ChooseStylistScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    // Add "Send message" functionality here
+                  },
                   child: Text("Send message"),
                 ),
               ),
@@ -123,24 +127,33 @@ class _ChooseStylistScreenState extends State<ChooseStylistScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            BookingScreen(stylistName: stylist['name']),
+                      ),
+                    );
+                  },
                   child: Text("Book"),
                 ),
               ),
-              // FilledButton(onPressed: () {}, child: Text("Book")),
               SizedBox(height: 16),
               SizedBox(
                 height: 32,
                 child: Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      // Add "View Reviews" functionality here
+                    },
                     child: Text(
                       "View Reviews",
                       style: Theme.of(context).textTheme.labelSmall!.copyWith(
                         color: Theme.of(context).colorScheme.secondary,
                         decorationColor:
-                            Theme.of(context).colorScheme.secondary,
+                        Theme.of(context).colorScheme.secondary,
                         decoration: TextDecoration.underline,
                       ),
                     ),
