@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:kingz_cut_mobile/screens/customer/booking_screen.dart'; // Import the booking screen
+import 'package:kingz_cut_mobile/screens/customer/booking_screen.dart';
+import 'package:kingz_cut_mobile/screens/customer/booking_screen_old.dart';
+import 'package:kingz_cut_mobile/screens/customer/reviews_screen.dart'; // Import the booking screen
 
 class ChooseStylistScreen extends StatefulWidget {
   const ChooseStylistScreen({super.key});
@@ -84,9 +86,9 @@ class _ChooseStylistScreenState extends State<ChooseStylistScreen> {
               Text(
                 stylist['name'],
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 8),
               Text(
@@ -130,10 +132,7 @@ class _ChooseStylistScreenState extends State<ChooseStylistScreen> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            BookingScreen(stylistName: stylist['name']),
-                      ),
+                      MaterialPageRoute(builder: (context) => BookingScreen()),
                     );
                   },
                   child: Text("Book"),
@@ -146,14 +145,19 @@ class _ChooseStylistScreenState extends State<ChooseStylistScreen> {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                      // Add "View Reviews" functionality here
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ReviewsScreen(),
+                        ),
+                      );
                     },
                     child: Text(
                       "View Reviews",
                       style: Theme.of(context).textTheme.labelSmall!.copyWith(
                         color: Theme.of(context).colorScheme.secondary,
                         decorationColor:
-                        Theme.of(context).colorScheme.secondary,
+                            Theme.of(context).colorScheme.secondary,
                         decoration: TextDecoration.underline,
                       ),
                     ),

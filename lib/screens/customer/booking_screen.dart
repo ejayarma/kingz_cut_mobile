@@ -1,108 +1,132 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class BookingScreen extends StatefulWidget {
-  final String stylistName; // Receiving the stylist's name
-
-  const BookingScreen({super.key, required this.stylistName});
+  const BookingScreen({super.key});
 
   @override
-  _BookingScreenState createState() => _BookingScreenState();
+  State<BookingScreen> createState() => _BookingScreenState();
 }
 
 class _BookingScreenState extends State<BookingScreen> {
-  DateTime? _selectedDate;
-  TimeOfDay? _selectedTime;
-
-  void _pickDate() async {
-    final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: now,
-      firstDate: now,
-      lastDate: now.add(const Duration(days: 30)),
-    );
-    if (picked != null) {
-      setState(() => _selectedDate = picked);
-    }
-  }
-
-  void _pickTime() async {
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
-    if (picked != null) {
-      setState(() => _selectedTime = picked);
-    }
-  }
-
-  void _confirmBooking() {
-    if (_selectedDate == null || _selectedTime == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select both date and time')),
-      );
-      return;
-    }
-
-    // Show the confirmation dialog after a successful booking
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text("Booking Confirmed"),
-        content: Text(
-          "You have successfully booked ${widget.stylistName} on "
-              "${_selectedDate!.toLocal().toString().split(' ')[0]} at ${_selectedTime!.format(context)}",
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog
-            },
-            child: const Text("OK"),
-          ),
-        ],
-      ),
-    );
-  }
+  final TextEditingController _dateController = TextEditingController();
+  final Map<String, String> _timeSlots = {
+    '10:00 am': 'Available',
+    '10:30 am': 'Booked',
+    '11:00 am': 'Available',
+    '11:30 am': 'Booked',
+    '12:00 pm': 'Booked',
+    '12:30 pm': 'Available',
+    '1:00 pm': 'Available',
+    '1:30 pm': 'Available',
+  };
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Book ${widget.stylistName}")),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Text(
-              "Booking with ${widget.stylistName}",
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _pickDate,
-              child: Text(_selectedDate == null
-                  ? "Choose Date"
-                  : "Date: ${_selectedDate!.toLocal().toString().split(' ')[0]}"),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _pickTime,
-              child: Text(_selectedTime == null
-                  ? "Choose Time"
-                  : "Time: ${_selectedTime!.format(context)}"),
-            ),
-            const Spacer(),
-            ElevatedButton(
-              onPressed: () {
-                print("Booking button pressed!"); // Debugging
-                _confirmBooking();
-              },
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 50),
+      appBar: AppBar(
+        leading: const BackButton(),
+        title: const Text('Book your hair stylist'),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16.0),
+        children: [
+          const Text(
+            'Select Date',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _dateController,
+            decoration: InputDecoration(
+              hintText: 'DD/MM/YYYY',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
               ),
-              child: const Text("Confirm Booking"),
+              suffixIcon: const Icon(Icons.calendar_today),
             ),
-          ],
+            readOnly: true,
+            onTap: () async {
+              final date = await showDatePicker(
+                context: context,
+                initialDate: DateTime.now(),
+                firstDate: DateTime.now(),
+                lastDate: DateTime.now().add(const Duration(days: 90)),
+              );
+              if (date != null) {
+                setState(() {
+                  _dateController.text = DateFormat('dd/MM/yyyy').format(date);
+                });
+              }
+            },
+          ),
+          const SizedBox(height: 32),
+          const Text(
+            'Select Time',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          ..._timeSlots.entries.map((entry) {
+            final isAvailable = entry.value == 'Available';
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16.0),
+              child: Card(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  side: BorderSide(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.outline.withOpacity(0.1),
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        entry.key,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        entry.value,
+                        style: TextStyle(
+                          color:
+                              isAvailable
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(context).colorScheme.error,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ],
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: ElevatedButton(
+            onPressed: () {
+              // Handle booking
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text('Confirm Booking'),
+          ),
         ),
       ),
     );

@@ -2,8 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:kingz_cut_mobile/enums/service_type.dart';
 import 'package:kingz_cut_mobile/screens/customer/haircut_stye_screen.dart';
 
-class CustomerHomePage extends StatelessWidget {
+class CustomerHomePage extends StatefulWidget {
   const CustomerHomePage({super.key});
+
+  @override
+  State<CustomerHomePage> createState() => _CustomerHomePageState();
+}
+
+class _CustomerHomePageState extends State<CustomerHomePage> {
+  void _goToHairStyleScreen() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) {
+          return HaircutStylesScreen();
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +101,7 @@ class CustomerHomePage extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: _goToHairStyleScreen,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFF9A826),
                     shape: RoundedRectangleBorder(
@@ -144,15 +159,7 @@ class CustomerHomePage extends StatelessWidget {
             padding: EdgeInsets.all(16),
             children: [
               InkWell(
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return HaircutStylesScreen();
-                      },
-                    ),
-                  );
-                },
+                onTap: _goToHairStyleScreen,
                 child: _buildServiceCard(
                   title: 'Haircuts',
                   serviceType: SalonServiceType.haircut,
@@ -160,23 +167,32 @@ class CustomerHomePage extends StatelessWidget {
                   iconColor: Colors.blue.shade600,
                 ),
               ),
-              _buildServiceCard(
-                title: 'Beard Grooming',
-                serviceType: SalonServiceType.beardGrooming,
-                color: Colors.pink.shade100,
-                iconColor: Colors.red,
+              InkWell(
+                onTap: _goToHairStyleScreen,
+                child: _buildServiceCard(
+                  title: 'Beard Grooming',
+                  serviceType: SalonServiceType.beardGrooming,
+                  color: Colors.pink.shade100,
+                  iconColor: Colors.red,
+                ),
               ),
-              _buildServiceCard(
-                title: 'Hair Coloring',
-                serviceType: SalonServiceType.hairColoring,
-                color: Colors.amber.shade100,
-                iconColor: Colors.orange,
+              InkWell(
+                onTap: _goToHairStyleScreen,
+                child: _buildServiceCard(
+                  title: 'Hair Coloring',
+                  serviceType: SalonServiceType.hairColoring,
+                  color: Colors.amber.shade100,
+                  iconColor: Colors.orange,
+                ),
               ),
-              _buildServiceCard(
-                title: 'Wash & Styling',
-                serviceType: SalonServiceType.washStyling,
-                color: Colors.indigo.shade100,
-                iconColor: Colors.purple,
+              InkWell(
+                onTap: _goToHairStyleScreen,
+                child: _buildServiceCard(
+                  title: 'Wash & Styling',
+                  serviceType: SalonServiceType.washStyling,
+                  color: Colors.indigo.shade100,
+                  iconColor: Colors.purple,
+                ),
               ),
             ],
           ),
