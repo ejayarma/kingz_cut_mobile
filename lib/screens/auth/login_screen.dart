@@ -1,8 +1,11 @@
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:kingz_cut_mobile/screens/auth/create_account_screen.dart';
+import 'package:kingz_cut_mobile/screens/auth/forgot_password_screen.dart';
 import 'package:kingz_cut_mobile/screens/customer/home/customer_dashboard_screen.dart';
+import 'package:kingz_cut_mobile/utils/app_alert.dart';
 
 class LoginScreen extends StatefulWidget {
   final Function(String, String)? onLogin;
@@ -79,8 +82,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     keyboardType: TextInputType.emailAddress,
                     textInputAction: TextInputAction.next,
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
+                      if (value == null || !EmailValidator.validate(value)) {
+                        return 'Please enter a valid email';
                       }
                       return null;
                     },
@@ -160,7 +163,17 @@ class _LoginScreenState extends State<LoginScreen> {
                   Align(
                     alignment: Alignment.center,
                     child: TextButton(
-                      onPressed: widget.onForgotPassword,
+                      onPressed:
+                          widget.onForgotPassword ??
+                          () {
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return ForgotPasswordScreen();
+                                },
+                              ),
+                            );
+                          },
                       child: Text(
                         'Forgot password?',
                         style: TextStyle(
@@ -175,23 +188,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   // Login Button
                   // Sign Up Button
                   FilledButton(
-                    onPressed: () {
-                      if (widget.onLogin != null) {
-                        widget.onLogin!(
-                          _emailController.text.trim(),
-                          _passwordController.text,
-                        );
-                        return;
-                      }
-
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return CustomerDashboardScreen();
-                          },
-                        ),
-                      );
-                    },
+                    onPressed: _handleSignIn,
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
@@ -287,6 +284,26 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  void _handleSignIn() {
+    if (!_formKey.currentState!.validate()) {
+      AppAlert.snackBarErrorAlert(context, 'Please provide all details');
+      return;
+    }
+
+    if (widget.onLogin != null) {
+      widget.onLogin!(_emailController.text.trim(), _passwordController.text);
+      return;
+    }
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) {
+          return CustomerDashboardScreen();
+        },
       ),
     );
   }

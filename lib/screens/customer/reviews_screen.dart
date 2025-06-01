@@ -93,6 +93,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
                   mainAxisSize: MainAxisSize.max,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    SizedBox(height: 10),
                     Align(
                       alignment: Alignment.center,
                       child: CircleAvatar(

@@ -1,9 +1,72 @@
+import 'package:dartx/dartx_io.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kingz_cut_mobile/screens/customer/service_selection_screen.dart';
 
 // Main page widget
-class HaircutStylesScreen extends StatelessWidget {
+class HaircutStylesScreen extends StatefulWidget {
   const HaircutStylesScreen({super.key});
+
+  @override
+  State<HaircutStylesScreen> createState() => _HaircutStylesScreenState();
+}
+
+class _HaircutStylesScreenState extends State<HaircutStylesScreen> {
+  final _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<HaircutStyle> get _filteredHairCutStyles {
+    return haircutStyles
+        .filter(
+          (style) =>
+              style.name.toLowerCase().contains(_searchController.text.trim()),
+        )
+        .toList();
+  }
+
+  // Sample data
+  final List<HaircutStyle> haircutStyles = [
+    HaircutStyle(
+      name: 'Fading',
+      imagePath: 'assets/images/hairstyles/fading.jpg',
+      durationInMinutes: 30,
+      price: 15.00,
+      currency: 'GHS',
+    ),
+    HaircutStyle(
+      name: 'Lowcut',
+      imagePath: 'assets/images/hairstyles/low_cut.jpg',
+      durationInMinutes: 30,
+      price: 15.00,
+      currency: 'GHS',
+    ),
+    HaircutStyle(
+      name: 'Buzz cut',
+      imagePath: 'assets/images/hairstyles/buzz_cut.jpg',
+      durationInMinutes: 30,
+      price: 15.00,
+      currency: 'GHS',
+    ),
+    HaircutStyle(
+      name: 'Curls cut',
+      imagePath: 'assets/images/hairstyles/curls_cut.jpg',
+      durationInMinutes: 30,
+      price: 15.00,
+      currency: 'GHS',
+    ),
+    HaircutStyle(
+      name: 'Side part',
+      imagePath: 'assets/images/hairstyles/side_part.jpg',
+      durationInMinutes: 30,
+      price: 15.00,
+      currency: 'GHS',
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -26,24 +89,54 @@ class HaircutStylesScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: SearchBar(
               hintText: 'Search haircut styles here...',
-              leading: const Icon(Icons.search),
+              controller: _searchController,
+              hintStyle: WidgetStatePropertyAll(
+                Theme.of(context).textTheme.labelMedium!.copyWith(),
+              ),
+              leading: Icon(
+                CupertinoIcons.search,
+                size: 16,
+                color: Theme.of(context).colorScheme.tertiary,
+              ),
+              trailing: [
+                if (_searchController.text.isNotEmpty)
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _searchController.clear();
+                      });
+                    },
+                    icon: Icon(Icons.clear),
+                  ),
+              ],
               padding: WidgetStateProperty.all(
-                const EdgeInsets.symmetric(horizontal: 16.0),
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 0),
               ),
               elevation: WidgetStateProperty.all(0),
               backgroundColor: WidgetStateProperty.all(Colors.grey.shade100),
+              shape: WidgetStatePropertyAll(
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              onChanged: (_) => setState(() {}),
+              // onSubmitted: (value) {},
             ),
           ),
 
           // List of haircut styles
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(8.0),
-              children:
-                  haircutStyles
-                      .map((style) => HaircutStyleCard(haircutStyle: style))
-                      .toList(),
-            ),
+            child:
+                _filteredHairCutStyles.isNotEmpty
+                    ? ListView(
+                      padding: const EdgeInsets.all(8.0),
+                      children:
+                          _filteredHairCutStyles
+                              .map(
+                                (style) =>
+                                    HaircutStyleCard(haircutStyle: style),
+                              )
+                              .toList(),
+                    )
+                    : Center(child: Text('haaha')),
           ),
         ],
       ),
@@ -141,13 +234,13 @@ class HaircutStyleCard extends StatelessWidget {
             FilledButton(
               onPressed: () {
                 // ServiceSelectionScreen
-                 Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return ServiceSelectionScreen();
-                      },
-                    ),
-                  );
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return ServiceSelectionScreen();
+                    },
+                  ),
+                );
               },
               style: FilledButton.styleFrom(
                 shape: RoundedRectangleBorder(
@@ -162,42 +255,3 @@ class HaircutStyleCard extends StatelessWidget {
     );
   }
 }
-
-// Sample data
-final List<HaircutStyle> haircutStyles = [
-  HaircutStyle(
-    name: 'Fading',
-    imagePath: 'assets/images/hairstyles/fading.jpg',
-    durationInMinutes: 30,
-    price: 15.00,
-    currency: 'GHS',
-  ),
-  HaircutStyle(
-    name: 'Lowcut',
-    imagePath: 'assets/images/hairstyles/low_cut.jpg',
-    durationInMinutes: 30,
-    price: 15.00,
-    currency: 'GHS',
-  ),
-  HaircutStyle(
-    name: 'Buzz cut',
-    imagePath: 'assets/images/hairstyles/buzz_cut.jpg',
-    durationInMinutes: 30,
-    price: 15.00,
-    currency: 'GHS',
-  ),
-  HaircutStyle(
-    name: 'Curls cut',
-    imagePath: 'assets/images/hairstyles/curls_cut.jpg',
-    durationInMinutes: 30,
-    price: 15.00,
-    currency: 'GHS',
-  ),
-  HaircutStyle(
-    name: 'Side part',
-    imagePath: 'assets/images/hairstyles/side_part.jpg',
-    durationInMinutes: 30,
-    price: 15.00,
-    currency: 'GHS',
-  ),
-];
