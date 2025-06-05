@@ -1,9 +1,15 @@
+import 'dart:developer';
+
+import 'package:email_validator/email_validator.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:kingz_cut_mobile/screens/auth/create_account_screen.dart';
+import 'package:kingz_cut_mobile/screens/auth/login_screen.dart';
 import 'package:kingz_cut_mobile/screens/customer/home/customer_dashboard_screen.dart';
 import 'package:kingz_cut_mobile/utils/app_alert.dart';
+import 'package:kingz_cut_mobile/utils/custom_ui_block.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   final Function(String, String)? onLogin;
@@ -86,8 +92,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     keyboardType: TextInputType.emailAddress,
                     textInputAction: TextInputAction.next,
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
+                      if (value == null ||
+                          value.isEmpty ||
+                          !EmailValidator.validate(value)) {
+                        return 'Please enter a valid email';
                       }
                       return null;
                     },
@@ -142,7 +150,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     );
   }
 
-  void _handleForgotPassword() {
+  Future<void> _handleForgotPassword() async {
     if (!_formKey.currentState!.validate()) {
       AppAlert.snackBarErrorAlert(context, 'Please provide all details');
       return;
@@ -153,12 +161,105 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       return;
     }
 
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) {
-          return CustomerDashboardScreen();
-        },
-      ),
-    );
+    final email = _emailController.text.trim();
+    bool emailSent = false;
+
+    try {
+      if (mounted) {
+        CustomUiBlock.block(context);
+      }
+
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+
+      log('Password reset email sent successfully to: $email');
+
+      // Set success flag for navigation outside try-catch
+      emailSent = true;
+    } on FirebaseAuthException catch (e) {
+      // Handle all possible Firebase Auth exceptions for password reset
+      String errorMessage;
+
+      switch (e.code) {
+        case 'auth/invalid-email':
+        case 'invalid-email':
+          errorMessage = 'The email address is not valid.';
+          break;
+        case 'auth/user-not-found':
+        case 'user-not-found':
+          // Note: This may not be thrown when email enumeration protection is enabled
+          errorMessage = 'No account found with this email address.';
+          break;
+        case 'auth/missing-android-pkg-name':
+          errorMessage = 'Configuration error. Please contact support.';
+          break;
+        case 'auth/missing-continue-uri':
+          errorMessage = 'Configuration error. Please contact support.';
+          break;
+        case 'auth/missing-ios-bundle-id':
+          errorMessage = 'Configuration error. Please contact support.';
+          break;
+        case 'auth/invalid-continue-uri':
+          errorMessage = 'Configuration error. Please contact support.';
+          break;
+        case 'auth/unauthorized-continue-uri':
+          errorMessage = 'Configuration error. Please contact support.';
+          break;
+        case 'too-many-requests':
+          errorMessage =
+              'Too many password reset requests. Please try again later.';
+          break;
+        case 'network-request-failed':
+          errorMessage =
+              'Network error. Please check your internet connection.';
+          break;
+        default:
+          // Log unexpected errors for debugging
+          log(
+            'Unexpected Firebase Auth error during password reset: ${e.code} - ${e.message}',
+          );
+          errorMessage =
+              'Failed to send password reset email. Please try again.';
+          break;
+      }
+
+      if (mounted) {
+        AppAlert.snackBarErrorAlert(context, errorMessage);
+      }
+
+      log(
+        'Firebase Auth error during password reset: ${e.code} - ${e.message}',
+      );
+    } catch (e) {
+      // Handle any other unexpected errors
+      log('Unexpected error during password reset: $e');
+
+      if (mounted) {
+        AppAlert.snackBarErrorAlert(
+          context,
+          'An unexpected error occurred. Please try again.',
+        );
+      }
+    } finally {
+      // Always unblock UI regardless of success or failure
+      if (mounted) {
+        CustomUiBlock.unblock(context);
+      }
+    }
+
+    // Handle success navigation outside try-catch
+    if (emailSent && mounted) {
+      AppAlert.snackBarSuccessAlert(
+        context,
+        'Password reset link has been sent to your email address. Please check your inbox.',
+      );
+
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) {
+            return LoginScreen();
+          },
+        ),
+      );
+    }
   }
 }

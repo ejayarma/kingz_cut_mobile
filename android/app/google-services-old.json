@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "846240608681",
+    "project_id": "kingz-cut",
+    "storage_bucket": "kingz-cut.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:846240608681:android:71ac25dc664492860814b8",
+        "android_client_info": {
+          "package_name": "com.kingzcut.kingz_cut_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD35x3aoGFgovLxlJvveE6I0NvDvsDhYrA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

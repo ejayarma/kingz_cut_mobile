@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "846240608681",
+    "project_id": "kingz-cut",
+    "storage_bucket": "kingz-cut.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:846240608681:android:71ac25dc664492860814b8",
+        "android_client_info": {
+          "package_name": "com.kingzcut.kingz_cut_mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "846240608681-s0s49opr7pralv5rvsqdq7tpd7uao4uq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kingzcut.kingz_cut_mobile",
+            "certificate_hash": "4e9fad9ae1b80bfac8d8ba9969ff20b6a1bcc426"
+          }
+        },
+        {
+          "client_id": "846240608681-5bl58ldr4vfi1sknirn0m2nbbrehdhb4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD35x3aoGFgovLxlJvveE6I0NvDvsDhYrA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "846240608681-5bl58ldr4vfi1sknirn0m2nbbrehdhb4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

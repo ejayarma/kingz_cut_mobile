@@ -1,10 +1,15 @@
+import 'dart:developer';
 import 'package:email_validator/email_validator.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kingz_cut_mobile/screens/auth/login_screen.dart';
 import 'package:kingz_cut_mobile/screens/customer/home/customer_dashboard_screen.dart';
 import 'package:kingz_cut_mobile/utils/app_alert.dart';
+import 'package:kingz_cut_mobile/utils/custom_ui_block.dart';
 
 class CreateAccountScreen extends StatefulWidget {
   final Function(String, String, String)? onSignUp;
@@ -214,15 +219,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                   // Google Sign Up Button
                   OutlinedButton.icon(
                     icon: Icon(FontAwesomeIcons.google),
-                    onPressed: () {
-                      if (widget.onSignUp != null) {
-                        widget.onSignUp!(
-                          _nameController.text.trim(),
-                          _emailController.text.trim(),
-                          _passwordController.text,
-                        );
-                      }
-                    },
+                    onPressed: () {},
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
@@ -284,11 +281,168 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     );
   }
 
-  void _handleRegistration() {
+  Future<UserCredential?> signInWithGoogle() async {
+    try {
+      if (mounted) {
+        CustomUiBlock.block(context);
+      }
+
+      // Trigger the authentication flow
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+      // Handle user cancellation
+      if (googleUser == null) {
+        if (mounted) {
+          CustomUiBlock.unblock(context);
+          AppAlert.snackBarErrorAlert(context, 'Google sign-in was cancelled.');
+        }
+        return null;
+      }
+
+      // Obtain the auth details from the request
+      final GoogleSignInAuthentication? googleAuth =
+          await googleUser.authentication;
+
+      // Verify we have the necessary tokens
+      if (googleAuth?.accessToken == null || googleAuth?.idToken == null) {
+        if (mounted) {
+          CustomUiBlock.unblock(context);
+          AppAlert.snackBarErrorAlert(
+            context,
+            'Failed to get Google authentication tokens.',
+          );
+        }
+        return null;
+      }
+
+      // Create a new credential
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth!.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      // Sign in with Firebase
+      final UserCredential login = await FirebaseAuth.instance
+          .signInWithCredential(credential);
+
+      log('Google sign-in successful: ${login.user?.email}');
+
+      if (mounted) {
+        CustomUiBlock.unblock(context);
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) {
+              return CustomerDashboardScreen();
+            },
+          ),
+        );
+      }
+
+      return login;
+    } on FirebaseAuthException catch (e) {
+      // Handle Firebase Auth specific exceptions
+      String errorMessage;
+
+      switch (e.code) {
+        case 'account-exists-with-different-credential':
+          errorMessage =
+              'An account already exists with this email using a different sign-in method. Please try signing in with your original method.';
+          break;
+        case 'invalid-credential':
+          errorMessage =
+              'The Google sign-in credential is invalid or has expired. Please try again.';
+          break;
+        case 'operation-not-allowed':
+          errorMessage =
+              'Google sign-in is not enabled. Please contact support.';
+          break;
+        case 'user-disabled':
+          errorMessage = 'This user account has been disabled.';
+          break;
+        case 'user-not-found':
+          errorMessage = 'No user found for this account.';
+          break;
+        case 'wrong-password':
+          errorMessage = 'Authentication failed. Please try again.';
+          break;
+        case 'invalid-verification-code':
+          errorMessage = 'Invalid verification code. Please try again.';
+          break;
+        case 'invalid-verification-id':
+          errorMessage = 'Invalid verification ID. Please try again.';
+          break;
+        default:
+          log(
+            'Unexpected Firebase Auth error during Google sign-in: ${e.code} - ${e.message}',
+          );
+          errorMessage = 'Google sign-in failed. Please try again.';
+          break;
+      }
+
+      if (mounted) {
+        AppAlert.snackBarErrorAlert(context, errorMessage);
+        CustomUiBlock.unblock(context);
+      }
+
+      log(
+        'Firebase Auth error during Google sign-in: ${e.code} - ${e.message}',
+      );
+      return null;
+    } on PlatformException catch (e) {
+      // Handle Google Sign-In specific platform exceptions
+      String errorMessage;
+
+      switch (e.code) {
+        case 'sign_in_failed':
+          errorMessage = 'Google sign-in failed. Please try again.';
+          break;
+        case 'network_error':
+          errorMessage =
+              'Network error. Please check your internet connection.';
+          break;
+        case 'sign_in_canceled':
+          errorMessage = 'Google sign-in was cancelled.';
+          break;
+        default:
+          log(
+            'Unexpected platform error during Google sign-in: ${e.code} - ${e.message}',
+          );
+          errorMessage =
+              'An error occurred during Google sign-in. Please try again.';
+          break;
+      }
+
+      if (mounted) {
+        AppAlert.snackBarErrorAlert(context, errorMessage);
+        CustomUiBlock.unblock(context);
+      }
+
+      log('Platform error during Google sign-in: ${e.code} - ${e.message}');
+      return null;
+    } catch (e) {
+      // Handle any other unexpected errors
+      log('Unexpected error during Google sign-in: $e');
+
+      if (mounted) {
+        AppAlert.snackBarErrorAlert(
+          context,
+          'An unexpected error occurred during Google sign-in. Please try again.',
+        );
+        CustomUiBlock.unblock(context);
+      }
+
+      return null;
+    }
+  }
+
+  Future<void> _handleRegistration() async {
     if (!_formKey.currentState!.validate()) {
       AppAlert.snackBarErrorAlert(context, 'Please provide all details');
       return;
     }
+
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
 
     if (widget.onSignUp != null) {
       widget.onSignUp!(
@@ -296,14 +450,90 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
         _emailController.text.trim(),
         _passwordController.text,
       );
+      return;
     }
 
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) {
-          return CustomerDashboardScreen();
-        },
-      ),
-    );
+    try {
+      CustomUiBlock.block(context);
+
+      final credential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+
+      await credential.user?.updateDisplayName(_nameController.text.trim());
+      await credential.user?.reload();
+
+      log('User registration successful: ${credential.user?.email}');
+    } on FirebaseAuthException catch (e) {
+      // Handle all possible Firebase Auth exceptions for registration
+      String errorMessage;
+
+      switch (e.code) {
+        case 'email-already-in-use':
+          errorMessage =
+              'An account already exists with this email address. Please sign in instead.';
+          break;
+        case 'invalid-email':
+          errorMessage = 'The email address is not valid.';
+          break;
+        case 'operation-not-allowed':
+          errorMessage =
+              'Email/password accounts are not enabled. Please contact support.';
+          break;
+        case 'weak-password':
+          errorMessage =
+              'The password is too weak. Please choose a stronger password.';
+          break;
+        case 'too-many-requests':
+          errorMessage =
+              'Too many registration attempts. Please try again later.';
+          break;
+        case 'user-token-expired':
+          errorMessage = 'Your session has expired. Please try again.';
+          break;
+        case 'network-request-failed':
+          errorMessage =
+              'Network error. Please check your internet connection.';
+          break;
+        default:
+          // Log unexpected errors for debugging
+          log(
+            'Unexpected Firebase Auth error during registration: ${e.code} - ${e.message}',
+          );
+          errorMessage = 'Registration failed. Please try again.';
+          break;
+      }
+
+      if (mounted) {
+        AppAlert.snackBarErrorAlert(context, errorMessage);
+        CustomUiBlock.unblock(context);
+      }
+
+      log('Firebase Auth error during registration: ${e.code} - ${e.message}');
+      return;
+    } catch (e) {
+      // Handle any other unexpected errors
+      log('Unexpected error during registration: $e');
+
+      if (mounted) {
+        AppAlert.snackBarErrorAlert(
+          context,
+          'An unexpected error occurred during registration. Please try again.',
+        );
+        CustomUiBlock.unblock(context);
+      }
+      return;
+    }
+
+    // Success case - only navigate if registration was successful
+    if (mounted) {
+      CustomUiBlock.unblock(context);
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) {
+            return CustomerDashboardScreen();
+          },
+        ),
+      );
+    }
   }
 }

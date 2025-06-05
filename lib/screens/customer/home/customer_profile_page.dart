@@ -1,7 +1,13 @@
+import 'dart:developer';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kingz_cut_mobile/screens/auth/create_account_screen.dart';
 import 'package:kingz_cut_mobile/screens/auth/login_screen.dart';
+import 'package:kingz_cut_mobile/utils/app_alert.dart';
+import 'package:kingz_cut_mobile/utils/custom_ui_block.dart';
 
 class CustomerProfilePage extends StatefulWidget {
   const CustomerProfilePage({super.key});
@@ -134,14 +140,7 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                   width: double.infinity,
                   height: 56,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const LoginScreen(),
-                        ),
-                      );
-                    },
+                    onPressed: _handleLogout,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: colorScheme.secondary,
                       foregroundColor: colorScheme.onSecondary,
@@ -200,19 +199,71 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
       ),
       onTap: () {},
     );
+  }
 
-    // return Padding(
-    //   padding: const EdgeInsets.symmetric(vertical: 16.0),
-    //   child: Row(
-    //     children: [
-    //       Text(
-    //         title,
-    //         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-    //       ),
-    //       const Spacer(),
-    //       Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
-    //     ],
-    //   ),
-    // );
+  Future<void> _handleLogout() async {
+    try {
+      if (mounted) {
+        CustomUiBlock.block(context);
+      }
+
+      // Get current user to check sign-in providers
+      final User? currentUser = FirebaseAuth.instance.currentUser;
+
+      if (currentUser != null) {
+        // Check if user signed in with Google and sign out from Google as well
+        final List<UserInfo> providerData = currentUser.providerData;
+        final bool signedInWithGoogle = providerData.any(
+          (userInfo) => userInfo.providerId == 'google.com',
+        );
+
+        if (signedInWithGoogle) {
+          try {
+            // Sign out from Google to clear cached account
+            await GoogleSignIn().signOut();
+            log('Successfully signed out from Google');
+          } catch (e) {
+            // Log but don't fail the entire logout process
+            log('Failed to sign out from Google: $e');
+          }
+        }
+
+        // Sign out from Firebase
+        await FirebaseAuth.instance.signOut();
+        log('Successfully signed out from Firebase');
+      }
+
+      if (mounted) {
+        CustomUiBlock.unblock(context);
+
+        // Use pushAndRemoveUntil to clear the navigation stack
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+          (route) => false, // Remove all previous routes
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      log('Firebase Auth error during logout: ${e.code} - ${e.message}');
+
+      if (mounted) {
+        AppAlert.snackBarErrorAlert(
+          context,
+          'Logout failed. Please try again.',
+        );
+        CustomUiBlock.unblock(context);
+      }
+    } catch (e) {
+      // Handle any other unexpected errors
+      log('Unexpected error during logout: $e');
+
+      if (mounted) {
+        AppAlert.snackBarErrorAlert(
+          context,
+          'An unexpected error occurred during logout. Please try again.',
+        );
+        CustomUiBlock.unblock(context);
+      }
+    }
   }
 }

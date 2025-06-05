@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:kingz_cut_mobile/enums/service_type.dart';
 import 'package:kingz_cut_mobile/screens/customer/haircut_stye_screen.dart';
@@ -20,6 +21,9 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
     );
   }
 
+  User? get _currentUser => FirebaseAuth.instance.currentUser;
+  int get _noticesCount => 0;
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -31,28 +35,26 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
           child: Row(
             children: [
               Expanded(
-                child: Container(
-                  height: 45,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    children: const [
-                      SizedBox(width: 10),
-                      Icon(Icons.search, color: Colors.grey),
-                      SizedBox(width: 8),
-                      Text(
-                        'Search barbers, haircut service',
-                        style: TextStyle(color: Colors.grey, fontSize: 15),
-                      ),
-                    ],
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Search barbers, services',
+                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                    filled: true,
+                    fillColor: Colors.grey.shade200,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                 ),
               ),
               const SizedBox(width: 10),
 
-              Badge.count(count: 2, child: Icon(Icons.notifications)),
+              Badge.count(
+                count: _noticesCount,
+                isLabelVisible: _noticesCount > 0,
+                child: Icon(Icons.notifications),
+              ),
             ],
           ),
         ),
@@ -85,8 +87,8 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Welcome,\nKojo Jnr.',
+                Text(
+                  "Welcome,\n${_currentUser?.displayName ?? ''}",
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 24,
