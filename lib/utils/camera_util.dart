@@ -1,3 +1,3 @@
-import 'package:camera/camera.dart';
+// import 'package:camera/camera.dart';
 
-List<CameraDescription> deviceCameras = <CameraDescription>[];
+// List<CameraDescription> deviceCameras = <CameraDescription>[];

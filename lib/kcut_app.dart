@@ -1,38 +1,84 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:kingz_cut_mobile/repositories/customer_repository.dart';
+import 'package:kingz_cut_mobile/screens/auth/login_screen.dart';
 import 'package:kingz_cut_mobile/screens/splash_screen.dart';
+import 'package:kingz_cut_mobile/state_providers/customer_provider.dart';
 
-class KCutApp extends StatelessWidget {
+class KCutApp extends ConsumerStatefulWidget {
   const KCutApp({super.key});
 
-  // This widget is the root of your application.
+  @override
+  ConsumerState<KCutApp> createState() => _KCutAppState();
+}
+
+class _KCutAppState extends ConsumerState<KCutApp> {
+  @override
+  void initState() {
+    super.initState();
+    _listenAuthState();
+  }
+
+  void _listenAuthState() {
+    FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+      if (user == null) {
+        debugPrint('User is currently signed out!');
+        _navigateToLogin();
+      } else {
+        debugPrint('User is signed in!');
+        await _handleSignedInUser(user);
+      }
+    });
+  }
+
+  Future<void> _handleSignedInUser(User user) async {
+    try {
+      final customerRepo = CustomerRepository();
+      final customer = await customerRepo.getCustomerByUid(user.uid);
+
+      if (customer != null) {
+        // Update state in CustomerProvider
+        ref.read(customerProvider.notifier).setCustomer(customer);
+      } else {
+        // If customer does not exist, navigate to login
+        _navigateToLogin();
+      }
+    } catch (e) {
+      debugPrint('Error fetching customer: $e');
+      // Optionally, show an error or fallback
+      _navigateToLogin();
+    }
+  }
+
+  void _navigateToLogin() {
+    if (!mounted) return;
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      (route) => false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final interFontFamily = GoogleFonts.inter().fontFamily;
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      // The Mandy red, light theme.
       theme: FlexThemeData.light(
         scheme: FlexScheme.tealM3,
-        secondary: Color(0xFFFF9600),
+        secondary: const Color(0xFFFF9600),
         fontFamily: interFontFamily,
       ),
-      // The Mandy red, dark theme.
       darkTheme: FlexThemeData.dark(
         scheme: FlexScheme.tealM3,
-        secondary: Color(0xFFFF9600),
+        secondary: const Color(0xFFFF9600),
         fontFamily: interFontFamily,
       ),
-      // Use dark or light theme based on system setting.
       themeMode: ThemeMode.light,
-      // home: const SplashScreen(),
-      routes: {
-        '/': (context) {
-          return SplashScreen();
-        },
-      },
+      home: const SplashScreen(),
     );
   }
 }

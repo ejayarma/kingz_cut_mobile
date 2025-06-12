@@ -18,6 +18,11 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _navigate() {
+
+    // Navigate to the OnBoardingScreen after a delay
+
+    // ref.watch(counterProvider);
+   
     Future.delayed(Durations.extralong4, () {
       if (mounted) {
         Navigator.of(context).pushReplacement(

@@ -1,39 +1,19 @@
-import 'package:json_annotation/json_annotation.dart';
-import 'service_category.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'service.freezed.dart';
 part 'service.g.dart';
 
-@JsonSerializable()
-class Service {
-  final int? id;
-  @JsonKey(name: 'category_id')
-  final int? categoryId;
-  final String? code;
-  final String? name;
-  final String? description;
-  final String? amount;
-  final String? status;
-  final ServiceCategory? category;
-  @JsonKey(name: 'created_at')
-  final DateTime? createdAt;
-  @JsonKey(name: 'updated_at')
-  final DateTime? updatedAt;
-  @JsonKey(name: 'deleted_at')
-  final DateTime? deletedAt;
+@freezed
+class Service with _$Service {
+  const factory Service({
+    required String name,
+    required String imageUrl,
+    required double price,
+    required int timeframe,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+  }) = _Service;
 
-  Service({
-    this.id,
-    this.categoryId,
-    this.code,
-    this.name,
-    this.description,
-    this.amount,
-    this.status,
-    this.category,
-    this.createdAt,
-    this.updatedAt,
-    this.deletedAt,
-  });
-
-  factory Service.fromJson(Map<String, dynamic> json) => _$ServiceFromJson(json);
-  Map<String, dynamic> toJson() => _$ServiceToJson(this);
+  factory Service.fromJson(Map<String, dynamic> json) =>
+      _$ServiceFromJson(json);
 }

@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:kingz_cut_mobile/screens/about_page.dart';
 import 'package:kingz_cut_mobile/screens/auth/create_account_screen.dart';
 import 'package:kingz_cut_mobile/screens/auth/login_screen.dart';
 import 'package:kingz_cut_mobile/utils/app_alert.dart';
@@ -126,7 +127,17 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                   },
                 ),
               ),
-              _buildSettingItemWithArrow(title: 'Account'),
+              _buildSettingItemWithArrow(
+                title: 'Account',
+                onTap: () {
+                  // Navigate to the about screen
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const AboutScreen(),
+                    ),
+                  );
+                },
+              ),
               _buildSettingItemWithArrow(title: 'Security'),
               _buildSettingItemWithArrow(title: 'About'),
               _buildSettingItemWithArrow(title: 'Contact Us'),
@@ -182,7 +193,10 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
     );
   }
 
-  Widget _buildSettingItemWithArrow({required String title}) {
+  Widget _buildSettingItemWithArrow({
+    required String title,
+    VoidCallback? onTap,
+  }) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return ListTile(
@@ -197,7 +211,7 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
         Icons.chevron_right_rounded,
         color: colorScheme.onSurfaceVariant,
       ),
-      onTap: () {},
+      onTap: onTap,
     );
   }
 

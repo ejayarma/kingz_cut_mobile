@@ -12,6 +12,8 @@ import 'package:kingz_cut_mobile/screens/customer/home/customer_dashboard_screen
 import 'package:kingz_cut_mobile/utils/app_alert.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kingz_cut_mobile/utils/custom_ui_block.dart';
+import 'package:kingz_cut_mobile/utils/firebase_error_mapper.dart';
+import 'package:kingz_cut_mobile/utils/platform_error_mapper.dart';
 
 class LoginScreen extends StatefulWidget {
   final Function(String, String)? onLogin;
@@ -343,44 +345,7 @@ class _LoginScreenState extends State<LoginScreen> {
       return login;
     } on FirebaseAuthException catch (e) {
       // Handle Firebase Auth specific exceptions
-      String errorMessage;
-
-      switch (e.code) {
-        case 'account-exists-with-different-credential':
-          errorMessage =
-              'An account already exists with this email using a different sign-in method. Please try signing in with your original method.';
-          break;
-        case 'invalid-credential':
-          errorMessage =
-              'The Google sign-in credential is invalid or has expired. Please try again.';
-          break;
-        case 'operation-not-allowed':
-          errorMessage =
-              'Google sign-in is not enabled. Please contact support.';
-          break;
-        case 'user-disabled':
-          errorMessage = 'This user account has been disabled.';
-          break;
-        case 'user-not-found':
-          errorMessage = 'No user found for this account.';
-          break;
-        case 'wrong-password':
-          errorMessage = 'Authentication failed. Please try again.';
-          break;
-        case 'invalid-verification-code':
-          errorMessage = 'Invalid verification code. Please try again.';
-          break;
-        case 'invalid-verification-id':
-          errorMessage = 'Invalid verification ID. Please try again.';
-          break;
-        default:
-          log(
-            'Unexpected Firebase Auth error during Google sign-in: ${e.code} - ${e.message}',
-          );
-          errorMessage = 'Google sign-in failed. Please try again.';
-          break;
-      }
-
+      final errorMessage = FirebaseErrorMapper.getMessage(e.code);
       if (mounted) {
         AppAlert.snackBarErrorAlert(context, errorMessage);
         CustomUiBlock.unblock(context);
@@ -391,28 +356,10 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       return null;
     } on PlatformException catch (e) {
-      // Handle Google Sign-In specific platform exceptions
-      String errorMessage;
-
-      switch (e.code) {
-        case 'sign_in_failed':
-          errorMessage = 'Google sign-in failed. Please try again.';
-          break;
-        case 'network_error':
-          errorMessage =
-              'Network error. Please check your internet connection.';
-          break;
-        case 'sign_in_canceled':
-          errorMessage = 'Google sign-in was cancelled.';
-          break;
-        default:
-          log(
-            'Unexpected platform error during Google sign-in: ${e.code} - ${e.message}',
-          );
-          errorMessage =
-              'An error occurred during Google sign-in. Please try again.';
-          break;
-      }
+      final errorMessage = PlatformErrorMapper.getMessage(
+        e.code,
+        context: 'Google sign-in',
+      );
 
       if (mounted) {
         AppAlert.snackBarErrorAlert(context, errorMessage);
@@ -437,46 +384,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  // Future<UserCredential> signInWithGoogle() async {
-  //   if (mounted) {
-  //     CustomUiBlock.block(context);
-  //   }
-  //   // Trigger the authentication flow
-  //   final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-
-  //   // Obtain the auth details from the request
-  //   final GoogleSignInAuthentication? googleAuth =
-  //       await googleUser?.authentication;
-
-  //   // Create a new credential
-  //   final credential = GoogleAuthProvider.credential(
-  //     accessToken: googleAuth?.accessToken,
-  //     idToken: googleAuth?.idToken,
-  //   );
-
-  //   // Once signed in, return the UserCredential
-  //   if (mounted) {
-  //     CustomUiBlock.unblock(context);
-  //   }
-
-  //   var login = await FirebaseAuth.instance.signInWithCredential(credential);
-
-  //   log(login.toString());
-  //   log(login.user.toString());
-
-  //   if (mounted) {
-  //     Navigator.of(context).push(
-  //       MaterialPageRoute(
-  //         builder: (context) {
-  //           return CustomerDashboardScreen();
-  //         },
-  //       ),
-  //     );
-  //   }
-
-  //   return login;
-  // }
-
   Future<void> _handleSignIn() async {
     if (!_formKey.currentState!.validate()) {
       AppAlert.snackBarErrorAlert(context, 'Please provide all details');
@@ -500,47 +407,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } on FirebaseAuthException catch (e) {
       // Handle all possible Firebase Auth exceptions
-      String errorMessage;
-
-      switch (e.code) {
-        case 'invalid-email':
-          errorMessage = 'The email address is not valid.';
-          break;
-        case 'user-disabled':
-          errorMessage = 'This user account has been disabled.';
-          break;
-        case 'user-not-found':
-          errorMessage = 'No user found for that email address.';
-          break;
-        case 'wrong-password':
-          errorMessage = 'Wrong password provided for that user.';
-          break;
-        case 'too-many-requests':
-          errorMessage = 'Too many failed attempts. Please try again later.';
-          break;
-        case 'user-token-expired':
-          errorMessage = 'Your session has expired. Please sign in again.';
-          break;
-        case 'network-request-failed':
-          errorMessage =
-              'Network error. Please check your internet connection.';
-          break;
-        case 'INVALID_LOGIN_CREDENTIALS':
-        case 'invalid-credential':
-          errorMessage =
-              'Invalid email or password. Please check your credentials.';
-          break;
-        case 'operation-not-allowed':
-          errorMessage =
-              'Email/password sign-in is not enabled. Please contact support.';
-          break;
-        default:
-          // Log unexpected errors for debugging
-          log('Unexpected Firebase Auth error: ${e.code} - ${e.message}');
-          errorMessage = 'Something went wrong. Please try again.';
-          break;
-      }
-
+      final errorMessage = FirebaseErrorMapper.getMessage(e.code);
       if (mounted) {
         AppAlert.snackBarErrorAlert(context, errorMessage);
         CustomUiBlock.unblock(context);

@@ -25,38 +25,38 @@ class ApiUtil {
   final BuildContext context;
 
   ApiUtil(this.context) {
-    _initializeClient();
+    // _initializeClient();
   }
 
   late final Dio httpClient;
 
-  void _initializeClient() {
-    final userDetailProvider = Provider.of<UserProvider>(
-      context,
-      listen: false,
-    );
-    authToken = userDetailProvider.currentUser?.token;
-    final options = BaseOptions(
-      baseUrl: kServerBase,
-      followRedirects: false,
-      connectTimeout: const Duration(seconds: 60),
-      receiveTimeout: const Duration(seconds: 60),
-    );
+  // void _initializeClient() {
+  //   final userDetailProvider = Provider.of<UserProvider>(
+  //     context,
+  //     listen: false,
+  //   );
+  //   authToken = userDetailProvider.currentUser?.token;
+  //   final options = BaseOptions(
+  //     baseUrl: kServerBase,
+  //     followRedirects: false,
+  //     connectTimeout: const Duration(seconds: 60),
+  //     receiveTimeout: const Duration(seconds: 60),
+  //   );
 
-    httpClient =
-        Dio(options)
-          ..interceptors.addAll([
-            ApiAuthInterceptor(authToken: authToken, context: context),
-            LogInterceptor(
-              responseBody: true,
-              requestBody: true,
-              request: true,
-              logPrint: (object) => print(object),
-            ),
-          ])
-          ..transformer =
-              (BackgroundTransformer()..jsonDecodeCallback = parseJson);
-  }
+  //   httpClient =
+  //       Dio(options)
+  //         ..interceptors.addAll([
+  //           ApiAuthInterceptor(authToken: authToken, context: context),
+  //           LogInterceptor(
+  //             responseBody: true,
+  //             requestBody: true,
+  //             request: true,
+  //             logPrint: (object) => print(object),
+  //           ),
+  //         ])
+  //         ..transformer =
+  //             (BackgroundTransformer()..jsonDecodeCallback = parseJson);
+  // }
 }
 
 class ApiResponse<T> {

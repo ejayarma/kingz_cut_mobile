@@ -6,10 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:kingz_cut_mobile/repositories/customer_repository.dart';
 import 'package:kingz_cut_mobile/screens/auth/login_screen.dart';
 import 'package:kingz_cut_mobile/screens/customer/home/customer_dashboard_screen.dart';
 import 'package:kingz_cut_mobile/utils/app_alert.dart';
 import 'package:kingz_cut_mobile/utils/custom_ui_block.dart';
+import 'package:kingz_cut_mobile/utils/firebase_error_mapper.dart';
 
 class CreateAccountScreen extends StatefulWidget {
   final Function(String, String, String)? onSignUp;
@@ -327,6 +329,13 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
       log('Google sign-in successful: ${login.user?.email}');
 
+      // After registration, check if customer exists, then create if not
+      final userId = login.user?.uid;
+      if (userId != null) {
+        final customerRepo = CustomerRepository();
+        await customerRepo.createCustomerFromFirebaseUser(login.user!);
+      }
+
       if (mounted) {
         CustomUiBlock.unblock(context);
         Navigator.of(context).push(
@@ -341,44 +350,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       return login;
     } on FirebaseAuthException catch (e) {
       // Handle Firebase Auth specific exceptions
-      String errorMessage;
-
-      switch (e.code) {
-        case 'account-exists-with-different-credential':
-          errorMessage =
-              'An account already exists with this email using a different sign-in method. Please try signing in with your original method.';
-          break;
-        case 'invalid-credential':
-          errorMessage =
-              'The Google sign-in credential is invalid or has expired. Please try again.';
-          break;
-        case 'operation-not-allowed':
-          errorMessage =
-              'Google sign-in is not enabled. Please contact support.';
-          break;
-        case 'user-disabled':
-          errorMessage = 'This user account has been disabled.';
-          break;
-        case 'user-not-found':
-          errorMessage = 'No user found for this account.';
-          break;
-        case 'wrong-password':
-          errorMessage = 'Authentication failed. Please try again.';
-          break;
-        case 'invalid-verification-code':
-          errorMessage = 'Invalid verification code. Please try again.';
-          break;
-        case 'invalid-verification-id':
-          errorMessage = 'Invalid verification ID. Please try again.';
-          break;
-        default:
-          log(
-            'Unexpected Firebase Auth error during Google sign-in: ${e.code} - ${e.message}',
-          );
-          errorMessage = 'Google sign-in failed. Please try again.';
-          break;
-      }
-
+      final errorMessage = FirebaseErrorMapper.getMessage(e.code);
       if (mounted) {
         AppAlert.snackBarErrorAlert(context, errorMessage);
         CustomUiBlock.unblock(context);
@@ -443,15 +415,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
     final email = _emailController.text.trim();
     final password = _passwordController.text;
-
-    if (widget.onSignUp != null) {
-      widget.onSignUp!(
-        _nameController.text.trim(),
-        _emailController.text.trim(),
-        _passwordController.text,
-      );
-      return;
-    }
+    final name = _nameController.text.trim();
 
     try {
       CustomUiBlock.block(context);
@@ -459,61 +423,27 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       final credential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
 
-      await credential.user?.updateDisplayName(_nameController.text.trim());
+      await credential.user?.updateDisplayName(name);
       await credential.user?.reload();
+
+      // After registration, check if customer exists, then create if not
+      final userId = credential.user?.uid;
+      if (userId != null) {
+        final customerRepo = CustomerRepository();
+        await customerRepo.createCustomerFromFirebaseUser(credential.user!);
+      }
 
       log('User registration successful: ${credential.user?.email}');
     } on FirebaseAuthException catch (e) {
-      // Handle all possible Firebase Auth exceptions for registration
-      String errorMessage;
-
-      switch (e.code) {
-        case 'email-already-in-use':
-          errorMessage =
-              'An account already exists with this email address. Please sign in instead.';
-          break;
-        case 'invalid-email':
-          errorMessage = 'The email address is not valid.';
-          break;
-        case 'operation-not-allowed':
-          errorMessage =
-              'Email/password accounts are not enabled. Please contact support.';
-          break;
-        case 'weak-password':
-          errorMessage =
-              'The password is too weak. Please choose a stronger password.';
-          break;
-        case 'too-many-requests':
-          errorMessage =
-              'Too many registration attempts. Please try again later.';
-          break;
-        case 'user-token-expired':
-          errorMessage = 'Your session has expired. Please try again.';
-          break;
-        case 'network-request-failed':
-          errorMessage =
-              'Network error. Please check your internet connection.';
-          break;
-        default:
-          // Log unexpected errors for debugging
-          log(
-            'Unexpected Firebase Auth error during registration: ${e.code} - ${e.message}',
-          );
-          errorMessage = 'Registration failed. Please try again.';
-          break;
-      }
-
+      final errorMessage = FirebaseErrorMapper.getMessage(e.code);
       if (mounted) {
         AppAlert.snackBarErrorAlert(context, errorMessage);
         CustomUiBlock.unblock(context);
       }
-
       log('Firebase Auth error during registration: ${e.code} - ${e.message}');
       return;
     } catch (e) {
-      // Handle any other unexpected errors
       log('Unexpected error during registration: $e');
-
       if (mounted) {
         AppAlert.snackBarErrorAlert(
           context,
@@ -524,7 +454,6 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       return;
     }
 
-    // Success case - only navigate if registration was successful
     if (mounted) {
       CustomUiBlock.unblock(context);
       Navigator.of(context).push(
