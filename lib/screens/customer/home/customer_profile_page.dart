@@ -127,8 +127,11 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                   },
                 ),
               ),
+
+              _buildSettingItemWithArrow(title: 'Account'),
+              _buildSettingItemWithArrow(title: 'Security'),
               _buildSettingItemWithArrow(
-                title: 'Account',
+                title: 'About',
                 onTap: () {
                   // Navigate to the about screen
                   Navigator.of(context).push(
@@ -138,8 +141,6 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                   );
                 },
               ),
-              _buildSettingItemWithArrow(title: 'Security'),
-              _buildSettingItemWithArrow(title: 'About'),
               _buildSettingItemWithArrow(title: 'Contact Us'),
 
               const Spacer(),

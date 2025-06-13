@@ -5,7 +5,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:kingz_cut_mobile/state_providers/about_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:kingz_cut_mobile/models/about.dart';
-// import 'package:kingz_cut_mobile/utils/app_alert.dart';
+// import 'package:kingz_cut_mobile/providers/about_provider.dart'; // Adjust import path
+import 'package:kingz_cut_mobile/utils/app_alert.dart';
 
 class AboutScreen extends ConsumerWidget {
   const AboutScreen({super.key});
