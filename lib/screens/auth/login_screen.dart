@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:kingz_cut_mobile/repositories/customer_repository.dart';
 import 'package:kingz_cut_mobile/screens/auth/create_account_screen.dart';
 import 'package:kingz_cut_mobile/screens/auth/forgot_password_screen.dart';
 import 'package:kingz_cut_mobile/screens/customer/home/customer_dashboard_screen.dart';
@@ -328,6 +329,15 @@ class _LoginScreenState extends State<LoginScreen> {
       // Sign in with Firebase
       final UserCredential login = await FirebaseAuth.instance
           .signInWithCredential(credential);
+
+      log('Google sign-in successful: ${login.user?.email}');
+
+      // After registration, check if customer exists, then create if not
+      final userId = login.user?.uid;
+      if (userId != null) {
+        final customerRepo = CustomerRepository();
+        await customerRepo.createCustomerFromFirebaseUser(login.user!);
+      }
 
       log('Google sign-in successful: ${login.user?.email}');
 

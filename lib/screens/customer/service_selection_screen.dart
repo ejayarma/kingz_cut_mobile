@@ -1,52 +1,30 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kingz_cut_mobile/models/service.dart';
 import 'package:kingz_cut_mobile/screens/customer/choose_stylist_screen.dart';
+import 'package:kingz_cut_mobile/state_providers/service_provider.dart';
 
-class ServiceSelectionScreen extends StatefulWidget {
+class ServiceSelectionScreen extends ConsumerStatefulWidget {
   const ServiceSelectionScreen({super.key});
 
   @override
-  State<ServiceSelectionScreen> createState() => _ServiceSelectionScreenState();
+  ConsumerState<ServiceSelectionScreen> createState() =>
+      _ServiceSelectionScreenState();
 }
 
-class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
+class _ServiceSelectionScreenState
+    extends ConsumerState<ServiceSelectionScreen> {
   // Selected services list
-  final List<Map<String, dynamic>> _selectedServices = [
-    {'name': 'Haircut - Fading', 'price': 15.00, 'duration': 30},
-  ];
+  final List<Service> _selectedServices = [];
 
-  // Available services
-  final List<Map<String, dynamic>> _availableServices = [
-    {
-      'name': 'Hair Cut',
-      'price': 15.00,
-      'duration': 20,
-      'hasSubOptions': false,
-    },
-    {
-      'name': 'Beard Grooming',
-      'price': 15.00,
-      'duration': 20,
-      'hasSubOptions': false,
-    },
-    {
-      'name': 'Hair Coloring',
-      'price': 15.00,
-      'duration': 20,
-      'hasSubOptions': false,
-    },
-    {
-      'name': 'Wash & Styling',
-      'price': 15.00,
-      'duration': 20,
-      'hasSubOptions': false,
-    },
-  ];
-
-  void _addService(Map<String, dynamic> service) {
-    setState(() {
-      _selectedServices.add(service);
-    });
+  void _addService(Service service) {
+    // Check if service is already selected to avoid duplicates
+    if (!_selectedServices.any((s) => s.name == service.name)) {
+      setState(() {
+        _selectedServices.add(service);
+      });
+    }
   }
 
   void _removeService(int index) {
@@ -57,6 +35,8 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final servicesAsync = ref.watch(servicesProvider);
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -65,7 +45,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text("Select Services"),
+        title: const Text("Select Services"),
       ),
       body: SafeArea(
         child: Padding(
@@ -107,55 +87,94 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 24),
 
-              // Hours
-              // Row(
-              //   children: [
-              //     Icon(Icons.access_time, size: 18, color: Colors.grey[600]),
-              //     const SizedBox(width: 4),
-              //     Text(
-              //       '10AM-10PM, Mon -Sun',
-              //       style: Theme.of(
-              //         context,
-              //       ).textTheme.labelSmall?.copyWith(color: Colors.grey[600]),
-              //     ),
-              //   ],
-              // ),
-              // const SizedBox(height: 24),
-
-              // Selected services title
-              Text(
-                'Services Selected',
-                style: Theme.of(
-                  context,
-                ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-
-              // Selected services list
-              if (_selectedServices.isNotEmpty)
+              // Selected services section
+              if (_selectedServices.isNotEmpty) ...[
+                Text(
+                  'Services Selected',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
                 ..._selectedServices
-                    .map((service) => _buildSelectedServiceCard(service))
+                    .asMap()
+                    .entries
+                    .map(
+                      (entry) =>
+                          _buildSelectedServiceCard(entry.value, entry.key),
+                    )
                     .toList(),
+                const SizedBox(height: 16),
+              ],
 
-              const SizedBox(height: 16),
-
-              // Additional services text
+              // Available services section
               Text(
-                'Please select more service options here if necessary',
+                _selectedServices.isEmpty
+                    ? 'Please select services'
+                    : (servicesAsync.value?.length == _selectedServices.length
+                        ? ''
+                        : 'Please select more service options here if necessary'),
                 style: Theme.of(context).textTheme.labelLarge!,
               ),
               const SizedBox(height: 12),
 
-              // Available services list
+              // Services list with provider data
               Expanded(
-                child: ListView.builder(
-                  itemCount: _availableServices.length,
-                  itemBuilder: (context, index) {
-                    final service = _availableServices[index];
-                    return _buildServiceCard(context, service);
+                child: servicesAsync.when(
+                  data: (services) {
+                    if (services.isEmpty) {
+                      return const Center(child: Text('No services available'));
+                    }
+                    return ListView.builder(
+                      itemCount: services.length,
+                      itemBuilder: (context, index) {
+                        final service = services[index];
+                        final isSelected = _selectedServices.any(
+                          (s) => s.name == service.name,
+                        );
+                        return isSelected
+                            ? SizedBox()
+                            : _buildServiceCard(context, service, isSelected);
+                      },
+                    );
                   },
+                  loading:
+                      () => const Center(child: CircularProgressIndicator()),
+                  error:
+                      (error, stack) => Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.error_outline,
+                              color: Colors.red,
+                              size: 48,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Failed to load services',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              error.toString(),
+                              style: Theme.of(context).textTheme.bodySmall,
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: () {
+                                ref
+                                    .read(servicesProvider.notifier)
+                                    .refreshServices();
+                              },
+                              child: const Text('Retry'),
+                            ),
+                          ],
+                        ),
+                      ),
                 ),
               ),
 
@@ -164,16 +183,19 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
                 width: double.infinity,
                 margin: const EdgeInsets.only(top: 12),
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Handle continue action
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return ChooseStylistScreen();
-                        },
-                      ),
-                    );
-                  },
+                  onPressed:
+                      _selectedServices.isNotEmpty
+                          ? () {
+                            // Handle continue action
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return const ChooseStylistScreen();
+                                },
+                              ),
+                            );
+                          }
+                          : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Colors.white,
@@ -183,7 +205,9 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
                     ),
                   ),
                   child: Text(
-                    'Continue (${_selectedServices.length})',
+                    _selectedServices.isEmpty
+                        ? 'Select a service to continue'
+                        : 'Continue (${_selectedServices.length})',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
@@ -195,48 +219,10 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
           ),
         ),
       ),
-
-      // bottomSheet: BottomSheet(
-      //   showDragHandle: true,
-      //   elevation: 10,
-      //   onClosing: () {},
-      //   builder: (context) {
-      //     return Column(
-      //       mainAxisSize: MainAxisSize.min,
-      //       mainAxisAlignment: MainAxisAlignment.end,
-      //       children: [
-      //         Text('hahahaha'),
-      //         Text('hahahaha'),
-      //         Text('hahahaha'),
-      //         Text('hahahaha'),
-      //         Text('hahahaha'),
-      //         Text('hahahaha'),
-      //         Text('hahahaha'),
-      //         Text('hahahaha'),
-      //         SingleChildScrollView(
-      //           child: Column(
-      //             children: [
-      //               Text('hahahaha'),
-      //               Text('hahahaha'),
-      //               Text('hahahaha'),
-      //               Text('hahahaha'),
-      //               Text('hahahaha'),
-      //               Text('hahahaha'),
-      //               Text('hahahaha'),
-      //               Text('hahahaha'),
-      //               Text('hahahaha'),
-      //               Text('hahahaha'),
-      //             ],
-      //           ),
-      //         ),
-      //       ],
-      //     );
-      //   },
-      // ),
     );
   }
 
-  Widget _buildSelectedServiceCard(Map<String, dynamic> service) {
+  Widget _buildSelectedServiceCard(Service service, int index) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
@@ -245,52 +231,126 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        title: Text(service['name']),
+        title: Text(service.name),
         subtitle: Row(
           children: [
-            Text('GHS ${service['price'].toStringAsFixed(2)}'),
+            Text('GHS ${service.price.toStringAsFixed(2)}'),
             const SizedBox(width: 8),
             Icon(Icons.access_time, size: 16, color: Colors.grey[600]),
             const SizedBox(width: 4),
-            Text('${service['duration']} Minutes'),
+            Text(
+              '${service.timeframe} mins',
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
           ],
         ),
-        trailing: Container(
-          width: 24,
-          height: 24,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-          child: const Icon(Icons.check, size: 16, color: Colors.white),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              child: const Icon(Icons.check, size: 16, color: Colors.white),
+            ),
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: () => _removeService(index),
+              child: Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.red.shade100,
+                ),
+                child: Icon(Icons.close, size: 16, color: Colors.red.shade700),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildServiceCard(BuildContext context, Map<String, dynamic> service) {
+  Widget _buildServiceCard(
+    BuildContext context,
+    Service service,
+    bool isSelected,
+  ) {
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
-        side: BorderSide(color: Colors.grey.shade200),
+        side: BorderSide(
+          color:
+              isSelected
+                  ? Theme.of(context).colorScheme.primary
+                  : Colors.grey.shade200,
+        ),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        title: Text(service['name']),
+        leading:
+            service.imageUrl != null
+                ? ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    service.imageUrl!,
+                    width: 40,
+                    height: 40,
+                    fit: BoxFit.cover,
+                    errorBuilder:
+                        (context, error, stackTrace) => Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade200,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            Icons.content_cut,
+                            color: Colors.grey.shade400,
+                          ),
+                        ),
+                  ),
+                )
+                : Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(Icons.content_cut, color: Colors.grey.shade400),
+                ),
+        title: Text(service.name),
         subtitle: Row(
           children: [
-            Text('GHS ${service['price'].toStringAsFixed(2)}'),
+            Text('GHS ${service.price.toStringAsFixed(2)}'),
             const SizedBox(width: 8),
             Icon(Icons.access_time, size: 16, color: Colors.grey[600]),
             const SizedBox(width: 4),
-            Text('${service['duration']} Minutes'),
+            Text(
+              '${service.timeframe} mins',
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
           ],
         ),
         trailing:
-            service['hasSubOptions']
-                ? const Icon(Icons.chevron_right)
+            isSelected
+                ? Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  child: const Icon(Icons.check, size: 16, color: Colors.white),
+                )
                 : IconButton(
                   icon: Container(
                     width: 24,
@@ -303,12 +363,6 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
                   ),
                   onPressed: () => _addService(service),
                 ),
-        onTap:
-            service['hasSubOptions']
-                ? () {
-                  // Navigate to sub-options if available
-                }
-                : null,
       ),
     );
   }

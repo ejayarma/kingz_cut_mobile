@@ -1,31 +1,54 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:kingz_cut_mobile/enums/service_type.dart';
-import 'package:kingz_cut_mobile/screens/customer/haircut_stye_screen.dart';
+import 'package:kingz_cut_mobile/models/service_category.dart';
+import 'package:kingz_cut_mobile/screens/customer/main_service_screen.dart';
+import 'package:kingz_cut_mobile/state_providers/service_category_provider.dart';
 
-class CustomerHomePage extends StatefulWidget {
+class CustomerHomePage extends ConsumerWidget {
   const CustomerHomePage({super.key});
 
-  @override
-  State<CustomerHomePage> createState() => _CustomerHomePageState();
-}
-
-class _CustomerHomePageState extends State<CustomerHomePage> {
-  void _goToHairStyleScreen() {
+  void _goToHairStyleScreen(BuildContext context, ServiceCategory? category) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) {
-          return HaircutStylesScreen();
-        },
+        builder: (_) => MainServiceScreen(initialCategory: category),
       ),
     );
   }
 
-  User? get _currentUser => FirebaseAuth.instance.currentUser;
-  int get _noticesCount => 0;
+  final Map<SalonServiceType, _ServiceCardStyle> predefinedStyles = const {
+    SalonServiceType.haircut: _ServiceCardStyle(
+      defaultTitle: 'Haircuts',
+      imagePath: 'assets/images/services/haircut.png',
+      bgColor: Color(0xFFD0E8FF),
+      iconColor: Color(0xFF007AFF),
+    ),
+    SalonServiceType.beardGrooming: _ServiceCardStyle(
+      defaultTitle: 'Beard Grooming',
+      imagePath: 'assets/images/services/beard_grooming.png',
+      bgColor: Color(0xFFFFE0E6),
+      iconColor: Color(0xFFD00036),
+    ),
+    SalonServiceType.hairColoring: _ServiceCardStyle(
+      defaultTitle: 'Hair Colouring',
+      imagePath: 'assets/images/services/heari_coloring.png',
+      bgColor: Color(0xFFFFF4D0),
+      iconColor: Color(0xFFF57C00),
+    ),
+    SalonServiceType.washStyling: _ServiceCardStyle(
+      defaultTitle: 'Wash & Styling',
+      imagePath: 'assets/images/services/wash_styling.png',
+      bgColor: Color(0xFFD8D6FB),
+      iconColor: Color(0xFF6A1B9A),
+    ),
+  };
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    final categoriesAsync = ref.watch(serviceCategoriesProvider);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -49,10 +72,8 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                 ),
               ),
               const SizedBox(width: 10),
-
-              Badge.count(
-                count: _noticesCount,
-                isLabelVisible: _noticesCount > 0,
+              const Badge(
+                label: Text('0'), // change as needed
                 child: Icon(Icons.notifications),
               ),
             ],
@@ -63,16 +84,10 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            // color: const Color(0xFF0A0A29),
-            gradient: LinearGradient(
+            gradient: const LinearGradient(
+              colors: [Colors.black, Color.fromARGB(183, 10, 10, 41)],
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
-              colors: [
-                Colors.black,
-                Colors.black,
-                Colors.black,
-                Color.fromARGB(183, 10, 10, 41),
-              ],
             ),
             borderRadius: BorderRadius.circular(12),
             image: const DecorationImage(
@@ -81,21 +96,19 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
               opacity: 0.3,
             ),
           ),
-
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Welcome,\n${_currentUser?.displayName ?? ''}",
-                  style: TextStyle(
+                  "Welcome,\n${currentUser?.displayName ?? ''}",
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-
                 const SizedBox(height: 10),
                 const Text(
                   'Book your cut, pick your barber, and skip the wait!',
@@ -103,7 +116,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: _goToHairStyleScreen,
+                  onPressed: () => _goToHairStyleScreen(context, null),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFF9A826),
                     shape: RoundedRectangleBorder(
@@ -123,26 +136,6 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
           ),
         ),
 
-        // View on Map button
-        // Align(
-        //   alignment: Alignment.centerRight,
-        //   child: TextButton.icon(
-        //     onPressed: () {},
-        //     icon: const Icon(
-        //       Icons.location_on_rounded,
-        //       color: Colors.blueAccent,
-        //     ),
-        //     label: const Text(
-        //       'View on Map',
-        //       style: TextStyle(
-        //         color: Colors.blueAccent,
-        //         fontWeight: FontWeight.w500,
-        //       ),
-        //     ),
-        //   ),
-        // ),
-
-        // Services section
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8.0),
           child: Text(
@@ -151,52 +144,45 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
           ),
         ),
 
-        // Service grid
         Expanded(
-          child: GridView.count(
-            crossAxisCount: 2,
-            mainAxisSpacing: 16,
-            crossAxisSpacing: 16,
-            childAspectRatio: 4 / 3,
-            padding: EdgeInsets.all(16),
-            children: [
-              InkWell(
-                onTap: _goToHairStyleScreen,
-                child: _buildServiceCard(
-                  title: 'Haircuts',
-                  serviceType: SalonServiceType.haircut,
-                  color: Colors.blue.shade100,
-                  iconColor: Colors.blue.shade600,
-                ),
-              ),
-              InkWell(
-                onTap: _goToHairStyleScreen,
-                child: _buildServiceCard(
-                  title: 'Beard Grooming',
-                  serviceType: SalonServiceType.beardGrooming,
-                  color: Colors.pink.shade100,
-                  iconColor: Colors.red,
-                ),
-              ),
-              InkWell(
-                onTap: _goToHairStyleScreen,
-                child: _buildServiceCard(
-                  title: 'Hair Coloring',
-                  serviceType: SalonServiceType.hairColoring,
-                  color: Colors.amber.shade100,
-                  iconColor: Colors.orange,
-                ),
-              ),
-              InkWell(
-                onTap: _goToHairStyleScreen,
-                child: _buildServiceCard(
-                  title: 'Wash & Styling',
-                  serviceType: SalonServiceType.washStyling,
-                  color: Colors.indigo.shade100,
-                  iconColor: Colors.purple,
-                ),
-              ),
-            ],
+          child: categoriesAsync.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (err, _) => Center(child: Text('Error: $err')),
+            data: (categories) {
+              return GridView.count(
+                crossAxisCount: 2,
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
+                childAspectRatio: 4 / 3,
+                padding: const EdgeInsets.all(16),
+                children:
+                    categories.map((category) {
+                      final match = predefinedStyles.entries.firstWhere(
+                        (entry) =>
+                            entry.value.defaultTitle.toLowerCase() ==
+                            category.name.toLowerCase(),
+                        orElse:
+                            () => const MapEntry(
+                              SalonServiceType.haircut,
+                              _ServiceCardStyle(
+                                defaultTitle: '',
+                                imagePath: 'assets/images/services/haircut.png',
+                                bgColor: Colors.grey,
+                                iconColor: Colors.black,
+                              ),
+                            ),
+                      );
+
+                      return InkWell(
+                        onTap: () => _goToHairStyleScreen(context, category),
+                        child: _buildServiceCard(
+                          title: category.name,
+                          style: match.value,
+                        ),
+                      );
+                    }).toList(),
+              );
+            },
           ),
         ),
       ],
@@ -205,48 +191,56 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
 
   Widget _buildServiceCard({
     required String title,
-    required SalonServiceType serviceType,
-    required Color color,
-    required Color iconColor,
+    required _ServiceCardStyle style,
   }) {
-    final imagePath = switch (serviceType) {
-      SalonServiceType.haircut => 'assets/images/services/haircut.png',
-      SalonServiceType.beardGrooming =>
-        'assets/images/services/beard_grooming.png',
-      SalonServiceType.hairColoring =>
-        'assets/images/services/heari_coloring.png',
-      SalonServiceType.washStyling => 'assets/images/services/wash_styling.png',
-    };
-
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color,
+        color: style.bgColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: Colors.grey.shade400,
             blurRadius: 10,
             spreadRadius: 0.5,
-            offset: Offset(0, 3),
+            offset: const Offset(0, 3),
           ),
         ],
         border: Border.all(
           style: BorderStyle.solid,
-          color: iconColor.withAlpha(50),
+          color: style.iconColor.withAlpha(50),
         ),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          ImageIcon(AssetImage(imagePath), size: 32, color: iconColor),
+          ImageIcon(
+            AssetImage(style.imagePath),
+            size: 32,
+            color: style.iconColor,
+          ),
           const SizedBox(height: 16),
           Text(
             title,
             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
     );
   }
+}
+
+class _ServiceCardStyle {
+  final String defaultTitle;
+  final String imagePath;
+  final Color bgColor;
+  final Color iconColor;
+
+  const _ServiceCardStyle({
+    required this.defaultTitle,
+    required this.imagePath,
+    required this.bgColor,
+    required this.iconColor,
+  });
 }

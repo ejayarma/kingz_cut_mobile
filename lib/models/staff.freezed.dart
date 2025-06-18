@@ -20,11 +20,10 @@ Staff _$StaffFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Staff {
-  bool get active => throw _privateConstructorUsedError;
-  @JsonKey(name: 'createdAt')
-  DateTime get createdAt => throw _privateConstructorUsedError;
-  String get email => throw _privateConstructorUsedError;
   String get id => throw _privateConstructorUsedError;
+  bool get active => throw _privateConstructorUsedError;
+  String get email => throw _privateConstructorUsedError;
+  double? get rating => throw _privateConstructorUsedError;
   @JsonKey(name: 'image')
   String? get imageUrl => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
@@ -32,10 +31,8 @@ mixin _$Staff {
   String get role => throw _privateConstructorUsedError;
   @JsonKey(name: 'services')
   List<String> get serviceIds => throw _privateConstructorUsedError;
-  @JsonKey(name: 'updatedAt')
+  DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime get updatedAt => throw _privateConstructorUsedError;
-  String? get url => throw _privateConstructorUsedError;
-  @JsonKey(name: 'userId')
   String get userId => throw _privateConstructorUsedError;
 
   /// Serializes this Staff to a JSON map.
@@ -53,18 +50,18 @@ abstract class $StaffCopyWith<$Res> {
       _$StaffCopyWithImpl<$Res, Staff>;
   @useResult
   $Res call(
-      {bool active,
-      @JsonKey(name: 'createdAt') DateTime createdAt,
+      {String id,
+      bool active,
       String email,
-      String id,
+      double? rating,
       @JsonKey(name: 'image') String? imageUrl,
       String name,
       String phone,
       String role,
       @JsonKey(name: 'services') List<String> serviceIds,
-      @JsonKey(name: 'updatedAt') DateTime updatedAt,
-      String? url,
-      @JsonKey(name: 'userId') String userId});
+      DateTime createdAt,
+      DateTime updatedAt,
+      String userId});
 }
 
 /// @nodoc
@@ -82,36 +79,36 @@ class _$StaffCopyWithImpl<$Res, $Val extends Staff>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? active = null,
-    Object? createdAt = null,
-    Object? email = null,
     Object? id = null,
+    Object? active = null,
+    Object? email = null,
+    Object? rating = freezed,
     Object? imageUrl = freezed,
     Object? name = null,
     Object? phone = null,
     Object? role = null,
     Object? serviceIds = null,
+    Object? createdAt = null,
     Object? updatedAt = null,
-    Object? url = freezed,
     Object? userId = null,
   }) {
     return _then(_value.copyWith(
-      active: null == active
-          ? _value.active
-          : active // ignore: cast_nullable_to_non_nullable
-              as bool,
-      createdAt: null == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      email: null == email
-          ? _value.email
-          : email // ignore: cast_nullable_to_non_nullable
-              as String,
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
+      active: null == active
+          ? _value.active
+          : active // ignore: cast_nullable_to_non_nullable
+              as bool,
+      email: null == email
+          ? _value.email
+          : email // ignore: cast_nullable_to_non_nullable
+              as String,
+      rating: freezed == rating
+          ? _value.rating
+          : rating // ignore: cast_nullable_to_non_nullable
+              as double?,
       imageUrl: freezed == imageUrl
           ? _value.imageUrl
           : imageUrl // ignore: cast_nullable_to_non_nullable
@@ -132,14 +129,14 @@ class _$StaffCopyWithImpl<$Res, $Val extends Staff>
           ? _value.serviceIds
           : serviceIds // ignore: cast_nullable_to_non_nullable
               as List<String>,
+      createdAt: null == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
       updatedAt: null == updatedAt
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      url: freezed == url
-          ? _value.url
-          : url // ignore: cast_nullable_to_non_nullable
-              as String?,
       userId: null == userId
           ? _value.userId
           : userId // ignore: cast_nullable_to_non_nullable
@@ -156,18 +153,18 @@ abstract class _$$StaffImplCopyWith<$Res> implements $StaffCopyWith<$Res> {
   @override
   @useResult
   $Res call(
-      {bool active,
-      @JsonKey(name: 'createdAt') DateTime createdAt,
+      {String id,
+      bool active,
       String email,
-      String id,
+      double? rating,
       @JsonKey(name: 'image') String? imageUrl,
       String name,
       String phone,
       String role,
       @JsonKey(name: 'services') List<String> serviceIds,
-      @JsonKey(name: 'updatedAt') DateTime updatedAt,
-      String? url,
-      @JsonKey(name: 'userId') String userId});
+      DateTime createdAt,
+      DateTime updatedAt,
+      String userId});
 }
 
 /// @nodoc
@@ -183,36 +180,36 @@ class __$$StaffImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? active = null,
-    Object? createdAt = null,
-    Object? email = null,
     Object? id = null,
+    Object? active = null,
+    Object? email = null,
+    Object? rating = freezed,
     Object? imageUrl = freezed,
     Object? name = null,
     Object? phone = null,
     Object? role = null,
     Object? serviceIds = null,
+    Object? createdAt = null,
     Object? updatedAt = null,
-    Object? url = freezed,
     Object? userId = null,
   }) {
     return _then(_$StaffImpl(
-      active: null == active
-          ? _value.active
-          : active // ignore: cast_nullable_to_non_nullable
-              as bool,
-      createdAt: null == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      email: null == email
-          ? _value.email
-          : email // ignore: cast_nullable_to_non_nullable
-              as String,
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
+      active: null == active
+          ? _value.active
+          : active // ignore: cast_nullable_to_non_nullable
+              as bool,
+      email: null == email
+          ? _value.email
+          : email // ignore: cast_nullable_to_non_nullable
+              as String,
+      rating: freezed == rating
+          ? _value.rating
+          : rating // ignore: cast_nullable_to_non_nullable
+              as double?,
       imageUrl: freezed == imageUrl
           ? _value.imageUrl
           : imageUrl // ignore: cast_nullable_to_non_nullable
@@ -233,14 +230,14 @@ class __$$StaffImplCopyWithImpl<$Res>
           ? _value._serviceIds
           : serviceIds // ignore: cast_nullable_to_non_nullable
               as List<String>,
+      createdAt: null == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
       updatedAt: null == updatedAt
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      url: freezed == url
-          ? _value.url
-          : url // ignore: cast_nullable_to_non_nullable
-              as String?,
       userId: null == userId
           ? _value.userId
           : userId // ignore: cast_nullable_to_non_nullable
@@ -253,32 +250,31 @@ class __$$StaffImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$StaffImpl implements _Staff {
   const _$StaffImpl(
-      {required this.active,
-      @JsonKey(name: 'createdAt') required this.createdAt,
+      {required this.id,
+      required this.active,
       required this.email,
-      required this.id,
+      required this.rating,
       @JsonKey(name: 'image') this.imageUrl,
       required this.name,
       required this.phone,
       required this.role,
       @JsonKey(name: 'services') required final List<String> serviceIds,
-      @JsonKey(name: 'updatedAt') required this.updatedAt,
-      this.url,
-      @JsonKey(name: 'userId') required this.userId})
+      required this.createdAt,
+      required this.updatedAt,
+      required this.userId})
       : _serviceIds = serviceIds;
 
   factory _$StaffImpl.fromJson(Map<String, dynamic> json) =>
       _$$StaffImplFromJson(json);
 
   @override
-  final bool active;
+  final String id;
   @override
-  @JsonKey(name: 'createdAt')
-  final DateTime createdAt;
+  final bool active;
   @override
   final String email;
   @override
-  final String id;
+  final double? rating;
   @override
   @JsonKey(name: 'image')
   final String? imageUrl;
@@ -298,17 +294,15 @@ class _$StaffImpl implements _Staff {
   }
 
   @override
-  @JsonKey(name: 'updatedAt')
+  final DateTime createdAt;
+  @override
   final DateTime updatedAt;
   @override
-  final String? url;
-  @override
-  @JsonKey(name: 'userId')
   final String userId;
 
   @override
   String toString() {
-    return 'Staff(active: $active, createdAt: $createdAt, email: $email, id: $id, imageUrl: $imageUrl, name: $name, phone: $phone, role: $role, serviceIds: $serviceIds, updatedAt: $updatedAt, url: $url, userId: $userId)';
+    return 'Staff(id: $id, active: $active, email: $email, rating: $rating, imageUrl: $imageUrl, name: $name, phone: $phone, role: $role, serviceIds: $serviceIds, createdAt: $createdAt, updatedAt: $updatedAt, userId: $userId)';
   }
 
   @override
@@ -316,11 +310,10 @@ class _$StaffImpl implements _Staff {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$StaffImpl &&
-            (identical(other.active, active) || other.active == active) &&
-            (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt) &&
-            (identical(other.email, email) || other.email == email) &&
             (identical(other.id, id) || other.id == id) &&
+            (identical(other.active, active) || other.active == active) &&
+            (identical(other.email, email) || other.email == email) &&
+            (identical(other.rating, rating) || other.rating == rating) &&
             (identical(other.imageUrl, imageUrl) ||
                 other.imageUrl == imageUrl) &&
             (identical(other.name, name) || other.name == name) &&
@@ -328,9 +321,10 @@ class _$StaffImpl implements _Staff {
             (identical(other.role, role) || other.role == role) &&
             const DeepCollectionEquality()
                 .equals(other._serviceIds, _serviceIds) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
                 other.updatedAt == updatedAt) &&
-            (identical(other.url, url) || other.url == url) &&
             (identical(other.userId, userId) || other.userId == userId));
   }
 
@@ -338,17 +332,17 @@ class _$StaffImpl implements _Staff {
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      active,
-      createdAt,
-      email,
       id,
+      active,
+      email,
+      rating,
       imageUrl,
       name,
       phone,
       role,
       const DeepCollectionEquality().hash(_serviceIds),
+      createdAt,
       updatedAt,
-      url,
       userId);
 
   /// Create a copy of Staff
@@ -369,30 +363,29 @@ class _$StaffImpl implements _Staff {
 
 abstract class _Staff implements Staff {
   const factory _Staff(
-      {required final bool active,
-      @JsonKey(name: 'createdAt') required final DateTime createdAt,
+      {required final String id,
+      required final bool active,
       required final String email,
-      required final String id,
+      required final double? rating,
       @JsonKey(name: 'image') final String? imageUrl,
       required final String name,
       required final String phone,
       required final String role,
       @JsonKey(name: 'services') required final List<String> serviceIds,
-      @JsonKey(name: 'updatedAt') required final DateTime updatedAt,
-      final String? url,
-      @JsonKey(name: 'userId') required final String userId}) = _$StaffImpl;
+      required final DateTime createdAt,
+      required final DateTime updatedAt,
+      required final String userId}) = _$StaffImpl;
 
   factory _Staff.fromJson(Map<String, dynamic> json) = _$StaffImpl.fromJson;
 
   @override
-  bool get active;
+  String get id;
   @override
-  @JsonKey(name: 'createdAt')
-  DateTime get createdAt;
+  bool get active;
   @override
   String get email;
   @override
-  String get id;
+  double? get rating;
   @override
   @JsonKey(name: 'image')
   String? get imageUrl;
@@ -406,12 +399,10 @@ abstract class _Staff implements Staff {
   @JsonKey(name: 'services')
   List<String> get serviceIds;
   @override
-  @JsonKey(name: 'updatedAt')
+  DateTime get createdAt;
+  @override
   DateTime get updatedAt;
   @override
-  String? get url;
-  @override
-  @JsonKey(name: 'userId')
   String get userId;
 
   /// Create a copy of Staff

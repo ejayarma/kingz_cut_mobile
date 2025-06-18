@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:kingz_cut_mobile/repositories/customer_repository.dart';
 import 'package:kingz_cut_mobile/screens/auth/login_screen.dart';
 import 'package:kingz_cut_mobile/screens/splash_screen.dart';
+import 'package:kingz_cut_mobile/state_providers/app_config_notifier.dart';
 import 'package:kingz_cut_mobile/state_providers/customer_provider.dart';
 
 class KCutApp extends ConsumerStatefulWidget {
@@ -20,6 +21,7 @@ class _KCutAppState extends ConsumerState<KCutApp> {
   void initState() {
     super.initState();
     _listenAuthState();
+    _logAppConfig();
   }
 
   void _listenAuthState() {
@@ -32,6 +34,13 @@ class _KCutAppState extends ConsumerState<KCutApp> {
         await _handleSignedInUser(user);
       }
     });
+  }
+
+  void _logAppConfig() async {
+    final appConfig = await ref.read(appConfigProvider.future);
+    debugPrint(
+      '🔧 AppConfig loaded: hasOnboarded = ${appConfig?.hasOnboarded}',
+    );
   }
 
   Future<void> _handleSignedInUser(User user) async {
@@ -64,6 +73,11 @@ class _KCutAppState extends ConsumerState<KCutApp> {
   @override
   Widget build(BuildContext context) {
     final interFontFamily = GoogleFonts.inter().fontFamily;
+    final appConfigAsync = ref.watch(appConfigProvider);
+
+    appConfigAsync.whenData((appConfig) {
+      debugPrint('🔁 AppConfig changed: ${appConfig?.toJson().toString()}');
+    });
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,

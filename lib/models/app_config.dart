@@ -8,8 +8,8 @@ part 'app_config.g.dart';
 @freezed
 class AppConfig with _$AppConfig {
   const factory AppConfig({
-    required UserType userType,
-    required bool hasOnboarded,
+    required UserType? userType,
+    required bool? hasOnboarded,
   }) = _AppConfig;
 
   factory AppConfig.fromJson(Map<String, dynamic> json) =>

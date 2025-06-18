@@ -29,7 +29,8 @@ class CustomerRepository {
             .get();
 
     if (doc.exists) {
-      return Customer.fromJson(doc.data()!);
+      final data = doc.data()!;
+      return Customer.fromJson({'id': doc.id, ...data});
     } else {
       return null;
     }

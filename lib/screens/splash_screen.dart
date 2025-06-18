@@ -1,39 +1,48 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kingz_cut_mobile/screens/onboarding_screen.dart';
+import 'package:kingz_cut_mobile/screens/launch_screen.dart';
+import 'package:kingz_cut_mobile/state_providers/app_config_notifier.dart';
+// import 'package:kingz_cut_mobile/state_providers/app_config_provider.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _navigate();
   }
 
-  void _navigate() {
+  void _navigate() async {
+    // Wait for provider to load
+    final appConfig = await ref.read(appConfigProvider.future);
 
-    // Navigate to the OnBoardingScreen after a delay
+    if (!mounted) return;
 
-    // ref.watch(counterProvider);
-   
-    Future.delayed(Durations.extralong4, () {
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) {
-              return OnBoardingScreen();
-            },
-          ),
-        );
-      }
-    });
+    // Add splash delay
+    await Future.delayed(Durations.extralong4);
+
+    if (!mounted) return;
+
+    if (appConfig?.hasOnboarded == true) {
+      // Navigate to launch screen (login flow starts there)
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const LaunchScreen()),
+      );
+    } else {
+      // Navigate to onboarding
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const OnBoardingScreen()),
+      );
+    }
   }
 
   @override

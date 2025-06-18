@@ -20,8 +20,8 @@ AppConfig _$AppConfigFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$AppConfig {
-  UserType get userType => throw _privateConstructorUsedError;
-  bool get hasOnboarded => throw _privateConstructorUsedError;
+  UserType? get userType => throw _privateConstructorUsedError;
+  bool? get hasOnboarded => throw _privateConstructorUsedError;
 
   /// Serializes this AppConfig to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -38,7 +38,7 @@ abstract class $AppConfigCopyWith<$Res> {
   factory $AppConfigCopyWith(AppConfig value, $Res Function(AppConfig) then) =
       _$AppConfigCopyWithImpl<$Res, AppConfig>;
   @useResult
-  $Res call({UserType userType, bool hasOnboarded});
+  $Res call({UserType? userType, bool? hasOnboarded});
 }
 
 /// @nodoc
@@ -56,18 +56,18 @@ class _$AppConfigCopyWithImpl<$Res, $Val extends AppConfig>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? userType = null,
-    Object? hasOnboarded = null,
+    Object? userType = freezed,
+    Object? hasOnboarded = freezed,
   }) {
     return _then(_value.copyWith(
-      userType: null == userType
+      userType: freezed == userType
           ? _value.userType
           : userType // ignore: cast_nullable_to_non_nullable
-              as UserType,
-      hasOnboarded: null == hasOnboarded
+              as UserType?,
+      hasOnboarded: freezed == hasOnboarded
           ? _value.hasOnboarded
           : hasOnboarded // ignore: cast_nullable_to_non_nullable
-              as bool,
+              as bool?,
     ) as $Val);
   }
 }
@@ -80,7 +80,7 @@ abstract class _$$AppConfigImplCopyWith<$Res>
       __$$AppConfigImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({UserType userType, bool hasOnboarded});
+  $Res call({UserType? userType, bool? hasOnboarded});
 }
 
 /// @nodoc
@@ -96,18 +96,18 @@ class __$$AppConfigImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? userType = null,
-    Object? hasOnboarded = null,
+    Object? userType = freezed,
+    Object? hasOnboarded = freezed,
   }) {
     return _then(_$AppConfigImpl(
-      userType: null == userType
+      userType: freezed == userType
           ? _value.userType
           : userType // ignore: cast_nullable_to_non_nullable
-              as UserType,
-      hasOnboarded: null == hasOnboarded
+              as UserType?,
+      hasOnboarded: freezed == hasOnboarded
           ? _value.hasOnboarded
           : hasOnboarded // ignore: cast_nullable_to_non_nullable
-              as bool,
+              as bool?,
     ));
   }
 }
@@ -121,9 +121,9 @@ class _$AppConfigImpl implements _AppConfig {
       _$$AppConfigImplFromJson(json);
 
   @override
-  final UserType userType;
+  final UserType? userType;
   @override
-  final bool hasOnboarded;
+  final bool? hasOnboarded;
 
   @override
   String toString() {
@@ -163,16 +163,16 @@ class _$AppConfigImpl implements _AppConfig {
 
 abstract class _AppConfig implements AppConfig {
   const factory _AppConfig(
-      {required final UserType userType,
-      required final bool hasOnboarded}) = _$AppConfigImpl;
+      {required final UserType? userType,
+      required final bool? hasOnboarded}) = _$AppConfigImpl;
 
   factory _AppConfig.fromJson(Map<String, dynamic> json) =
       _$AppConfigImpl.fromJson;
 
   @override
-  UserType get userType;
+  UserType? get userType;
   @override
-  bool get hasOnboarded;
+  bool? get hasOnboarded;
 
   /// Create a copy of AppConfig
   /// with the given fields replaced by the non-null parameter values.

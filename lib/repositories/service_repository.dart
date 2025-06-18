@@ -8,6 +8,9 @@ class ServiceRepository {
   Future<List<Service>> fetchServices() async {
     final snapshot = await _servicesRef.get();
 
-    return snapshot.docs.map((doc) => Service.fromJson(doc.data())).toList();
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      return Service.fromJson({'id': doc.id, ...data});
+    }).toList();
   }
 }

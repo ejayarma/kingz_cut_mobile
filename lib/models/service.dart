@@ -6,8 +6,10 @@ part 'service.g.dart';
 @freezed
 class Service with _$Service {
   const factory Service({
+    required String id,
     required String name,
-    required String imageUrl,
+    required String categoryId,
+    required String? imageUrl,
     required double price,
     required int timeframe,
     required DateTime createdAt,

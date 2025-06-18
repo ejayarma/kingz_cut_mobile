@@ -20,9 +20,9 @@ Customer _$CustomerFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Customer {
+  String get id => throw _privateConstructorUsedError;
   bool get active => throw _privateConstructorUsedError;
   String get email => throw _privateConstructorUsedError;
-  String get id => throw _privateConstructorUsedError;
   @JsonKey(name: 'image')
   String? get imageUrl => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
@@ -50,9 +50,9 @@ abstract class $CustomerCopyWith<$Res> {
       _$CustomerCopyWithImpl<$Res, Customer>;
   @useResult
   $Res call(
-      {bool active,
+      {String id,
+      bool active,
       String email,
-      String id,
       @JsonKey(name: 'image') String? imageUrl,
       String name,
       String phone,
@@ -76,9 +76,9 @@ class _$CustomerCopyWithImpl<$Res, $Val extends Customer>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = null,
     Object? active = null,
     Object? email = null,
-    Object? id = null,
     Object? imageUrl = freezed,
     Object? name = null,
     Object? phone = null,
@@ -87,6 +87,10 @@ class _$CustomerCopyWithImpl<$Res, $Val extends Customer>
     Object? updatedAt = null,
   }) {
     return _then(_value.copyWith(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
       active: null == active
           ? _value.active
           : active // ignore: cast_nullable_to_non_nullable
@@ -94,10 +98,6 @@ class _$CustomerCopyWithImpl<$Res, $Val extends Customer>
       email: null == email
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
-              as String,
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
               as String,
       imageUrl: freezed == imageUrl
           ? _value.imageUrl
@@ -136,9 +136,9 @@ abstract class _$$CustomerImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {bool active,
+      {String id,
+      bool active,
       String email,
-      String id,
       @JsonKey(name: 'image') String? imageUrl,
       String name,
       String phone,
@@ -160,9 +160,9 @@ class __$$CustomerImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = null,
     Object? active = null,
     Object? email = null,
-    Object? id = null,
     Object? imageUrl = freezed,
     Object? name = null,
     Object? phone = null,
@@ -171,6 +171,10 @@ class __$$CustomerImplCopyWithImpl<$Res>
     Object? updatedAt = null,
   }) {
     return _then(_$CustomerImpl(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
       active: null == active
           ? _value.active
           : active // ignore: cast_nullable_to_non_nullable
@@ -178,10 +182,6 @@ class __$$CustomerImplCopyWithImpl<$Res>
       email: null == email
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
-              as String,
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
               as String,
       imageUrl: freezed == imageUrl
           ? _value.imageUrl
@@ -215,9 +215,9 @@ class __$$CustomerImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$CustomerImpl implements _Customer {
   const _$CustomerImpl(
-      {required this.active,
+      {required this.id,
+      required this.active,
       required this.email,
-      required this.id,
       @JsonKey(name: 'image') this.imageUrl,
       required this.name,
       required this.phone,
@@ -229,11 +229,11 @@ class _$CustomerImpl implements _Customer {
       _$$CustomerImplFromJson(json);
 
   @override
+  final String id;
+  @override
   final bool active;
   @override
   final String email;
-  @override
-  final String id;
   @override
   @JsonKey(name: 'image')
   final String? imageUrl;
@@ -253,7 +253,7 @@ class _$CustomerImpl implements _Customer {
 
   @override
   String toString() {
-    return 'Customer(active: $active, email: $email, id: $id, imageUrl: $imageUrl, name: $name, phone: $phone, userId: $userId, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'Customer(id: $id, active: $active, email: $email, imageUrl: $imageUrl, name: $name, phone: $phone, userId: $userId, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -261,9 +261,9 @@ class _$CustomerImpl implements _Customer {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$CustomerImpl &&
+            (identical(other.id, id) || other.id == id) &&
             (identical(other.active, active) || other.active == active) &&
             (identical(other.email, email) || other.email == email) &&
-            (identical(other.id, id) || other.id == id) &&
             (identical(other.imageUrl, imageUrl) ||
                 other.imageUrl == imageUrl) &&
             (identical(other.name, name) || other.name == name) &&
@@ -277,7 +277,7 @@ class _$CustomerImpl implements _Customer {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, active, email, id, imageUrl,
+  int get hashCode => Object.hash(runtimeType, id, active, email, imageUrl,
       name, phone, userId, createdAt, updatedAt);
 
   /// Create a copy of Customer
@@ -298,9 +298,9 @@ class _$CustomerImpl implements _Customer {
 
 abstract class _Customer implements Customer {
   const factory _Customer(
-          {required final bool active,
+          {required final String id,
+          required final bool active,
           required final String email,
-          required final String id,
           @JsonKey(name: 'image') final String? imageUrl,
           required final String name,
           required final String phone,
@@ -313,11 +313,11 @@ abstract class _Customer implements Customer {
       _$CustomerImpl.fromJson;
 
   @override
+  String get id;
+  @override
   bool get active;
   @override
   String get email;
-  @override
-  String get id;
   @override
   @JsonKey(name: 'image')
   String? get imageUrl;

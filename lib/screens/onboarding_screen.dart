@@ -1,40 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:kingz_cut_mobile/screens/launch_screen.dart';
+import 'package:kingz_cut_mobile/state_providers/app_config_notifier.dart';
 
-class OnBoardingScreen extends StatefulWidget {
+class OnBoardingScreen extends ConsumerStatefulWidget {
   const OnBoardingScreen({super.key});
 
   @override
-  State<OnBoardingScreen> createState() => _OnBoardingScreenState();
+  ConsumerState<OnBoardingScreen> createState() => _OnBoardingScreenState();
 }
 
-class _OnBoardingScreenState extends State<OnBoardingScreen> {
+class _OnBoardingScreenState extends ConsumerState<OnBoardingScreen> {
   @override
   Widget build(BuildContext context) {
-    //this is a page decoration for intro screen
-
     PageDecoration pageDecoration = PageDecoration(
       titleTextStyle: Theme.of(context).textTheme.headlineSmall!.copyWith(
         color: Theme.of(context).colorScheme.onPrimary,
         fontWeight: FontWeight.w700,
-      ), //tile font size, weight and color
-
+      ),
       bodyPadding: const EdgeInsets.symmetric(horizontal: 10.0),
       titlePadding: const EdgeInsets.symmetric(vertical: 30),
       bodyAlignment: Alignment.center,
-
       bodyTextStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(
         color: Theme.of(context).colorScheme.onPrimary,
       ),
-
-      // imageFlex: 3,
-      // bodyFlex: 5,
       fullScreen: true,
       imagePadding: const EdgeInsets.symmetric(vertical: 10.0),
-      // imageAlignment: Alignment.topCenter,
-
-      // footerPadding: EdgeInsets.all(200),
     );
 
     return Scaffold(
@@ -42,20 +34,15 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
       body: IntroductionScreen(
         globalBackgroundColor: Theme.of(context).colorScheme.primary,
         dotsDecorator: DotsDecorator(
-          size: const Size(10.0, 10.0), //size of dots
+          size: const Size(10.0, 10.0),
           activeSize: const Size(22.0, 10.0),
-          color: Theme.of(context).colorScheme.onPrimary, //color of dots
-          activeColor:
-              Theme.of(
-                context,
-              ).colorScheme.inversePrimary, //color of active dot
+          color: Theme.of(context).colorScheme.onPrimary,
+          activeColor: Theme.of(context).colorScheme.inversePrimary,
           activeShape: const RoundedRectangleBorder(
-            //shave of active dot
             borderRadius: BorderRadius.all(Radius.circular(25.0)),
           ),
         ),
         pages: [
-          //set your page view here
           PageViewModel(
             title: "Welcome to Kingz Cut Barbering Salon",
             body:
@@ -78,11 +65,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
             decoration: pageDecoration,
           ),
         ],
-
-        onDone: () => _goHomepage(context), //go to home page on done
-        onSkip: () => _goHomepage(context), // You can override on skip
+        onDone: () => _goHomepage(context),
+        onSkip: () => _goHomepage(context),
         showSkipButton: true,
-
         showNextButton: true,
         skip: Text(
           'Skip',
@@ -95,7 +80,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
         isProgress: true,
         doneStyle: FilledButton.styleFrom(
           backgroundColor: Theme.of(context).colorScheme.secondary,
-          padding: EdgeInsets.symmetric(vertical: 16),
+          padding: const EdgeInsets.symmetric(vertical: 16),
         ),
         done: Text(
           'Get Started',
@@ -109,25 +94,24 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
     );
   }
 
-  void _goHomepage(context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) {
-          return LaunchScreen();
-        },
-      ),
-    );
+  void _goHomepage(BuildContext context) async {
+    final notifier = ref.read(appConfigProvider.notifier);
+    await notifier.setOnboarded(true);
+
+    if (!mounted) return;
+
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (_) => const LaunchScreen()));
   }
 
   Widget _introImage(String assetName) {
-    //widget to show intro image
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 30, vertical: 50),
-      // margin: EdgeInsets.only(bottom: 300),
+      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 50),
       height: MediaQuery.of(context).size.height * .45,
       decoration: ShapeDecoration(
         color: Theme.of(context).colorScheme.onPrimary,
-        shape: RoundedRectangleBorder(
+        shape: const RoundedRectangleBorder(
           borderRadius: BorderRadiusDirectional.vertical(
             bottom: Radius.circular(120),
           ),

@@ -1,17 +1,24 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kingz_cut_mobile/enums/user_type.dart';
+import 'package:kingz_cut_mobile/repositories/user_type_repository.dart';
 
-class UserTypeProvider extends Notifier<UserType?> {
+class UserTypeNotifier extends AsyncNotifier<UserType?> {
+  late final UserTypeRepository _repo;
+
   @override
-  UserType? build() {
-    return null;
+  Future<UserType?> build() async {
+    _repo = ref.read(userTypeRepositoryProvider);
+    return await _repo.loadUserType();
   }
 
-  void setType(UserType uType) {
-    state = uType;
+  Future<void> setType(UserType uType) async {
+    final current = state.valueOrNull;
+    if (current == uType) return;
+    await _repo.saveUserType(uType);
+    state = AsyncValue.data(uType);
   }
 }
 
-final userTypeProvider = NotifierProvider<UserTypeProvider, UserType?>(
-  () => UserTypeProvider(),
+final userTypeProvider = AsyncNotifierProvider<UserTypeNotifier, UserType?>(
+  UserTypeNotifier.new,
 );

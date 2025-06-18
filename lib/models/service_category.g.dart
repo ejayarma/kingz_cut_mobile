@@ -1,31 +1,29 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'service.dart';
+part of 'service_category.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$ServiceImpl _$$ServiceImplFromJson(Map<String, dynamic> json) =>
-    _$ServiceImpl(
+_$ServiceCategoryImpl _$$ServiceCategoryImplFromJson(
+        Map<String, dynamic> json) =>
+    _$ServiceCategoryImpl(
       id: json['id'] as String,
-      name: json['name'] as String,
-      categoryId: json['categoryId'] as String,
       imageUrl: json['imageUrl'] as String?,
-      price: (json['price'] as num).toDouble(),
-      timeframe: (json['timeframe'] as num).toInt(),
+      description: json['description'] as String?,
+      name: json['name'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
 
-Map<String, dynamic> _$$ServiceImplToJson(_$ServiceImpl instance) =>
+Map<String, dynamic> _$$ServiceCategoryImplToJson(
+        _$ServiceCategoryImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'name': instance.name,
-      'categoryId': instance.categoryId,
       'imageUrl': instance.imageUrl,
-      'price': instance.price,
-      'timeframe': instance.timeframe,
+      'description': instance.description,
+      'name': instance.name,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),
     };

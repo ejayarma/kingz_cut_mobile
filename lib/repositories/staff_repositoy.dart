@@ -8,6 +8,10 @@ class StaffRepository {
   Future<List<Staff>> fetchStaff() async {
     final snapshot = await _staffRef.get();
 
-    return snapshot.docs.map((doc) => Staff.fromJson(doc.data())).toList();
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      return Staff.fromJson({'id': doc.id, ...data});
+    }).toList();
+    // return snapshot.docs.map((doc) => Staff.fromJson(doc.data())).toList();
   }
 }

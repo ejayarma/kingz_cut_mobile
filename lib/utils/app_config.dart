@@ -1,4 +1,4 @@
 class AppConfig {
-   static final  String kOnboardedKey = 'USER_ONBOARDED';
-    static final String kAuthenticatedKey = 'USER_AUTHENTICATED';
+  static final String kOnboardedKey = 'USER_ONBOARDED';
+  static final String kUserTypeKey = 'USER_TYPE';
 }

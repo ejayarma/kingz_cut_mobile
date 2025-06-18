@@ -1,41 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kingz_cut_mobile/models/staff.dart';
 import 'package:kingz_cut_mobile/screens/customer/booking_screen.dart';
-import 'package:kingz_cut_mobile/screens/customer/booking_screen_old.dart';
-import 'package:kingz_cut_mobile/screens/customer/reviews_screen.dart'; // Import the booking screen
+import 'package:kingz_cut_mobile/screens/customer/reviews_screen.dart';
+import 'package:kingz_cut_mobile/state_providers/staff_provider.dart';
 
-class ChooseStylistScreen extends StatefulWidget {
+class ChooseStylistScreen extends ConsumerStatefulWidget {
   const ChooseStylistScreen({super.key});
 
   @override
-  State<ChooseStylistScreen> createState() => _ChooseStylistScreenState();
+  ConsumerState<ChooseStylistScreen> createState() =>
+      _ChooseStylistScreenState();
 }
 
-class _ChooseStylistScreenState extends State<ChooseStylistScreen> {
+class _ChooseStylistScreenState extends ConsumerState<ChooseStylistScreen> {
   final TextEditingController _searchController = TextEditingController();
-
-  // List of stylists
-  final List<Map<String, dynamic>> _stylists = [
-    {'name': 'John Will', 'image': 'assets/images/stylists/john_will.png'},
-    {'name': 'Ama Doe', 'image': 'assets/images/stylists/ama_doe.png'},
-    {'name': 'Jojo Ansah', 'image': 'assets/images/stylists/jojo_ansah.png'},
-    {
-      'name': 'Daniel Grey',
-      'image': 'assets/images/stylists/daniel_grey.png',
-      // 'image': null, // No image for this stylist
-    },
-    {'name': 'Kofi Brown', 'image': 'assets/images/stylists/kofi_brown.png'},
-    {'name': 'Dave Moore', 'image': 'assets/images/stylists/dave_moore.png'},
-  ];
-
-  List<Map<String, dynamic>> _filteredStylists = [];
+  List<Staff> _filteredStaff = [];
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
-    _filteredStylists = List.from(_stylists);
-
     // Add listener to search field
-    _searchController.addListener(_filterStylists);
+    _searchController.addListener(_onSearchChanged);
   }
 
   @override
@@ -44,26 +31,25 @@ class _ChooseStylistScreenState extends State<ChooseStylistScreen> {
     super.dispose();
   }
 
-  // Filter stylists based on search text
-  void _filterStylists() {
-    final query = _searchController.text.toLowerCase();
-
+  // Handle search input changes
+  void _onSearchChanged() {
     setState(() {
-      if (query.isEmpty) {
-        _filteredStylists = List.from(_stylists);
-      } else {
-        _filteredStylists =
-            _stylists
-                .where(
-                  (stylist) => stylist['name'].toLowerCase().contains(query),
-                )
-                .toList();
-      }
+      _searchQuery = _searchController.text.toLowerCase();
     });
   }
 
+  // Filter staff based on search text
+  List<Staff> _filterStaff(List<Staff> staff) {
+    if (_searchQuery.isEmpty) {
+      return staff;
+    }
+    return staff
+        .where((stylist) => stylist.name.toLowerCase().contains(_searchQuery))
+        .toList();
+  }
+
   // Navigate to next screen with selected stylist
-  void _selectStylist(Map<String, dynamic> stylist) {
+  void _selectStylist(Staff staff) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -77,35 +63,68 @@ class _ChooseStylistScreenState extends State<ChooseStylistScreen> {
             children: [
               Align(
                 alignment: Alignment.center,
-                child: CircleAvatar(
-                  radius: 30,
-                  backgroundImage: AssetImage(stylist['image']),
+                child: Builder(
+                  builder: (context) {
+                    if (staff.imageUrl == null || staff.imageUrl!.isEmpty) {
+                      return CircleAvatar(
+                        radius: 30,
+                        backgroundColor: Colors.grey.shade200,
+                        child: Text(
+                          staff.name.substring(0, 1).toUpperCase(),
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 24,
+                          ),
+                        ),
+                      );
+                    }
+                    return CircleAvatar(
+                      radius: 30,
+                      backgroundColor: Colors.grey.shade200,
+                      backgroundImage: NetworkImage(staff.imageUrl!),
+                    );
+                  },
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Text(
-                stylist['name'],
+                staff.name,
                 textAlign: TextAlign.center,
                 style: Theme.of(
                   context,
                 ).textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
-                'Available',
+                staff.active ? 'Available' : 'Unavailable',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.labelLarge!.copyWith(
-                  color: Colors.green,
+                  color: staff.active ? Colors.green : Colors.red,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 10),
+              if (staff.rating != null) ...[
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.star, color: Colors.amber, size: 16),
+                    const SizedBox(width: 4),
+                    Text(
+                      staff.rating!.toStringAsFixed(1),
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
+              ],
+              const SizedBox(height: 10),
               Text(
                 "Kindly book 30 mins before\n appointment time",
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               SizedBox(
                 height: 56,
                 child: OutlinedButton(
@@ -116,11 +135,12 @@ class _ChooseStylistScreenState extends State<ChooseStylistScreen> {
                   ),
                   onPressed: () {
                     // Add "Send message" functionality here
+                    // You can pass staff.id or staff object for messaging
                   },
-                  child: Text("Send message"),
+                  child: const Text("Send message"),
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               SizedBox(
                 height: 56,
                 child: FilledButton(
@@ -129,16 +149,25 @@ class _ChooseStylistScreenState extends State<ChooseStylistScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => BookingScreen()),
-                    );
-                  },
-                  child: Text("Book"),
+                  onPressed:
+                      staff.active
+                          ? () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => BookingScreen(
+                                      // You might want to pass the selected staff to BookingScreen
+                                      // selectedStaff: staff,
+                                    ),
+                              ),
+                            );
+                          }
+                          : null,
+                  child: const Text("Book"),
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               SizedBox(
                 height: 32,
                 child: Align(
@@ -148,7 +177,11 @@ class _ChooseStylistScreenState extends State<ChooseStylistScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ReviewsScreen(),
+                          builder:
+                              (context) => ReviewsScreen(
+                                // You might want to pass staff.id for staff-specific reviews
+                                // staffId: staff.id,
+                              ),
                         ),
                       );
                     },
@@ -169,11 +202,13 @@ class _ChooseStylistScreenState extends State<ChooseStylistScreen> {
         );
       },
     );
-    print('Selected stylist: ${stylist['name']}');
+    print('Selected stylist: ${staff.name} (ID: ${staff.id})');
   }
 
   @override
   Widget build(BuildContext context) {
+    final staffAsync = ref.watch(staffProvider);
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -210,14 +245,84 @@ class _ChooseStylistScreenState extends State<ChooseStylistScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Stylists list
+              // Staff list
               Expanded(
-                child: ListView.builder(
-                  itemCount: _filteredStylists.length,
-                  itemBuilder: (context, index) {
-                    final stylist = _filteredStylists[index];
-                    return _buildStylistCard(stylist);
+                child: staffAsync.when(
+                  data: (staff) {
+                    final filteredStaff = _filterStaff(staff);
+
+                    if (filteredStaff.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.search_off,
+                              size: 64,
+                              color: Colors.grey.shade400,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              _searchQuery.isEmpty
+                                  ? 'No stylists available'
+                                  : 'No stylists found for "$_searchQuery"',
+                              style: Theme.of(context).textTheme.bodyLarge
+                                  ?.copyWith(color: Colors.grey.shade600),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    return RefreshIndicator(
+                      onRefresh: () async {
+                        await ref.read(staffProvider.notifier).refreshStaff();
+                      },
+                      child: ListView.builder(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        itemCount: filteredStaff.length,
+                        itemBuilder: (context, index) {
+                          final stylist = filteredStaff[index];
+                          return _buildStylistCard(stylist);
+                        },
+                      ),
+                    );
                   },
+                  loading:
+                      () => const Center(child: CircularProgressIndicator()),
+                  error:
+                      (error, stackTrace) => Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.error_outline,
+                              size: 64,
+                              color: Colors.red.shade300,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Failed to load stylists',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              error.toString(),
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(color: Colors.grey.shade600),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 16),
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                ref.read(staffProvider.notifier).refreshStaff();
+                              },
+                              icon: const Icon(Icons.refresh),
+                              label: const Text('Retry'),
+                            ),
+                          ],
+                        ),
+                      ),
                 ),
               ),
             ],
@@ -227,7 +332,7 @@ class _ChooseStylistScreenState extends State<ChooseStylistScreen> {
     );
   }
 
-  Widget _buildStylistCard(Map<String, dynamic> stylist) {
+  Widget _buildStylistCard(Staff staff) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -243,29 +348,67 @@ class _ChooseStylistScreenState extends State<ChooseStylistScreen> {
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: CircleAvatar(
-          radius: 25,
-          backgroundColor: Colors.grey.shade200,
-          backgroundImage:
-              stylist['image'] != null ? AssetImage(stylist['image']) : null,
-          child:
-              stylist['image'] == null
-                  ? Text(
-                    stylist['name'].substring(0, 1),
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                    ),
-                  )
-                  : null,
+        leading: Builder(
+          builder: (context) {
+            if (staff.imageUrl == null || staff.imageUrl!.isEmpty) {
+              return CircleAvatar(
+                radius: 25,
+                backgroundColor: Colors.grey.shade200,
+                child: Text(
+                  staff.name.substring(0, 1).toUpperCase(),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                  ),
+                ),
+              );
+            }
+            return CircleAvatar(
+              radius: 30,
+              backgroundColor: Colors.grey.shade200,
+              backgroundImage: NetworkImage(staff.imageUrl!),
+            );
+          },
         ),
         title: Text(
-          stylist['name'],
+          staff.name,
           style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
         ),
+        subtitle: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color:
+                    staff.active ? Colors.green.shade100 : Colors.red.shade100,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                staff.active ? 'Available' : 'Unavailable',
+                style: TextStyle(
+                  color:
+                      staff.active
+                          ? Colors.green.shade700
+                          : Colors.red.shade700,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            if (staff.rating != null) ...[
+              const SizedBox(width: 8),
+              Icon(Icons.star, color: Colors.amber.shade600, size: 14),
+              const SizedBox(width: 2),
+              Text(
+                staff.rating!.toStringAsFixed(1),
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              ),
+            ],
+          ],
+        ),
         trailing: const Icon(Icons.chevron_right),
-        onTap: () => _selectStylist(stylist),
+        onTap: () => _selectStylist(staff),
       ),
     );
   }
