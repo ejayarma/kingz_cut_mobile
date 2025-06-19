@@ -8,18 +8,16 @@ part of 'appointment.dart';
 
 _$AppointmentImpl _$$AppointmentImplFromJson(Map<String, dynamic> json) =>
     _$AppointmentImpl(
-      customerId: json['customerId'] as String?,
-      reviewed: json['reviewed'] as bool?,
-      startTime: json['startTime'] == null
-          ? null
-          : DateTime.parse(json['startTime'] as String),
-      endTime: json['endTime'] == null
-          ? null
-          : DateTime.parse(json['endTime'] as String),
-      staffId: json['staffId'] as String?,
-      status: $enumDecodeNullable(_$AppointmentStatusEnumMap, json['status']),
-      serviceIds: (json['serviceIds'] as List<dynamic>?)
-          ?.map((e) => e as String)
+      id: json['id'] as String?,
+      customerId: json['customerId'] as String,
+      reviewed: json['reviewed'] as bool? ?? false,
+      startTime: DateTime.parse(json['startTime'] as String),
+      endTime: DateTime.parse(json['endTime'] as String),
+      staffId: json['staffId'] as String,
+      status: $enumDecodeNullable(_$AppointmentStatusEnumMap, json['status']) ??
+          AppointmentStatus.pending,
+      serviceIds: (json['serviceIds'] as List<dynamic>)
+          .map((e) => e as String)
           .toList(),
       createdAt: json['createdAt'] == null
           ? null
@@ -27,19 +25,24 @@ _$AppointmentImpl _$$AppointmentImplFromJson(Map<String, dynamic> json) =>
       updatedAt: json['updatedAt'] == null
           ? null
           : DateTime.parse(json['updatedAt'] as String),
+      notes: json['notes'] as String?,
+      totalPrice: (json['totalPrice'] as num?)?.toDouble(),
     );
 
 Map<String, dynamic> _$$AppointmentImplToJson(_$AppointmentImpl instance) =>
     <String, dynamic>{
+      'id': instance.id,
       'customerId': instance.customerId,
       'reviewed': instance.reviewed,
-      'startTime': instance.startTime?.toIso8601String(),
-      'endTime': instance.endTime?.toIso8601String(),
+      'startTime': instance.startTime.toIso8601String(),
+      'endTime': instance.endTime.toIso8601String(),
       'staffId': instance.staffId,
-      'status': _$AppointmentStatusEnumMap[instance.status],
+      'status': _$AppointmentStatusEnumMap[instance.status]!,
       'serviceIds': instance.serviceIds,
       'createdAt': instance.createdAt?.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),
+      'notes': instance.notes,
+      'totalPrice': instance.totalPrice,
     };
 
 const _$AppointmentStatusEnumMap = {

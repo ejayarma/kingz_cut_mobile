@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:riverpod/riverpod.dart';
 import '../models/customer.dart';
 
 class CustomerRepository {
@@ -11,21 +12,42 @@ class CustomerRepository {
       _auth = auth ?? FirebaseAuth.instance;
 
   final String _customersCollection = 'customers';
+  // final String _staffCollection = 'staff';
 
   /// Create a new customer (let Firestore auto-generate ID)
-  Future<String> createCustomer(Customer customer) async {
+  Future<Customer> createCustomer(Customer customer) async {
     final docRef = await _firestore
         .collection(_customersCollection)
         .add(customer.toJson());
-    return docRef.id;
+    return Customer.fromJson({'id': docRef.id, ...customer.toJson()});
   }
 
-  Future<Customer?> getCustomerByUid(String uid) async {
+  Future<Customer?> getCustomerByUserId(String uid) async {
     // Example with Firestore
+    final querySnapshot =
+        await FirebaseFirestore.instance
+            .collection(_customersCollection)
+            .where('userId', isEqualTo: uid)
+            .limit(1)
+            .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      final doc = querySnapshot.docs.first;
+      final data = doc.data();
+      return Customer.fromJson({'id': doc.id, ...data});
+    } else {
+      return null;
+    }
+  }
+
+  Future<Customer?> getCurrentCustomer() async {
+    if (_auth.currentUser == null) {
+      return null; // No user is currently authenticated
+    }
     final doc =
         await FirebaseFirestore.instance
             .collection(_customersCollection)
-            .doc(uid)
+            .doc(_auth.currentUser?.uid)
             .get();
 
     if (doc.exists) {
@@ -61,7 +83,7 @@ class CustomerRepository {
   }
 
   /// Create a customer from a Firebase user (if not already existing)
-  Future<String?> createCustomerFromFirebaseUser(User firebaseUser) async {
+  Future<void> createCustomerFromFirebaseUser(User firebaseUser) async {
     final userId = firebaseUser.uid;
 
     // Check if customer already exists
@@ -69,6 +91,7 @@ class CustomerRepository {
       return null; // Already exists; no action taken
     }
 
+    // Create a new customer
     final customer = Customer(
       active: true,
       email: firebaseUser.email ?? '',
@@ -81,7 +104,11 @@ class CustomerRepository {
       updatedAt: DateTime.now(),
     );
 
-    final docId = await createCustomer(customer);
-    return docId;
+    await createCustomer(customer);
+    // return docId;
   }
 }
+
+final customerRepositoryProvider = Provider<CustomerRepository>((ref) {
+  return CustomerRepository();
+});

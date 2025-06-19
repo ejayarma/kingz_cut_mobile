@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:kingz_cut_mobile/enums/service_type.dart';
 import 'package:kingz_cut_mobile/screens/customer/home/customer_bookings_page.dart';
 import 'package:kingz_cut_mobile/screens/customer/home/customer_home_page.dart';
 import 'package:kingz_cut_mobile/screens/customer/home/customer_messaging_page.dart';

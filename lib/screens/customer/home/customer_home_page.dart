@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:kingz_cut_mobile/enums/service_type.dart';
 import 'package:kingz_cut_mobile/models/service_category.dart';
 import 'package:kingz_cut_mobile/screens/customer/main_service_screen.dart';
+import 'package:kingz_cut_mobile/state_providers/customer_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/service_category_provider.dart';
 
 class CustomerHomePage extends ConsumerWidget {
@@ -46,9 +47,16 @@ class CustomerHomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentUser = FirebaseAuth.instance.currentUser;
+    // final currentUser = FirebaseAuth.instance.currentUser;
     final categoriesAsync = ref.watch(serviceCategoriesProvider);
+    final currentCustomer = ref.watch(customerProvider);
 
+    if (categoriesAsync.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (categoriesAsync.hasError) {
+      return Center(child: Text('Error: ${categoriesAsync.error}'));
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -102,7 +110,7 @@ class CustomerHomePage extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Welcome,\n${currentUser?.displayName ?? ''}",
+                  "Welcome,\n${currentCustomer.value?.name ?? ''}",
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 24,
@@ -115,21 +123,33 @@ class CustomerHomePage extends ConsumerWidget {
                   style: TextStyle(color: Colors.white, fontSize: 14),
                 ),
                 const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () => _goToHairStyleScreen(context, null),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF9A826),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 60,
+                        width: 200,
+                        child: ElevatedButton(
+                          onPressed: () => _goToHairStyleScreen(context, null),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFF9A826),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: const Text(
+                            'Book Now',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                  child: const Text(
-                    'Book Now',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  ],
                 ),
               ],
             ),
@@ -143,6 +163,7 @@ class CustomerHomePage extends ConsumerWidget {
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
           ),
         ),
+        SizedBox(height: 50),
 
         Expanded(
           child: categoriesAsync.when(
@@ -153,7 +174,7 @@ class CustomerHomePage extends ConsumerWidget {
                 crossAxisCount: 2,
                 mainAxisSpacing: 16,
                 crossAxisSpacing: 16,
-                childAspectRatio: 4 / 3,
+                childAspectRatio: 5 / 3,
                 padding: const EdgeInsets.all(16),
                 children:
                     categories.map((category) {

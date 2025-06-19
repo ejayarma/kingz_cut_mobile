@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kingz_cut_mobile/models/appointment_booking_state.dart';
 import 'package:kingz_cut_mobile/models/staff.dart';
 import 'package:kingz_cut_mobile/screens/customer/booking_screen.dart';
 import 'package:kingz_cut_mobile/screens/customer/reviews_screen.dart';
+import 'package:kingz_cut_mobile/state_providers/appointment_booking_provider.dart';
+import 'package:kingz_cut_mobile/state_providers/service_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/staff_provider.dart';
+// import 'package:kingz_cut_mobile/state_providers/booking_provider.dart'; // Add this import
 
 class ChooseStylistScreen extends ConsumerStatefulWidget {
   const ChooseStylistScreen({super.key});
@@ -15,7 +19,7 @@ class ChooseStylistScreen extends ConsumerStatefulWidget {
 
 class _ChooseStylistScreenState extends ConsumerState<ChooseStylistScreen> {
   final TextEditingController _searchController = TextEditingController();
-  List<Staff> _filteredStaff = [];
+  // List<Staff> _filteredStaff = [];
   String _searchQuery = '';
 
   @override
@@ -50,6 +54,8 @@ class _ChooseStylistScreenState extends ConsumerState<ChooseStylistScreen> {
 
   // Navigate to next screen with selected stylist
   void _selectStylist(Staff staff) {
+    // final servicesAsync = ref.watch(servicesProvider);
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -152,14 +158,49 @@ class _ChooseStylistScreenState extends ConsumerState<ChooseStylistScreen> {
                   onPressed:
                       staff.active
                           ? () {
+                            // Update the booking state with selected staff
+                            ref
+                                .read(appointmentBookingProvider.notifier)
+                                .selectStaff(staff.id);
+
+                            // Get the current booking state and log it
+                            final currentBookingState = ref.read(
+                              appointmentBookingProvider,
+                            );
+                            print('=== BOOKING STATE UPDATED ===');
+                            print(
+                              'Selected Services: ${currentBookingState.selectedServiceIds}',
+                            );
+                            print(
+                              'Selected Staff ID: ${currentBookingState.selectedStaffId}',
+                            );
+                            print('Selected Staff Name: ${staff.name}');
+                            print(
+                              'Selected Date: ${currentBookingState.selectedDate}',
+                            );
+                            print(
+                              'Selected Start Time: ${currentBookingState.selectedStartTime}',
+                            );
+                            print(
+                              'Selected End Time: ${currentBookingState.selectedEndTime}',
+                            );
+                            print('Notes: ${currentBookingState.notes}');
+                            print(
+                              'Can Proceed to DateTime Selection: ${currentBookingState.canProceedToDateTimeSelection}',
+                            );
+                            print(
+                              'Can Book Appointment: ${currentBookingState.canBookAppointment}',
+                            );
+                            print('=============================');
+
+                            // Close the bottom sheet
+                            Navigator.pop(context);
+
+                            // Navigate to BookingScreen
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder:
-                                    (context) => BookingScreen(
-                                      // You might want to pass the selected staff to BookingScreen
-                                      // selectedStaff: staff,
-                                    ),
+                                builder: (context) => BookingScreen(),
                               ),
                             );
                           }
@@ -208,6 +249,9 @@ class _ChooseStylistScreenState extends ConsumerState<ChooseStylistScreen> {
   @override
   Widget build(BuildContext context) {
     final staffAsync = ref.watch(staffProvider);
+    final bookingState = ref.watch(
+      appointmentBookingProvider,
+    ); // Watch booking state
 
     return Scaffold(
       appBar: AppBar(
@@ -226,6 +270,39 @@ class _ChooseStylistScreenState extends ConsumerState<ChooseStylistScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Display current booking state info (optional - for debugging)
+              if (bookingState.selectedServiceIds.isNotEmpty) ...[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.blue.shade200),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Selected Services: ${bookingState.selectedServiceIds.length}',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: Colors.blue.shade700,
+                        ),
+                      ),
+                      if (bookingState.selectedStaffId != null)
+                        Text(
+                          'Selected Staff: ${bookingState.selectedStaffId}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            color: Colors.blue.shade700,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+
               // Search field
               Container(
                 decoration: BoxDecoration(
@@ -283,7 +360,7 @@ class _ChooseStylistScreenState extends ConsumerState<ChooseStylistScreen> {
                         itemCount: filteredStaff.length,
                         itemBuilder: (context, index) {
                           final stylist = filteredStaff[index];
-                          return _buildStylistCard(stylist);
+                          return _buildStylistCard(stylist, bookingState);
                         },
                       ),
                     );
@@ -332,12 +409,21 @@ class _ChooseStylistScreenState extends ConsumerState<ChooseStylistScreen> {
     );
   }
 
-  Widget _buildStylistCard(Staff staff) {
+  Widget _buildStylistCard(Staff staff, AppointmentBookingState bookingState) {
+    final isSelected = bookingState.selectedStaffId == staff.id;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
+        border:
+            isSelected
+                ? Border.all(
+                  color: Theme.of(context).colorScheme.primary,
+                  width: 2,
+                )
+                : null,
         boxShadow: [
           BoxShadow(
             color: Colors.grey.shade200,
@@ -371,9 +457,24 @@ class _ChooseStylistScreenState extends ConsumerState<ChooseStylistScreen> {
             );
           },
         ),
-        title: Text(
-          staff.name,
-          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(
+                staff.name,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+            if (isSelected)
+              Icon(
+                Icons.check_circle,
+                color: Theme.of(context).colorScheme.primary,
+                size: 20,
+              ),
+          ],
         ),
         subtitle: Row(
           children: [

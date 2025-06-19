@@ -3,26 +3,31 @@ import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kingz_cut_mobile/screens/about_page.dart';
-import 'package:kingz_cut_mobile/screens/auth/create_account_screen.dart';
+// import 'package:kingz_cut_mobile/screens/auth/create_account_screen.dart';
 import 'package:kingz_cut_mobile/screens/auth/login_screen.dart';
+import 'package:kingz_cut_mobile/state_providers/customer_provider.dart';
 import 'package:kingz_cut_mobile/utils/app_alert.dart';
 import 'package:kingz_cut_mobile/utils/custom_ui_block.dart';
 
-class CustomerProfilePage extends StatefulWidget {
+class CustomerProfilePage extends ConsumerStatefulWidget {
   const CustomerProfilePage({super.key});
 
   @override
-  State<CustomerProfilePage> createState() => _CustomerProfilePageState();
+  ConsumerState<CustomerProfilePage> createState() =>
+      _CustomerProfilePageState();
 }
 
-class _CustomerProfilePageState extends State<CustomerProfilePage> {
+class _CustomerProfilePageState extends ConsumerState<CustomerProfilePage> {
   bool notificationsEnabled = true;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+
+    final currentCustomer = ref.watch(customerProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -62,9 +67,9 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                   const SizedBox(width: 16),
 
                   // Name
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Kojo Jnr.',
+                      currentCustomer.value?.name ?? '',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -84,7 +89,7 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                   Icon(Icons.email, color: colorScheme.onSurfaceVariant),
                   const SizedBox(width: 12),
                   Text(
-                    'kojojnr@gmail.com',
+                    currentCustomer.value?.email ?? '',
                     style: TextStyle(
                       color: colorScheme.onSurface,
                       fontSize: 16,

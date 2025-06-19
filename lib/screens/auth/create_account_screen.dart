@@ -407,6 +407,27 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     }
   }
 
+//  /// Throws [CustomerNotFoundException], [StaffNotFoundException] if the user is not found.
+//   Future<void> _checkCustomerOrStaff(String userId) async {
+//     final customerRepo = ref.read(customerRepositoryProvider);
+//     final staffRepo = ref.read(staffRepositoryProvider);
+
+//     final customer = await customerRepo.getCurrentCustomer();
+
+//     final appConfig = ref.read(appConfigProvider);
+//     final staffExists = await staffRepo.staffExists(userId);
+//     final customerExists = customer != null;
+
+//     if (!customerExists &&
+//         appConfig.valueOrNull?.userType == UserType.customer) {
+//       throw CustomerNotFoundException();
+//     }
+//     if (!staffExists && appConfig.valueOrNull?.userType == UserType.barber) {
+//       throw StaffNotFoundException();
+//     }
+//   }
+
+
   Future<void> _handleRegistration() async {
     if (!_formKey.currentState!.validate()) {
       AppAlert.snackBarErrorAlert(context, 'Please provide all details');

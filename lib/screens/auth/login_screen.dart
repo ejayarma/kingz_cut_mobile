@@ -5,18 +5,25 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:kingz_cut_mobile/enums/user_type.dart';
+import 'package:kingz_cut_mobile/exceptions/customer_not_found_exception.dart';
+import 'package:kingz_cut_mobile/exceptions/staff_not_found_exception.dart';
 import 'package:kingz_cut_mobile/repositories/customer_repository.dart';
+import 'package:kingz_cut_mobile/repositories/staff_repositoy.dart';
 import 'package:kingz_cut_mobile/screens/auth/create_account_screen.dart';
 import 'package:kingz_cut_mobile/screens/auth/forgot_password_screen.dart';
 import 'package:kingz_cut_mobile/screens/customer/home/customer_dashboard_screen.dart';
+import 'package:kingz_cut_mobile/state_providers/app_config_notifier.dart';
+import 'package:kingz_cut_mobile/state_providers/customer_provider.dart';
 import 'package:kingz_cut_mobile/utils/app_alert.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kingz_cut_mobile/utils/custom_ui_block.dart';
 import 'package:kingz_cut_mobile/utils/firebase_error_mapper.dart';
 import 'package:kingz_cut_mobile/utils/platform_error_mapper.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   final Function(String, String)? onLogin;
   final VoidCallback? onForgotPassword;
   final VoidCallback? onSignUpTap;
@@ -29,10 +36,10 @@ class LoginScreen extends StatefulWidget {
   });
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -332,11 +339,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
       log('Google sign-in successful: ${login.user?.email}');
 
-      // After registration, check if customer exists, then create if not
+      // After registration, check if customer/staff exists,
       final userId = login.user?.uid;
       if (userId != null) {
-        final customerRepo = CustomerRepository();
-        await customerRepo.createCustomerFromFirebaseUser(login.user!);
+        await _checkCustomerOrStaff(userId);
       }
 
       log('Google sign-in successful: ${login.user?.email}');
@@ -365,6 +371,26 @@ class _LoginScreenState extends State<LoginScreen> {
         'Firebase Auth error during Google sign-in: ${e.code} - ${e.message}',
       );
       return null;
+    } on CustomerNotFoundException catch (e) {
+      if (mounted) {
+        CustomUiBlock.unblock(context);
+        AppAlert.snackBarErrorAlert(
+          context,
+          'Customer not found. Please create an account.',
+        );
+      }
+      log('Customer not found during Google sign-in: $e');
+      return null;
+    } on StaffNotFoundException catch (e) {
+      if (mounted) {
+        CustomUiBlock.unblock(context);
+        AppAlert.snackBarErrorAlert(
+          context,
+          'Staff not found. Please create an account.',
+        );
+      }
+      log('Staff not found during Google sign-in: $e');
+      return null;
     } on PlatformException catch (e) {
       final errorMessage = PlatformErrorMapper.getMessage(
         e.code,
@@ -391,6 +417,38 @@ class _LoginScreenState extends State<LoginScreen> {
       }
 
       return null;
+    } finally {
+      if (FirebaseAuth.instance.currentUser != null) {}
+    }
+  }
+
+  /// Throws [CustomerNotFoundException], [StaffNotFoundException] if the user is not found.
+  Future<void> _checkCustomerOrStaff(String userId) async {
+    final customerRepo = ref.read(customerRepositoryProvider);
+    final staffRepo = ref.read(staffRepositoryProvider);
+    // final customerNotifier = ref.watch(customerProvider);
+
+    // log current firebase user
+    final currentUser = FirebaseAuth.instance.currentUser;
+    log('Current Firebase user email: ${currentUser?.email}');
+    log('Current Firebase user id: ${currentUser?.uid}');
+
+    final customer = await customerRepo.getCustomerByUserId(userId);
+    if (customer != null) {
+      log('Customer found: ${customer.toString()}');
+    } else {
+      log('No customer found for userId: $userId');
+    }
+    final appConfig = ref.read(appConfigProvider);
+    final staffExists = await staffRepo.staffExists(userId);
+    final customerExists = customer != null;
+
+    if (!customerExists &&
+        appConfig.valueOrNull?.userType == UserType.customer) {
+      throw CustomerNotFoundException();
+    }
+    if (!staffExists && appConfig.valueOrNull?.userType == UserType.barber) {
+      throw StaffNotFoundException();
     }
   }
 
@@ -411,10 +469,12 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       CustomUiBlock.block(context);
 
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      final UserCredential login = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
+      final userId = login.user?.uid;
+      if (userId != null) {
+        await _checkCustomerOrStaff(userId);
+      }
     } on FirebaseAuthException catch (e) {
       // Handle all possible Firebase Auth exceptions
       final errorMessage = FirebaseErrorMapper.getMessage(e.code);
@@ -423,6 +483,38 @@ class _LoginScreenState extends State<LoginScreen> {
         CustomUiBlock.unblock(context);
       }
       return;
+    } on PlatformException catch (e) {
+      final errorMessage = PlatformErrorMapper.getMessage(
+        e.code,
+        context: 'Email/Password sign-in',
+      );
+
+      if (mounted) {
+        AppAlert.snackBarErrorAlert(context, errorMessage);
+        CustomUiBlock.unblock(context);
+      }
+
+      log(
+        'Platform error during Email/Password sign-in: ${e.code} - ${e.message}',
+      );
+    } on CustomerNotFoundException catch (e) {
+      if (mounted) {
+        CustomUiBlock.unblock(context);
+        AppAlert.snackBarErrorAlert(
+          context,
+          'Customer not found. Please create an account.',
+        );
+      }
+      log('Customer not found during Email/Password sign-in: $e');
+    } on StaffNotFoundException catch (e) {
+      if (mounted) {
+        CustomUiBlock.unblock(context);
+        AppAlert.snackBarErrorAlert(
+          context,
+          'Staff not found. Please create an account.',
+        );
+      }
+      log('Staff not found during Email/Password sign-in: $e');
     } catch (e) {
       // Handle any other unexpected errors
       log('Unexpected error during sign-in: $e');

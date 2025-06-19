@@ -7,7 +7,8 @@ class ChooseStylistScreenCopy extends StatefulWidget {
   const ChooseStylistScreenCopy({super.key});
 
   @override
-  State<ChooseStylistScreenCopy> createState() => _ChooseStylistScreenCopyState();
+  State<ChooseStylistScreenCopy> createState() =>
+      _ChooseStylistScreenCopyState();
 }
 
 class _ChooseStylistScreenCopyState extends State<ChooseStylistScreenCopy> {
@@ -132,7 +133,10 @@ class _ChooseStylistScreenCopyState extends State<ChooseStylistScreenCopy> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => BookingScreen()),
+                      MaterialPageRoute(
+                        builder:
+                            (context) => BookingScreen(),
+                      ),
                     );
                   },
                   child: Text("Book"),

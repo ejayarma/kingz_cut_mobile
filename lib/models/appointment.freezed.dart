@@ -20,15 +20,20 @@ Appointment _$AppointmentFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Appointment {
-  String? get customerId => throw _privateConstructorUsedError;
-  bool? get reviewed => throw _privateConstructorUsedError;
-  DateTime? get startTime => throw _privateConstructorUsedError;
-  DateTime? get endTime => throw _privateConstructorUsedError;
-  String? get staffId => throw _privateConstructorUsedError;
-  AppointmentStatus? get status => throw _privateConstructorUsedError;
-  List<String>? get serviceIds => throw _privateConstructorUsedError;
+  String? get id =>
+      throw _privateConstructorUsedError; // Add id field for Firestore document ID
+  String get customerId => throw _privateConstructorUsedError;
+  bool get reviewed => throw _privateConstructorUsedError;
+  DateTime get startTime => throw _privateConstructorUsedError;
+  DateTime get endTime => throw _privateConstructorUsedError;
+  String get staffId => throw _privateConstructorUsedError;
+  AppointmentStatus get status => throw _privateConstructorUsedError;
+  List<String> get serviceIds => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
   DateTime? get updatedAt => throw _privateConstructorUsedError;
+  String? get notes =>
+      throw _privateConstructorUsedError; // Optional notes field
+  double? get totalPrice => throw _privateConstructorUsedError;
 
   /// Serializes this Appointment to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -47,15 +52,18 @@ abstract class $AppointmentCopyWith<$Res> {
       _$AppointmentCopyWithImpl<$Res, Appointment>;
   @useResult
   $Res call(
-      {String? customerId,
-      bool? reviewed,
-      DateTime? startTime,
-      DateTime? endTime,
-      String? staffId,
-      AppointmentStatus? status,
-      List<String>? serviceIds,
+      {String? id,
+      String customerId,
+      bool reviewed,
+      DateTime startTime,
+      DateTime endTime,
+      String staffId,
+      AppointmentStatus status,
+      List<String> serviceIds,
       DateTime? createdAt,
-      DateTime? updatedAt});
+      DateTime? updatedAt,
+      String? notes,
+      double? totalPrice});
 }
 
 /// @nodoc
@@ -73,45 +81,52 @@ class _$AppointmentCopyWithImpl<$Res, $Val extends Appointment>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? customerId = freezed,
-    Object? reviewed = freezed,
-    Object? startTime = freezed,
-    Object? endTime = freezed,
-    Object? staffId = freezed,
-    Object? status = freezed,
-    Object? serviceIds = freezed,
+    Object? id = freezed,
+    Object? customerId = null,
+    Object? reviewed = null,
+    Object? startTime = null,
+    Object? endTime = null,
+    Object? staffId = null,
+    Object? status = null,
+    Object? serviceIds = null,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
+    Object? notes = freezed,
+    Object? totalPrice = freezed,
   }) {
     return _then(_value.copyWith(
-      customerId: freezed == customerId
+      id: freezed == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String?,
+      customerId: null == customerId
           ? _value.customerId
           : customerId // ignore: cast_nullable_to_non_nullable
-              as String?,
-      reviewed: freezed == reviewed
+              as String,
+      reviewed: null == reviewed
           ? _value.reviewed
           : reviewed // ignore: cast_nullable_to_non_nullable
-              as bool?,
-      startTime: freezed == startTime
+              as bool,
+      startTime: null == startTime
           ? _value.startTime
           : startTime // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      endTime: freezed == endTime
+              as DateTime,
+      endTime: null == endTime
           ? _value.endTime
           : endTime // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      staffId: freezed == staffId
+              as DateTime,
+      staffId: null == staffId
           ? _value.staffId
           : staffId // ignore: cast_nullable_to_non_nullable
-              as String?,
-      status: freezed == status
+              as String,
+      status: null == status
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
-              as AppointmentStatus?,
-      serviceIds: freezed == serviceIds
+              as AppointmentStatus,
+      serviceIds: null == serviceIds
           ? _value.serviceIds
           : serviceIds // ignore: cast_nullable_to_non_nullable
-              as List<String>?,
+              as List<String>,
       createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -120,6 +135,14 @@ class _$AppointmentCopyWithImpl<$Res, $Val extends Appointment>
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
+      notes: freezed == notes
+          ? _value.notes
+          : notes // ignore: cast_nullable_to_non_nullable
+              as String?,
+      totalPrice: freezed == totalPrice
+          ? _value.totalPrice
+          : totalPrice // ignore: cast_nullable_to_non_nullable
+              as double?,
     ) as $Val);
   }
 }
@@ -133,15 +156,18 @@ abstract class _$$AppointmentImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String? customerId,
-      bool? reviewed,
-      DateTime? startTime,
-      DateTime? endTime,
-      String? staffId,
-      AppointmentStatus? status,
-      List<String>? serviceIds,
+      {String? id,
+      String customerId,
+      bool reviewed,
+      DateTime startTime,
+      DateTime endTime,
+      String staffId,
+      AppointmentStatus status,
+      List<String> serviceIds,
       DateTime? createdAt,
-      DateTime? updatedAt});
+      DateTime? updatedAt,
+      String? notes,
+      double? totalPrice});
 }
 
 /// @nodoc
@@ -157,45 +183,52 @@ class __$$AppointmentImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? customerId = freezed,
-    Object? reviewed = freezed,
-    Object? startTime = freezed,
-    Object? endTime = freezed,
-    Object? staffId = freezed,
-    Object? status = freezed,
-    Object? serviceIds = freezed,
+    Object? id = freezed,
+    Object? customerId = null,
+    Object? reviewed = null,
+    Object? startTime = null,
+    Object? endTime = null,
+    Object? staffId = null,
+    Object? status = null,
+    Object? serviceIds = null,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
+    Object? notes = freezed,
+    Object? totalPrice = freezed,
   }) {
     return _then(_$AppointmentImpl(
-      customerId: freezed == customerId
+      id: freezed == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String?,
+      customerId: null == customerId
           ? _value.customerId
           : customerId // ignore: cast_nullable_to_non_nullable
-              as String?,
-      reviewed: freezed == reviewed
+              as String,
+      reviewed: null == reviewed
           ? _value.reviewed
           : reviewed // ignore: cast_nullable_to_non_nullable
-              as bool?,
-      startTime: freezed == startTime
+              as bool,
+      startTime: null == startTime
           ? _value.startTime
           : startTime // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      endTime: freezed == endTime
+              as DateTime,
+      endTime: null == endTime
           ? _value.endTime
           : endTime // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      staffId: freezed == staffId
+              as DateTime,
+      staffId: null == staffId
           ? _value.staffId
           : staffId // ignore: cast_nullable_to_non_nullable
-              as String?,
-      status: freezed == status
+              as String,
+      status: null == status
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
-              as AppointmentStatus?,
-      serviceIds: freezed == serviceIds
+              as AppointmentStatus,
+      serviceIds: null == serviceIds
           ? _value._serviceIds
           : serviceIds // ignore: cast_nullable_to_non_nullable
-              as List<String>?,
+              as List<String>,
       createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -204,6 +237,14 @@ class __$$AppointmentImplCopyWithImpl<$Res>
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
+      notes: freezed == notes
+          ? _value.notes
+          : notes // ignore: cast_nullable_to_non_nullable
+              as String?,
+      totalPrice: freezed == totalPrice
+          ? _value.totalPrice
+          : totalPrice // ignore: cast_nullable_to_non_nullable
+              as double?,
     ));
   }
 }
@@ -212,50 +253,61 @@ class __$$AppointmentImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$AppointmentImpl implements _Appointment {
   const _$AppointmentImpl(
-      {required this.customerId,
-      required this.reviewed,
+      {this.id,
+      required this.customerId,
+      this.reviewed = false,
       required this.startTime,
       required this.endTime,
       required this.staffId,
-      required this.status,
-      required final List<String>? serviceIds,
-      required this.createdAt,
-      required this.updatedAt})
+      this.status = AppointmentStatus.pending,
+      required final List<String> serviceIds,
+      this.createdAt,
+      this.updatedAt,
+      this.notes,
+      this.totalPrice})
       : _serviceIds = serviceIds;
 
   factory _$AppointmentImpl.fromJson(Map<String, dynamic> json) =>
       _$$AppointmentImplFromJson(json);
 
   @override
-  final String? customerId;
+  final String? id;
+// Add id field for Firestore document ID
   @override
-  final bool? reviewed;
+  final String customerId;
   @override
-  final DateTime? startTime;
+  @JsonKey()
+  final bool reviewed;
   @override
-  final DateTime? endTime;
+  final DateTime startTime;
   @override
-  final String? staffId;
+  final DateTime endTime;
   @override
-  final AppointmentStatus? status;
-  final List<String>? _serviceIds;
+  final String staffId;
   @override
-  List<String>? get serviceIds {
-    final value = _serviceIds;
-    if (value == null) return null;
+  @JsonKey()
+  final AppointmentStatus status;
+  final List<String> _serviceIds;
+  @override
+  List<String> get serviceIds {
     if (_serviceIds is EqualUnmodifiableListView) return _serviceIds;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(value);
+    return EqualUnmodifiableListView(_serviceIds);
   }
 
   @override
   final DateTime? createdAt;
   @override
   final DateTime? updatedAt;
+  @override
+  final String? notes;
+// Optional notes field
+  @override
+  final double? totalPrice;
 
   @override
   String toString() {
-    return 'Appointment(customerId: $customerId, reviewed: $reviewed, startTime: $startTime, endTime: $endTime, staffId: $staffId, status: $status, serviceIds: $serviceIds, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'Appointment(id: $id, customerId: $customerId, reviewed: $reviewed, startTime: $startTime, endTime: $endTime, staffId: $staffId, status: $status, serviceIds: $serviceIds, createdAt: $createdAt, updatedAt: $updatedAt, notes: $notes, totalPrice: $totalPrice)';
   }
 
   @override
@@ -263,6 +315,7 @@ class _$AppointmentImpl implements _Appointment {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$AppointmentImpl &&
+            (identical(other.id, id) || other.id == id) &&
             (identical(other.customerId, customerId) ||
                 other.customerId == customerId) &&
             (identical(other.reviewed, reviewed) ||
@@ -277,13 +330,17 @@ class _$AppointmentImpl implements _Appointment {
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt));
+                other.updatedAt == updatedAt) &&
+            (identical(other.notes, notes) || other.notes == notes) &&
+            (identical(other.totalPrice, totalPrice) ||
+                other.totalPrice == totalPrice));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType,
+      id,
       customerId,
       reviewed,
       startTime,
@@ -292,7 +349,9 @@ class _$AppointmentImpl implements _Appointment {
       status,
       const DeepCollectionEquality().hash(_serviceIds),
       createdAt,
-      updatedAt);
+      updatedAt,
+      notes,
+      totalPrice);
 
   /// Create a copy of Appointment
   /// with the given fields replaced by the non-null parameter values.
@@ -312,37 +371,46 @@ class _$AppointmentImpl implements _Appointment {
 
 abstract class _Appointment implements Appointment {
   const factory _Appointment(
-      {required final String? customerId,
-      required final bool? reviewed,
-      required final DateTime? startTime,
-      required final DateTime? endTime,
-      required final String? staffId,
-      required final AppointmentStatus? status,
-      required final List<String>? serviceIds,
-      required final DateTime? createdAt,
-      required final DateTime? updatedAt}) = _$AppointmentImpl;
+      {final String? id,
+      required final String customerId,
+      final bool reviewed,
+      required final DateTime startTime,
+      required final DateTime endTime,
+      required final String staffId,
+      final AppointmentStatus status,
+      required final List<String> serviceIds,
+      final DateTime? createdAt,
+      final DateTime? updatedAt,
+      final String? notes,
+      final double? totalPrice}) = _$AppointmentImpl;
 
   factory _Appointment.fromJson(Map<String, dynamic> json) =
       _$AppointmentImpl.fromJson;
 
   @override
-  String? get customerId;
+  String? get id; // Add id field for Firestore document ID
   @override
-  bool? get reviewed;
+  String get customerId;
   @override
-  DateTime? get startTime;
+  bool get reviewed;
   @override
-  DateTime? get endTime;
+  DateTime get startTime;
   @override
-  String? get staffId;
+  DateTime get endTime;
   @override
-  AppointmentStatus? get status;
+  String get staffId;
   @override
-  List<String>? get serviceIds;
+  AppointmentStatus get status;
+  @override
+  List<String> get serviceIds;
   @override
   DateTime? get createdAt;
   @override
   DateTime? get updatedAt;
+  @override
+  String? get notes; // Optional notes field
+  @override
+  double? get totalPrice;
 
   /// Create a copy of Appointment
   /// with the given fields replaced by the non-null parameter values.
