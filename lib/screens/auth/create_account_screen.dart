@@ -4,26 +4,29 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kingz_cut_mobile/repositories/customer_repository.dart';
 import 'package:kingz_cut_mobile/screens/auth/login_screen.dart';
 import 'package:kingz_cut_mobile/screens/customer/home/customer_dashboard_screen.dart';
+import 'package:kingz_cut_mobile/state_providers/customer_provider.dart';
 import 'package:kingz_cut_mobile/utils/app_alert.dart';
 import 'package:kingz_cut_mobile/utils/custom_ui_block.dart';
 import 'package:kingz_cut_mobile/utils/firebase_error_mapper.dart';
 
-class CreateAccountScreen extends StatefulWidget {
+class CreateAccountScreen extends ConsumerStatefulWidget {
   final Function(String, String, String)? onSignUp;
   final VoidCallback? onLoginTap;
 
   const CreateAccountScreen({super.key, this.onSignUp, this.onLoginTap});
 
   @override
-  State<CreateAccountScreen> createState() => _CreateAccountScreenState();
+  ConsumerState<CreateAccountScreen> createState() =>
+      _CreateAccountScreenState();
 }
 
-class _CreateAccountScreenState extends State<CreateAccountScreen> {
+class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -333,7 +336,14 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       final userId = login.user?.uid;
       if (userId != null) {
         final customerRepo = CustomerRepository();
-        await customerRepo.createCustomerFromFirebaseUser(login.user!);
+        // For Google sign-in, use the Google user's display name
+        final displayName = googleUser.displayName ?? login.user?.displayName;
+
+        final customer = await customerRepo.createCustomerFromFirebaseUser(
+          login.user!,
+          displayName: displayName,
+        );
+        ref.read(customerProvider.notifier).setCustomer(customer);
       }
 
       if (mounted) {
@@ -407,27 +417,6 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     }
   }
 
-//  /// Throws [CustomerNotFoundException], [StaffNotFoundException] if the user is not found.
-//   Future<void> _checkCustomerOrStaff(String userId) async {
-//     final customerRepo = ref.read(customerRepositoryProvider);
-//     final staffRepo = ref.read(staffRepositoryProvider);
-
-//     final customer = await customerRepo.getCurrentCustomer();
-
-//     final appConfig = ref.read(appConfigProvider);
-//     final staffExists = await staffRepo.staffExists(userId);
-//     final customerExists = customer != null;
-
-//     if (!customerExists &&
-//         appConfig.valueOrNull?.userType == UserType.customer) {
-//       throw CustomerNotFoundException();
-//     }
-//     if (!staffExists && appConfig.valueOrNull?.userType == UserType.barber) {
-//       throw StaffNotFoundException();
-//     }
-//   }
-
-
   Future<void> _handleRegistration() async {
     if (!_formKey.currentState!.validate()) {
       AppAlert.snackBarErrorAlert(context, 'Please provide all details');
@@ -451,7 +440,11 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       final userId = credential.user?.uid;
       if (userId != null) {
         final customerRepo = CustomerRepository();
-        await customerRepo.createCustomerFromFirebaseUser(credential.user!);
+        final customer = await customerRepo.createCustomerFromFirebaseUser(
+          credential.user!,
+          displayName: name,
+        );
+        ref.read(customerProvider.notifier).setCustomer(customer);
       }
 
       log('User registration successful: ${credential.user?.email}');

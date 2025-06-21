@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:kingz_cut_mobile/enums/appointment_status.dart';
+import 'package:kingz_cut_mobile/enums/booking_type.dart';
 
 part 'appointment.freezed.dart';
 part 'appointment.g.dart';
@@ -17,8 +18,9 @@ class Appointment with _$Appointment {
     required List<String> serviceIds,
     DateTime? createdAt,
     DateTime? updatedAt,
-    String? notes, // Optional notes field
-    double? totalPrice, // Optional total price
+    double? totalPrice,
+    int? totalTimeframe,
+    BookingType? bookingType,  // (homeService or walkInService)
   }) = _Appointment;
 
   factory Appointment.fromJson(Map<String, dynamic> json) =>

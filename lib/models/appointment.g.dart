@@ -25,8 +25,10 @@ _$AppointmentImpl _$$AppointmentImplFromJson(Map<String, dynamic> json) =>
       updatedAt: json['updatedAt'] == null
           ? null
           : DateTime.parse(json['updatedAt'] as String),
-      notes: json['notes'] as String?,
       totalPrice: (json['totalPrice'] as num?)?.toDouble(),
+      totalTimeframe: (json['totalTimeframe'] as num?)?.toInt(),
+      bookingType:
+          $enumDecodeNullable(_$BookingTypeEnumMap, json['bookingType']),
     );
 
 Map<String, dynamic> _$$AppointmentImplToJson(_$AppointmentImpl instance) =>
@@ -41,8 +43,9 @@ Map<String, dynamic> _$$AppointmentImplToJson(_$AppointmentImpl instance) =>
       'serviceIds': instance.serviceIds,
       'createdAt': instance.createdAt?.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),
-      'notes': instance.notes,
       'totalPrice': instance.totalPrice,
+      'totalTimeframe': instance.totalTimeframe,
+      'bookingType': _$BookingTypeEnumMap[instance.bookingType],
     };
 
 const _$AppointmentStatusEnumMap = {
@@ -51,4 +54,9 @@ const _$AppointmentStatusEnumMap = {
   AppointmentStatus.cancelled: 'cancelled',
   AppointmentStatus.completed: 'completed',
   AppointmentStatus.noShow: 'noShow',
+};
+
+const _$BookingTypeEnumMap = {
+  BookingType.homeService: 'homeService',
+  BookingType.walkInService: 'walkInService',
 };

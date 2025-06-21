@@ -45,7 +45,7 @@ class _KCutAppState extends ConsumerState<KCutApp> {
 
   Future<void> _handleSignedInUser(User user) async {
     try {
-      final customerRepo = CustomerRepository();
+      final customerRepo = ref.read(customerRepositoryProvider);
       final customer = await customerRepo.getCustomerByUserId(user.uid);
 
       if (customer != null) {

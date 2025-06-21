@@ -7,6 +7,7 @@ import 'package:kingz_cut_mobile/models/service_category.dart';
 // import 'package:kingz_cut_mobile/providers/service_provider.dart';
 // import 'package:kingz_cut_mobile/providers/service_category_provider.dart';
 import 'package:kingz_cut_mobile/screens/customer/service_selection_screen.dart';
+import 'package:kingz_cut_mobile/state_providers/appointment_booking_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/service_category_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/service_provider.dart';
 
@@ -336,13 +337,13 @@ class _HaircutStylesScreenState extends ConsumerState<MainServiceScreen>
 }
 
 // Reusable card widget for each service
-class ServiceCard extends StatelessWidget {
+class ServiceCard extends ConsumerWidget {
   final Service service;
 
   const ServiceCard({super.key, required this.service});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Card(
@@ -451,6 +452,12 @@ class ServiceCard extends StatelessWidget {
             // Book button
             FilledButton(
               onPressed: () {
+                final bookingNotifier = ref.read(
+                  appointmentBookingProvider.notifier,
+                );
+                bookingNotifier.clearBookingState();
+                bookingNotifier.selectService(service.id);
+
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) {

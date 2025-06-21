@@ -21,7 +21,9 @@ mixin _$AppointmentBookingState {
   DateTime? get selectedDate => throw _privateConstructorUsedError;
   DateTime? get selectedStartTime => throw _privateConstructorUsedError;
   DateTime? get selectedEndTime => throw _privateConstructorUsedError;
-  String? get notes => throw _privateConstructorUsedError;
+  double? get totalPrice => throw _privateConstructorUsedError;
+  BookingType? get bookingType => throw _privateConstructorUsedError;
+  int? get totalTimeframe => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
   String? get error => throw _privateConstructorUsedError;
 
@@ -44,7 +46,9 @@ abstract class $AppointmentBookingStateCopyWith<$Res> {
       DateTime? selectedDate,
       DateTime? selectedStartTime,
       DateTime? selectedEndTime,
-      String? notes,
+      double? totalPrice,
+      BookingType? bookingType,
+      int? totalTimeframe,
       bool isLoading,
       String? error});
 }
@@ -70,7 +74,9 @@ class _$AppointmentBookingStateCopyWithImpl<$Res,
     Object? selectedDate = freezed,
     Object? selectedStartTime = freezed,
     Object? selectedEndTime = freezed,
-    Object? notes = freezed,
+    Object? totalPrice = freezed,
+    Object? bookingType = freezed,
+    Object? totalTimeframe = freezed,
     Object? isLoading = null,
     Object? error = freezed,
   }) {
@@ -95,10 +101,18 @@ class _$AppointmentBookingStateCopyWithImpl<$Res,
           ? _value.selectedEndTime
           : selectedEndTime // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      notes: freezed == notes
-          ? _value.notes
-          : notes // ignore: cast_nullable_to_non_nullable
-              as String?,
+      totalPrice: freezed == totalPrice
+          ? _value.totalPrice
+          : totalPrice // ignore: cast_nullable_to_non_nullable
+              as double?,
+      bookingType: freezed == bookingType
+          ? _value.bookingType
+          : bookingType // ignore: cast_nullable_to_non_nullable
+              as BookingType?,
+      totalTimeframe: freezed == totalTimeframe
+          ? _value.totalTimeframe
+          : totalTimeframe // ignore: cast_nullable_to_non_nullable
+              as int?,
       isLoading: null == isLoading
           ? _value.isLoading
           : isLoading // ignore: cast_nullable_to_non_nullable
@@ -126,7 +140,9 @@ abstract class _$$AppointmentBookingStateImplCopyWith<$Res>
       DateTime? selectedDate,
       DateTime? selectedStartTime,
       DateTime? selectedEndTime,
-      String? notes,
+      double? totalPrice,
+      BookingType? bookingType,
+      int? totalTimeframe,
       bool isLoading,
       String? error});
 }
@@ -151,7 +167,9 @@ class __$$AppointmentBookingStateImplCopyWithImpl<$Res>
     Object? selectedDate = freezed,
     Object? selectedStartTime = freezed,
     Object? selectedEndTime = freezed,
-    Object? notes = freezed,
+    Object? totalPrice = freezed,
+    Object? bookingType = freezed,
+    Object? totalTimeframe = freezed,
     Object? isLoading = null,
     Object? error = freezed,
   }) {
@@ -176,10 +194,18 @@ class __$$AppointmentBookingStateImplCopyWithImpl<$Res>
           ? _value.selectedEndTime
           : selectedEndTime // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      notes: freezed == notes
-          ? _value.notes
-          : notes // ignore: cast_nullable_to_non_nullable
-              as String?,
+      totalPrice: freezed == totalPrice
+          ? _value.totalPrice
+          : totalPrice // ignore: cast_nullable_to_non_nullable
+              as double?,
+      bookingType: freezed == bookingType
+          ? _value.bookingType
+          : bookingType // ignore: cast_nullable_to_non_nullable
+              as BookingType?,
+      totalTimeframe: freezed == totalTimeframe
+          ? _value.totalTimeframe
+          : totalTimeframe // ignore: cast_nullable_to_non_nullable
+              as int?,
       isLoading: null == isLoading
           ? _value.isLoading
           : isLoading // ignore: cast_nullable_to_non_nullable
@@ -201,7 +227,9 @@ class _$AppointmentBookingStateImpl extends _AppointmentBookingState {
       this.selectedDate,
       this.selectedStartTime,
       this.selectedEndTime,
-      this.notes,
+      this.totalPrice,
+      this.bookingType,
+      this.totalTimeframe,
       this.isLoading = false,
       this.error})
       : _selectedServiceIds = selectedServiceIds,
@@ -226,7 +254,11 @@ class _$AppointmentBookingStateImpl extends _AppointmentBookingState {
   @override
   final DateTime? selectedEndTime;
   @override
-  final String? notes;
+  final double? totalPrice;
+  @override
+  final BookingType? bookingType;
+  @override
+  final int? totalTimeframe;
   @override
   @JsonKey()
   final bool isLoading;
@@ -235,7 +267,7 @@ class _$AppointmentBookingStateImpl extends _AppointmentBookingState {
 
   @override
   String toString() {
-    return 'AppointmentBookingState(selectedServiceIds: $selectedServiceIds, selectedStaffId: $selectedStaffId, selectedDate: $selectedDate, selectedStartTime: $selectedStartTime, selectedEndTime: $selectedEndTime, notes: $notes, isLoading: $isLoading, error: $error)';
+    return 'AppointmentBookingState(selectedServiceIds: $selectedServiceIds, selectedStaffId: $selectedStaffId, selectedDate: $selectedDate, selectedStartTime: $selectedStartTime, selectedEndTime: $selectedEndTime, totalPrice: $totalPrice, bookingType: $bookingType, totalTimeframe: $totalTimeframe, isLoading: $isLoading, error: $error)';
   }
 
   @override
@@ -253,7 +285,12 @@ class _$AppointmentBookingStateImpl extends _AppointmentBookingState {
                 other.selectedStartTime == selectedStartTime) &&
             (identical(other.selectedEndTime, selectedEndTime) ||
                 other.selectedEndTime == selectedEndTime) &&
-            (identical(other.notes, notes) || other.notes == notes) &&
+            (identical(other.totalPrice, totalPrice) ||
+                other.totalPrice == totalPrice) &&
+            (identical(other.bookingType, bookingType) ||
+                other.bookingType == bookingType) &&
+            (identical(other.totalTimeframe, totalTimeframe) ||
+                other.totalTimeframe == totalTimeframe) &&
             (identical(other.isLoading, isLoading) ||
                 other.isLoading == isLoading) &&
             (identical(other.error, error) || other.error == error));
@@ -267,7 +304,9 @@ class _$AppointmentBookingStateImpl extends _AppointmentBookingState {
       selectedDate,
       selectedStartTime,
       selectedEndTime,
-      notes,
+      totalPrice,
+      bookingType,
+      totalTimeframe,
       isLoading,
       error);
 
@@ -288,7 +327,9 @@ abstract class _AppointmentBookingState extends AppointmentBookingState {
       final DateTime? selectedDate,
       final DateTime? selectedStartTime,
       final DateTime? selectedEndTime,
-      final String? notes,
+      final double? totalPrice,
+      final BookingType? bookingType,
+      final int? totalTimeframe,
       final bool isLoading,
       final String? error}) = _$AppointmentBookingStateImpl;
   const _AppointmentBookingState._() : super._();
@@ -304,7 +345,11 @@ abstract class _AppointmentBookingState extends AppointmentBookingState {
   @override
   DateTime? get selectedEndTime;
   @override
-  String? get notes;
+  double? get totalPrice;
+  @override
+  BookingType? get bookingType;
+  @override
+  int? get totalTimeframe;
   @override
   bool get isLoading;
   @override

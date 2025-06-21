@@ -372,6 +372,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       );
       return null;
     } on CustomerNotFoundException catch (e) {
+      await _failedLogout();
       if (mounted) {
         CustomUiBlock.unblock(context);
         AppAlert.snackBarErrorAlert(
@@ -382,6 +383,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       log('Customer not found during Google sign-in: $e');
       return null;
     } on StaffNotFoundException catch (e) {
+      await _failedLogout();
       if (mounted) {
         CustomUiBlock.unblock(context);
         AppAlert.snackBarErrorAlert(
@@ -422,6 +424,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
+  Future<void> _failedLogout() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      await GoogleSignIn().signOut();
+    } catch (e) {
+      log('Error during logout: $e');
+    }
+  }
+
   /// Throws [CustomerNotFoundException], [StaffNotFoundException] if the user is not found.
   Future<void> _checkCustomerOrStaff(String userId) async {
     final customerRepo = ref.read(customerRepositoryProvider);
@@ -436,6 +447,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final customer = await customerRepo.getCustomerByUserId(userId);
     if (customer != null) {
       log('Customer found: ${customer.toString()}');
+      // Update state in CustomerProvider
+      ref.read(customerProvider.notifier).setCustomer(customer);
     } else {
       log('No customer found for userId: $userId');
     }

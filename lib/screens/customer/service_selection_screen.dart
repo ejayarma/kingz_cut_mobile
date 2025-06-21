@@ -55,9 +55,9 @@ class _ServiceSelectionScreenState
     return selectedServices.fold(0.0, (total, service) => total + service.price);
   }
 
-  int _calculateTotalDuration(List<Service> selectedServices) {
-    return selectedServices.fold(0, (total, service) => total + service.timeframe);
-  }
+  // int _calculateTotalDuration(List<Service> selectedServices) {
+  //   return selectedServices.fold(0, (total, service) => total + service.timeframe);
+  // }
 
   @override
   Widget build(BuildContext context) {

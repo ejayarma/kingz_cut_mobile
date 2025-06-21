@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:kingz_cut_mobile/enums/booking_type.dart';
 
 part 'appointment_booking_state.freezed.dart';
 
@@ -10,7 +11,9 @@ class AppointmentBookingState with _$AppointmentBookingState {
     DateTime? selectedDate,
     DateTime? selectedStartTime,
     DateTime? selectedEndTime,
-    String? notes,
+    double? totalPrice,
+    BookingType? bookingType,
+    int? totalTimeframe,
     @Default(false) bool isLoading,
     String? error,
   }) = _AppointmentBookingState;
@@ -25,4 +28,5 @@ class AppointmentBookingState with _$AppointmentBookingState {
       selectedStaffId != null &&
       selectedStartTime != null &&
       selectedEndTime != null;
+
 }

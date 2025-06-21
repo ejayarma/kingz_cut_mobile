@@ -398,17 +398,17 @@ class _CustomerBookingsPageState extends ConsumerState<CustomerBookingsPage>
                           ),
                         ),
                       ],
-                      if (appointment.notes != null &&
-                          appointment.notes!.isNotEmpty) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          'Notes: ${appointment.notes}',
-                          style: TextStyle(
-                            color: Colors.grey.shade600,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
+                      // if (appointment.notes != null &&
+                      //     appointment.notes!.isNotEmpty) ...[
+                      //   const SizedBox(height: 4),
+                      //   Text(
+                      //     'Notes: ${appointment.notes}',
+                      //     style: TextStyle(
+                      //       color: Colors.grey.shade600,
+                      //       fontStyle: FontStyle.italic,
+                      //     ),
+                      //   ),
+                      // ],
                     ],
                   ),
                 ),

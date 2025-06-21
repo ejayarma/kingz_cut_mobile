@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kingz_cut_mobile/enums/booking_type.dart';
 import 'package:kingz_cut_mobile/models/appointment.dart';
 import 'package:kingz_cut_mobile/models/appointment_booking_state.dart';
 import 'package:kingz_cut_mobile/repositories/appointment_repository.dart';
@@ -67,9 +68,19 @@ class AppointmentBookingNotifier
     );
   }
 
-  // Notes
-  void updateNotes(String notes) {
-    state = state.copyWith(notes: notes);
+  // Total Price
+  void updateTotalPrice(double totalPrice) {
+    state = state.copyWith(totalPrice: totalPrice);
+  }
+
+  // Booking type
+  void updateBookingType(BookingType bookingType) {
+    state = state.copyWith(bookingType: bookingType);
+  }
+
+  // Total timeframe
+  void updateTotalTimeframe(int totalTimeframe) {
+    state = state.copyWith(totalTimeframe: totalTimeframe);
   }
 
   // Book appointment
@@ -87,7 +98,9 @@ class AppointmentBookingNotifier
       serviceIds: state.selectedServiceIds,
       startTime: state.selectedStartTime!,
       endTime: state.selectedEndTime!,
-      notes: state.notes,
+      totalPrice: state.totalPrice,
+      bookingType: state.bookingType,
+      totalTimeframe: state.totalTimeframe,
     );
 
     final result = await _repository.createAppointment(appointment);

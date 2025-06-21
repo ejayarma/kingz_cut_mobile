@@ -58,7 +58,7 @@ class _CustomerProfilePageState extends ConsumerState<CustomerProfilePage> {
                         width: 2,
                       ),
                       image: const DecorationImage(
-                        image: AssetImage('assets/images/kojo.png'),
+                        image: AssetImage('assets/images/kingz_cut_logo.png'),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -98,19 +98,19 @@ class _CustomerProfilePageState extends ConsumerState<CustomerProfilePage> {
                 ],
               ),
               const SizedBox(height: 12),
-              Row(
-                children: [
-                  Icon(Icons.location_on, color: colorScheme.onSurfaceVariant),
-                  const SizedBox(width: 12),
-                  Text(
-                    'Accra - Ghana',
-                    style: TextStyle(
-                      color: colorScheme.onSurface,
-                      fontSize: 16,
-                    ),
-                  ),
-                ],
-              ),
+              // Row(
+              //   children: [
+              //     Icon(Icons.location_on, color: colorScheme.onSurfaceVariant),
+              //     const SizedBox(width: 12),
+              //     Text(
+              //       'Accra - Ghana',
+              //       style: TextStyle(
+              //         color: colorScheme.onSurface,
+              //         fontSize: 16,
+              //       ),
+              //     ),
+              //   ],
+              // ),
               const SizedBox(height: 32),
 
               // Settings section

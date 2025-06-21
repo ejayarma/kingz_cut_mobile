@@ -34,7 +34,7 @@ class CustomerRepository {
     if (querySnapshot.docs.isNotEmpty) {
       final doc = querySnapshot.docs.first;
       final data = doc.data();
-      return Customer.fromJson({'id': doc.id, ...data});
+      return Customer.fromJson({...data, 'id': doc.id});
     } else {
       return null;
     }
@@ -52,7 +52,7 @@ class CustomerRepository {
 
     if (doc.exists) {
       final data = doc.data()!;
-      return Customer.fromJson({'id': doc.id, ...data});
+      return Customer.fromJson({...data, 'id': doc.id});
     } else {
       return null;
     }
@@ -83,21 +83,29 @@ class CustomerRepository {
   }
 
   /// Create a customer from a Firebase user (if not already existing)
-  Future<void> createCustomerFromFirebaseUser(User firebaseUser) async {
+  Future<Customer> createCustomerFromFirebaseUser(
+    User firebaseUser, {
+    String? displayName,
+  }) async {
+    // Use the provided displayName if available, otherwise fall back to user.displayName
+    final name = displayName ?? firebaseUser.displayName ?? '';
     final userId = firebaseUser.uid;
 
+    Customer? customer = await getCustomerByUserId(userId);
     // Check if customer already exists
-    if (await customerExists(userId)) {
-      return null; // Already exists; no action taken
+    if (customer != null) {
+      if (customer.active) {
+        return customer; // Customer already exists and is active
+      }
     }
 
     // Create a new customer
-    final customer = Customer(
+    customer = Customer(
       active: true,
       email: firebaseUser.email ?? '',
       id: '', // Let Firestore generate the ID
       imageUrl: firebaseUser.photoURL,
-      name: firebaseUser.displayName ?? '',
+      name: name,
       phone: firebaseUser.phoneNumber ?? '',
       userId: userId,
       createdAt: DateTime.now(),
@@ -105,7 +113,7 @@ class CustomerRepository {
     );
 
     await createCustomer(customer);
-    // return docId;
+    return customer;
   }
 }
 

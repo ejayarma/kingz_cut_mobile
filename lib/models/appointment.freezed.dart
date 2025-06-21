@@ -31,9 +31,9 @@ mixin _$Appointment {
   List<String> get serviceIds => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
   DateTime? get updatedAt => throw _privateConstructorUsedError;
-  String? get notes =>
-      throw _privateConstructorUsedError; // Optional notes field
   double? get totalPrice => throw _privateConstructorUsedError;
+  int? get totalTimeframe => throw _privateConstructorUsedError;
+  BookingType? get bookingType => throw _privateConstructorUsedError;
 
   /// Serializes this Appointment to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -62,8 +62,9 @@ abstract class $AppointmentCopyWith<$Res> {
       List<String> serviceIds,
       DateTime? createdAt,
       DateTime? updatedAt,
-      String? notes,
-      double? totalPrice});
+      double? totalPrice,
+      int? totalTimeframe,
+      BookingType? bookingType});
 }
 
 /// @nodoc
@@ -91,8 +92,9 @@ class _$AppointmentCopyWithImpl<$Res, $Val extends Appointment>
     Object? serviceIds = null,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
-    Object? notes = freezed,
     Object? totalPrice = freezed,
+    Object? totalTimeframe = freezed,
+    Object? bookingType = freezed,
   }) {
     return _then(_value.copyWith(
       id: freezed == id
@@ -135,14 +137,18 @@ class _$AppointmentCopyWithImpl<$Res, $Val extends Appointment>
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      notes: freezed == notes
-          ? _value.notes
-          : notes // ignore: cast_nullable_to_non_nullable
-              as String?,
       totalPrice: freezed == totalPrice
           ? _value.totalPrice
           : totalPrice // ignore: cast_nullable_to_non_nullable
               as double?,
+      totalTimeframe: freezed == totalTimeframe
+          ? _value.totalTimeframe
+          : totalTimeframe // ignore: cast_nullable_to_non_nullable
+              as int?,
+      bookingType: freezed == bookingType
+          ? _value.bookingType
+          : bookingType // ignore: cast_nullable_to_non_nullable
+              as BookingType?,
     ) as $Val);
   }
 }
@@ -166,8 +172,9 @@ abstract class _$$AppointmentImplCopyWith<$Res>
       List<String> serviceIds,
       DateTime? createdAt,
       DateTime? updatedAt,
-      String? notes,
-      double? totalPrice});
+      double? totalPrice,
+      int? totalTimeframe,
+      BookingType? bookingType});
 }
 
 /// @nodoc
@@ -193,8 +200,9 @@ class __$$AppointmentImplCopyWithImpl<$Res>
     Object? serviceIds = null,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
-    Object? notes = freezed,
     Object? totalPrice = freezed,
+    Object? totalTimeframe = freezed,
+    Object? bookingType = freezed,
   }) {
     return _then(_$AppointmentImpl(
       id: freezed == id
@@ -237,14 +245,18 @@ class __$$AppointmentImplCopyWithImpl<$Res>
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      notes: freezed == notes
-          ? _value.notes
-          : notes // ignore: cast_nullable_to_non_nullable
-              as String?,
       totalPrice: freezed == totalPrice
           ? _value.totalPrice
           : totalPrice // ignore: cast_nullable_to_non_nullable
               as double?,
+      totalTimeframe: freezed == totalTimeframe
+          ? _value.totalTimeframe
+          : totalTimeframe // ignore: cast_nullable_to_non_nullable
+              as int?,
+      bookingType: freezed == bookingType
+          ? _value.bookingType
+          : bookingType // ignore: cast_nullable_to_non_nullable
+              as BookingType?,
     ));
   }
 }
@@ -263,8 +275,9 @@ class _$AppointmentImpl implements _Appointment {
       required final List<String> serviceIds,
       this.createdAt,
       this.updatedAt,
-      this.notes,
-      this.totalPrice})
+      this.totalPrice,
+      this.totalTimeframe,
+      this.bookingType})
       : _serviceIds = serviceIds;
 
   factory _$AppointmentImpl.fromJson(Map<String, dynamic> json) =>
@@ -300,14 +313,15 @@ class _$AppointmentImpl implements _Appointment {
   @override
   final DateTime? updatedAt;
   @override
-  final String? notes;
-// Optional notes field
-  @override
   final double? totalPrice;
+  @override
+  final int? totalTimeframe;
+  @override
+  final BookingType? bookingType;
 
   @override
   String toString() {
-    return 'Appointment(id: $id, customerId: $customerId, reviewed: $reviewed, startTime: $startTime, endTime: $endTime, staffId: $staffId, status: $status, serviceIds: $serviceIds, createdAt: $createdAt, updatedAt: $updatedAt, notes: $notes, totalPrice: $totalPrice)';
+    return 'Appointment(id: $id, customerId: $customerId, reviewed: $reviewed, startTime: $startTime, endTime: $endTime, staffId: $staffId, status: $status, serviceIds: $serviceIds, createdAt: $createdAt, updatedAt: $updatedAt, totalPrice: $totalPrice, totalTimeframe: $totalTimeframe, bookingType: $bookingType)';
   }
 
   @override
@@ -331,9 +345,12 @@ class _$AppointmentImpl implements _Appointment {
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
                 other.updatedAt == updatedAt) &&
-            (identical(other.notes, notes) || other.notes == notes) &&
             (identical(other.totalPrice, totalPrice) ||
-                other.totalPrice == totalPrice));
+                other.totalPrice == totalPrice) &&
+            (identical(other.totalTimeframe, totalTimeframe) ||
+                other.totalTimeframe == totalTimeframe) &&
+            (identical(other.bookingType, bookingType) ||
+                other.bookingType == bookingType));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -350,8 +367,9 @@ class _$AppointmentImpl implements _Appointment {
       const DeepCollectionEquality().hash(_serviceIds),
       createdAt,
       updatedAt,
-      notes,
-      totalPrice);
+      totalPrice,
+      totalTimeframe,
+      bookingType);
 
   /// Create a copy of Appointment
   /// with the given fields replaced by the non-null parameter values.
@@ -381,8 +399,9 @@ abstract class _Appointment implements Appointment {
       required final List<String> serviceIds,
       final DateTime? createdAt,
       final DateTime? updatedAt,
-      final String? notes,
-      final double? totalPrice}) = _$AppointmentImpl;
+      final double? totalPrice,
+      final int? totalTimeframe,
+      final BookingType? bookingType}) = _$AppointmentImpl;
 
   factory _Appointment.fromJson(Map<String, dynamic> json) =
       _$AppointmentImpl.fromJson;
@@ -408,9 +427,11 @@ abstract class _Appointment implements Appointment {
   @override
   DateTime? get updatedAt;
   @override
-  String? get notes; // Optional notes field
-  @override
   double? get totalPrice;
+  @override
+  int? get totalTimeframe;
+  @override
+  BookingType? get bookingType;
 
   /// Create a copy of Appointment
   /// with the given fields replaced by the non-null parameter values.

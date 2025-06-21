@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fpdart/fpdart.dart';
+import 'package:jiffy/jiffy.dart' as jiffy;
 import 'package:kingz_cut_mobile/models/appointment.dart';
 // import 'appointment.dart';
 import 'package:kingz_cut_mobile/enums/appointment_status.dart';
@@ -86,6 +87,34 @@ class FirebaseAppointmentRepository implements AppointmentRepository {
         updatedAt: now,
       );
 
+      final appointmentExistsForToday =
+          (await _firestore
+                  .collection(_collection)
+                  .where('customerId', isEqualTo: appointment.customerId)
+                  .where(
+                    'startTime',
+                    isGreaterThanOrEqualTo:
+                        jiffy.Jiffy.parseFromDateTime(
+                          appointment.startTime,
+                        ).startOf(jiffy.Unit.day).dateTime.toIso8601String(),
+                  )
+                  .where(
+                    'endTime',
+                    isLessThanOrEqualTo:
+                        jiffy.Jiffy.parseFromDateTime(
+                          appointment.startTime,
+                        ).endOf(jiffy.Unit.day).dateTime.toIso8601String(),
+                  )
+                  .where('status', isEqualTo: AppointmentStatus.pending.name)
+                  .limit(1)
+                  .get())
+              .docs
+              .isNotEmpty;
+
+      if (appointmentExistsForToday) {
+        return left('You already have an appointment for the selected day.');
+      }
+
       final docRef = await _firestore
           .collection(_collection)
           .add(appointmentData.toJson());
@@ -105,7 +134,7 @@ class FirebaseAppointmentRepository implements AppointmentRepository {
     try {
       await _firestore.collection(_collection).doc(appointmentId).update({
         'status': status.name,
-        'updatedAt': FieldValue.serverTimestamp(),
+        'updatedAt': DateTime.now().toIso8601String(),
       });
       return right(null);
     } catch (e) {

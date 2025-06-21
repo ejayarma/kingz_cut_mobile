@@ -1,3 +1,4 @@
+import 'package:dartx/dartx_io.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kingz_cut_mobile/models/appointment_booking_state.dart';
@@ -184,7 +185,9 @@ class _ChooseStylistScreenState extends ConsumerState<ChooseStylistScreen> {
                             print(
                               'Selected End Time: ${currentBookingState.selectedEndTime}',
                             );
-                            print('Notes: ${currentBookingState.notes}');
+                            print(
+                              'TotalPrice: ${currentBookingState.totalPrice}',
+                            );
                             print(
                               'Can Proceed to DateTime Selection: ${currentBookingState.canProceedToDateTimeSelection}',
                             );
@@ -268,7 +271,7 @@ class _ChooseStylistScreenState extends ConsumerState<ChooseStylistScreen> {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Display current booking state info (optional - for debugging)
               if (bookingState.selectedServiceIds.isNotEmpty) ...[
@@ -290,12 +293,29 @@ class _ChooseStylistScreenState extends ConsumerState<ChooseStylistScreen> {
                         ),
                       ),
                       if (bookingState.selectedStaffId != null)
-                        Text(
-                          'Selected Staff: ${bookingState.selectedStaffId}',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: Colors.blue.shade700,
-                          ),
+                        Builder(
+                          builder: (context) {
+                            // get staff name from staff provider
+                            final staffName =
+                                ref
+                                    .read(staffProvider)
+                                    .value
+                                    ?.firstOrNullWhere(
+                                      (staff) =>
+                                          staff.id ==
+                                          bookingState.selectedStaffId,
+                                    )
+                                    ?.name ??
+                                'Unknown Staff';
+
+                            return Text(
+                              'Selected Staff: $staffName',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                color: Colors.blue.shade700,
+                              ),
+                            );
+                          },
                         ),
                     ],
                   ),

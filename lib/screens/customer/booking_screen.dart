@@ -1,3 +1,4 @@
+import 'package:dartx/dartx_io.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -27,8 +28,10 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   DateTime? _selectedStartTime;
   DateTime? _selectedEndTime;
   List<DateTime> _availableStartTimes = [];
-  int _totalDurationMinutes = 0;
-  BookingType? _bookingType = BookingType.homeService;
+  int get _totalDurationMinutes =>
+      ref.read(appointmentBookingProvider).totalTimeframe ??
+      0; // Get total duration from state
+  BookingType? _bookingType = BookingType.walkInService;
 
   // Sample booked time ranges - replace with your actual data source
   final List<Map<String, DateTime>> _bookedTimeRanges = [
@@ -45,23 +48,30 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   @override
   void initState() {
     super.initState();
-    _calculateTotalDuration();
     _initializeBookingState();
   }
 
-  void _calculateTotalDuration() {
+  void _calculateTotalDurationAndPrice() {
     final bookingState = ref.read(appointmentBookingProvider);
+    final bookingNotifier = ref.read(appointmentBookingProvider.notifier);
     final servicesState = ref.read(servicesProvider).value ?? [];
 
     // Calculate total duration from selected services in the state
 
-    servicesState
+    final totalDurationMinutes = servicesState
         .where(
           (service) => bookingState.selectedServiceIds.contains(service.id),
         )
-        .forEach((service) {
-          _totalDurationMinutes += service.timeframe;
-        });
+        .sumBy((service) => service.timeframe);
+
+    final totalPrice = servicesState
+        .where(
+          (service) => bookingState.selectedServiceIds.contains(service.id),
+        )
+        .sumBy((service) => service.price);
+
+    bookingNotifier.updateTotalPrice(totalPrice);
+    bookingNotifier.updateTotalTimeframe(totalDurationMinutes);
   }
 
   void _initializeBookingState() {
@@ -69,6 +79,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     // Just log the current state
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _logCurrentState();
+      _calculateTotalDurationAndPrice();
     });
   }
 
@@ -82,7 +93,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     debugPrint('Selected End Time: ${bookingState.selectedEndTime}');
     debugPrint('Total Duration: $_totalDurationMinutes minutes');
     debugPrint('Can Book Appointment: ${bookingState.canBookAppointment}');
-    debugPrint('Notes: ${bookingState.notes}');
+    debugPrint('TotalPrice: ${bookingState.totalPrice}');
     debugPrint('=============================');
   }
 
@@ -167,9 +178,12 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
           value: BookingType.homeService,
           groupValue: _bookingType,
           onChanged: (BookingType? value) {
-            setState(() {
-              _bookingType = value;
-            });
+            if (value == null) return;
+            final bookingNotifier = ref.read(
+              appointmentBookingProvider.notifier,
+            );
+            bookingNotifier.updateBookingType(value);
+            setState(() => _bookingType = value);
           },
         ),
         RadioListTile<BookingType>(
@@ -177,9 +191,12 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
           value: BookingType.walkInService,
           groupValue: _bookingType,
           onChanged: (BookingType? value) {
-            setState(() {
-              _bookingType = value;
-            });
+            if (value == null) return;
+            final bookingNotifier = ref.read(
+              appointmentBookingProvider.notifier,
+            );
+            bookingNotifier.updateBookingType(value);
+            setState(() => _bookingType = value);
           },
         ),
       ],
@@ -555,6 +572,14 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     final servicesState = ref.read(servicesProvider).value ?? [];
     final customer = ref.read(customerProvider).value;
 
+    if (customer == null) {
+      AppAlert.snackBarErrorAlert(
+        context,
+        'You must be logged in to book an appointment.',
+      );
+      return;
+    }
+
     if (_selectedDate != null &&
         _selectedStartTime != null &&
         _selectedEndTime != null) {
@@ -572,6 +597,18 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                   ),
                   Text(
                     'Time: ${DateFormat('h:mm a').format(_selectedStartTime!)} - ${DateFormat('h:mm a').format(_selectedEndTime!)}',
+                  ),
+                  Text(
+                    'Total Price: GHS ${bookingState.totalPrice?.toStringAsFixed(2)}',
+                  ),
+                  Builder(
+                    builder: (context) {
+                      final bookingType =
+                          bookingState.bookingType == BookingType.walkInService
+                              ? 'Waliking Service'
+                              : 'Home Service';
+                      return Text('Booking Type: $bookingType');
+                    },
                   ),
                   const SizedBox(height: 12),
                   const Text(
