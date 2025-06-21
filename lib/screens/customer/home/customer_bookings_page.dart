@@ -6,6 +6,7 @@ import 'package:kingz_cut_mobile/screens/customer/reviews_screen.dart';
 import 'package:kingz_cut_mobile/state_providers/appointments_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/customer_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/service_provider.dart';
+import 'package:kingz_cut_mobile/utils/app_alert.dart';
 
 class CustomerBookingsPage extends ConsumerStatefulWidget {
   // final String customerId; // Add customer ID parameter
@@ -276,6 +277,7 @@ class _CustomerBookingsPageState extends ConsumerState<CustomerBookingsPage>
           content: Text('Booking cancelled successfully'),
           backgroundColor: Colors.green,
         ),
+        // AppAlert.snackBarSuccessAlert(context,  'Booking cancelled successfully'),
       );
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -424,14 +426,18 @@ class _CustomerBookingsPageState extends ConsumerState<CustomerBookingsPage>
                             ? () => _showCancelConfirmation(appointment.id!)
                             : null,
                     style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: primaryColor),
+                      side: BorderSide(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
                     child: Text(
                       'Cancel Booking',
-                      style: TextStyle(color: primaryColor),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     ),
                   ),
                 ),
@@ -439,11 +445,9 @@ class _CustomerBookingsPageState extends ConsumerState<CustomerBookingsPage>
                 Expanded(
                   child: FilledButton(
                     onPressed: () {
-                      // TODO: Implement view receipt functionality
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('View receipt coming soon'),
-                        ),
+                      AppAlert.snackBarInfoAlert(
+                        context,
+                        'View receipt coming soon',
                       );
                     },
                     style: FilledButton.styleFrom(
@@ -513,9 +517,24 @@ class _CustomerBookingsPageState extends ConsumerState<CustomerBookingsPage>
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        'Services: ${appointment.serviceIds.join(", ")}',
-                        style: TextStyle(color: Colors.grey.shade600),
+                      Builder(
+                        builder: (context) {
+                          final serviceText = (ref
+                                      .read(servicesProvider)
+                                      .value ??
+                                  [])
+                              .where(
+                                (service) =>
+                                    appointment.serviceIds.contains(service.id),
+                              )
+                              .map((service) => service.name)
+                              .join(', ');
+
+                          return Text(
+                            'Services: $serviceText',
+                            style: TextStyle(color: Colors.grey.shade600),
+                          );
+                        },
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -561,10 +580,7 @@ class _CustomerBookingsPageState extends ConsumerState<CustomerBookingsPage>
             ),
             FilledButton(
               onPressed: () {
-                // TODO: Implement view receipt functionality
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('View receipt coming soon')),
-                );
+                AppAlert.snackBarInfoAlert(context, 'View receipt coming soon');
               },
               style: FilledButton.styleFrom(
                 minimumSize: const Size(double.infinity, 48),
@@ -640,9 +656,24 @@ class _CustomerBookingsPageState extends ConsumerState<CustomerBookingsPage>
                         style: TextStyle(color: Colors.grey.shade600),
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        'Services: ${appointment.serviceIds.join(", ")}',
-                        style: TextStyle(color: Colors.grey.shade600),
+                      Builder(
+                        builder: (context) {
+                          final serviceText = (ref
+                                      .read(servicesProvider)
+                                      .value ??
+                                  [])
+                              .where(
+                                (service) =>
+                                    appointment.serviceIds.contains(service.id),
+                              )
+                              .map((service) => service.name)
+                              .join(', ');
+
+                          return Text(
+                            'Services: $serviceText',
+                            style: TextStyle(color: Colors.grey.shade600),
+                          );
+                        },
                       ),
                     ],
                   ),
