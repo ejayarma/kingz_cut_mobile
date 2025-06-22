@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kingz_cut_mobile/screens/home/dashboard_screen.dart';
 import 'package:kingz_cut_mobile/screens/onboarding_screen.dart';
 import 'package:kingz_cut_mobile/screens/launch_screen.dart';
 import 'package:kingz_cut_mobile/state_providers/app_config_notifier.dart';
@@ -32,15 +34,23 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
     if (!mounted) return;
 
-    if (appConfig?.hasOnboarded == true) {
+    if (appConfig?.hasOnboarded == false) {
       // Navigate to launch screen (login flow starts there)
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const OnBoardingScreen()),
+      );
+    }
+    if (appConfig?.userType == null) {
+      // Navigate to onboarding
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const LaunchScreen()),
       );
-    } else {
-      // Navigate to onboarding
+    }
+
+    if (FirebaseAuth.instance.currentUser != null) {
+      // Navigate to customer dashboard
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const OnBoardingScreen()),
+        MaterialPageRoute(builder: (_) => const DashboardScreen()),
       );
     }
   }

@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kingz_cut_mobile/models/service.dart';
-import 'package:kingz_cut_mobile/screens/customer/choose_stylist_screen.dart';
+import 'package:kingz_cut_mobile/screens/choose_stylist_screen.dart';
 import 'package:kingz_cut_mobile/state_providers/appointment_booking_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/service_provider.dart';
 // Import your appointment booking provider

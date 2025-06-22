@@ -56,9 +56,10 @@ class LaunchScreen extends ConsumerWidget {
                     ),
                   ),
                   onPressed: () async {
-                    await appConfigNotifier.setUserType(UserType.customer);
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const LoginScreen()),
+                    await _setUserType(
+                      appConfigNotifier,
+                      context,
+                      UserType.customer,
                     );
                   },
                   child: const Text(
@@ -78,9 +79,10 @@ class LaunchScreen extends ConsumerWidget {
                     ),
                   ),
                   onPressed: () async {
-                    await appConfigNotifier.setUserType(UserType.barber);
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const LoginScreen()),
+                    await _setUserType(
+                      appConfigNotifier,
+                      context,
+                      UserType.barber,
                     );
                   },
                   child: const Text(
@@ -94,5 +96,17 @@ class LaunchScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _setUserType(
+    AppConfigNotifier appConfigNotifier,
+    BuildContext context,
+    UserType userType,
+  ) async {
+    await appConfigNotifier.setUserType(userType);
+    if (!context.mounted) return;
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const LoginScreen()));
   }
 }

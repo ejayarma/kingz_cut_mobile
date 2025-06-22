@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:kingz_cut_mobile/enums/service_type.dart';
 import 'package:kingz_cut_mobile/models/service_category.dart';
-import 'package:kingz_cut_mobile/screens/customer/main_service_screen.dart';
-import 'package:kingz_cut_mobile/state_providers/customer_provider.dart';
+import 'package:kingz_cut_mobile/screens/main_service_screen.dart';
+import 'package:kingz_cut_mobile/state_providers/customer_notifer.dart';
 import 'package:kingz_cut_mobile/state_providers/service_category_provider.dart';
 
 class CustomerHomePage extends ConsumerWidget {
@@ -49,7 +49,7 @@ class CustomerHomePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // final currentUser = FirebaseAuth.instance.currentUser;
     final categoriesAsync = ref.watch(serviceCategoriesProvider);
-    final currentCustomer = ref.watch(customerProvider);
+    final currentCustomer = ref.watch(customerNotifier);
 
     if (categoriesAsync.isLoading) {
       return const Center(child: CircularProgressIndicator());

@@ -11,17 +11,17 @@ final appointmentsProvider =
     );
 
 // Provider for watching appointments stream
-final appointmentsStreamProvider =
-    StreamProvider.family<List<Appointment>, AppointmentFilters>((
-      ref,
-      filters,
-    ) {
-      final repository = ref.read(appointmentRepositoryProvider);
-      return repository.watchAppointments(
-        customerId: filters.customerId,
-        staffId: filters.staffId,
-      );
-    });
+// final appointmentsStreamProvider =
+//     StreamProvider.family<List<Appointment>, AppointmentFilters>((
+//       ref,
+//       filters,
+//     ) {
+//       final repository = ref.read(appointmentRepositoryProvider);
+//       return repository.watchAppointments(
+//         customerId: filters.customerId,
+//         staffId: filters.staffId,
+//       );
+//     });
 
 // Filters for appointments
 class AppointmentFilters {

@@ -14,9 +14,10 @@ import 'package:kingz_cut_mobile/repositories/customer_repository.dart';
 import 'package:kingz_cut_mobile/repositories/staff_repositoy.dart';
 import 'package:kingz_cut_mobile/screens/auth/create_account_screen.dart';
 import 'package:kingz_cut_mobile/screens/auth/forgot_password_screen.dart';
-import 'package:kingz_cut_mobile/screens/customer/home/customer_dashboard_screen.dart';
+import 'package:kingz_cut_mobile/screens/home/dashboard_screen.dart';
 import 'package:kingz_cut_mobile/state_providers/app_config_notifier.dart';
-import 'package:kingz_cut_mobile/state_providers/customer_provider.dart';
+import 'package:kingz_cut_mobile/state_providers/customer_notifer.dart';
+import 'package:kingz_cut_mobile/state_providers/staff_notifier.dart';
 import 'package:kingz_cut_mobile/utils/app_alert.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kingz_cut_mobile/utils/custom_ui_block.dart';
@@ -52,6 +53,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _logAppConfig();
   }
 
   @override
@@ -352,7 +359,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) {
-              return CustomerDashboardScreen();
+              return DashboardScreen();
             },
           ),
         );
@@ -446,21 +453,34 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     final customer = await customerRepo.getCustomerByUserId(userId);
     if (customer != null) {
-      log('Customer found: ${customer.toString()}');
+      log('Customer found: ${customer.toJson().toString()}');
       // Update state in CustomerProvider
-      ref.read(customerProvider.notifier).setCustomer(customer);
+      ref.read(customerNotifier.notifier).setCustomer(customer);
     } else {
       log('No customer found for userId: $userId');
     }
-    final appConfig = ref.read(appConfigProvider);
-    final staffExists = await staffRepo.staffExists(userId);
-    final customerExists = customer != null;
 
-    if (!customerExists &&
-        appConfig.valueOrNull?.userType == UserType.customer) {
+    final staff = await staffRepo.getStaffByUserId(userId);
+    if (staff != null) {
+      log('Staff found: ${staff.toJson().toString()}');
+      // Update state in StaffProvider if needed
+      ref.read(staffNotifier.notifier).setStaff(staff);
+    } else {
+      log('No staff found for userId: $userId');
+    }
+
+    final appConfig = ref.read(appConfigProvider);
+    final customerExists = customer != null;
+    final staffExists = staff != null;
+
+    if (!customerExists && appConfig.value?.userType == UserType.customer) {
+      throw CustomerNotFoundException();
+    } else if (customerExists && customer.active != true) {
       throw CustomerNotFoundException();
     }
-    if (!staffExists && appConfig.valueOrNull?.userType == UserType.barber) {
+    if (!staffExists && appConfig.value?.userType == UserType.barber) {
+      throw StaffNotFoundException();
+    } else if (staffExists && staff.active != true) {
       throw StaffNotFoundException();
     }
   }
@@ -547,10 +567,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) {
-            return CustomerDashboardScreen();
+            return DashboardScreen();
           },
         ),
       );
     }
+  }
+
+  void _logAppConfig() async {
+    final appConfig = await ref.read(appConfigProvider.future);
+    log('🔧 AppConfig loaded: = ${appConfig?.toJson().toString()}');
   }
 }

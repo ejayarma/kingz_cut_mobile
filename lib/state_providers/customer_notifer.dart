@@ -21,10 +21,10 @@ class CustomerNotifier extends AsyncNotifier<Customer?> {
   }
 }
 
-final customerProvider = AsyncNotifierProvider<CustomerNotifier, Customer?>(
+final customerNotifier = AsyncNotifierProvider<CustomerNotifier, Customer?>(
   () => CustomerNotifier(),
 );
 
 final customerStateProvider = Provider<AsyncValue<Customer?>>((ref) {
-  return ref.watch(customerProvider);
+  return ref.watch(customerNotifier);
 });

@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:kingz_cut_mobile/screens/auth/create_account_screen.dart';
 import 'package:kingz_cut_mobile/screens/auth/login_screen.dart';
-import 'package:kingz_cut_mobile/screens/customer/home/customer_dashboard_screen.dart';
+import 'package:kingz_cut_mobile/screens/home/dashboard_screen.dart';
 import 'package:kingz_cut_mobile/utils/app_alert.dart';
 import 'package:kingz_cut_mobile/utils/custom_ui_block.dart';
 

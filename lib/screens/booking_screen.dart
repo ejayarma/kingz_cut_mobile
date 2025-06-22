@@ -9,9 +9,9 @@ import 'package:kingz_cut_mobile/models/appointment_booking_state.dart';
 import 'package:kingz_cut_mobile/models/working_hour.dart';
 import 'package:kingz_cut_mobile/state_providers/about_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/appointment_booking_provider.dart';
-import 'package:kingz_cut_mobile/state_providers/customer_provider.dart';
+import 'package:kingz_cut_mobile/state_providers/customer_notifer.dart';
 import 'package:kingz_cut_mobile/state_providers/service_provider.dart';
-import 'package:kingz_cut_mobile/screens/customer/home/customer_dashboard_screen.dart';
+import 'package:kingz_cut_mobile/screens/home/dashboard_screen.dart';
 import 'package:kingz_cut_mobile/utils/app_alert.dart';
 
 class BookingScreen extends ConsumerStatefulWidget {
@@ -570,7 +570,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   Future<void> _confirmBooking() async {
     final bookingState = ref.read(appointmentBookingProvider);
     final servicesState = ref.read(servicesProvider).value ?? [];
-    final customer = ref.read(customerProvider).value;
+    final customer = ref.read(customerNotifier).value;
 
     if (customer == null) {
       AppAlert.snackBarErrorAlert(
@@ -678,7 +678,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   void _navigateToHomScreen() {
     if (!mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const CustomerDashboardScreen()),
+      MaterialPageRoute(builder: (_) => const DashboardScreen()),
       (route) => false,
     );
   }

@@ -9,8 +9,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kingz_cut_mobile/repositories/customer_repository.dart';
 import 'package:kingz_cut_mobile/screens/auth/login_screen.dart';
-import 'package:kingz_cut_mobile/screens/customer/home/customer_dashboard_screen.dart';
-import 'package:kingz_cut_mobile/state_providers/customer_provider.dart';
+import 'package:kingz_cut_mobile/screens/home/dashboard_screen.dart';
+import 'package:kingz_cut_mobile/state_providers/customer_notifer.dart';
 import 'package:kingz_cut_mobile/utils/app_alert.dart';
 import 'package:kingz_cut_mobile/utils/custom_ui_block.dart';
 import 'package:kingz_cut_mobile/utils/firebase_error_mapper.dart';
@@ -343,7 +343,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
           login.user!,
           displayName: displayName,
         );
-        ref.read(customerProvider.notifier).setCustomer(customer);
+        ref.read(customerNotifier.notifier).setCustomer(customer);
       }
 
       if (mounted) {
@@ -351,7 +351,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) {
-              return CustomerDashboardScreen();
+              return DashboardScreen();
             },
           ),
         );
@@ -444,7 +444,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
           credential.user!,
           displayName: name,
         );
-        ref.read(customerProvider.notifier).setCustomer(customer);
+        ref.read(customerNotifier.notifier).setCustomer(customer);
       }
 
       log('User registration successful: ${credential.user?.email}');
@@ -473,7 +473,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) {
-            return CustomerDashboardScreen();
+            return DashboardScreen();
           },
         ),
       );

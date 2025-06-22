@@ -8,7 +8,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kingz_cut_mobile/screens/about_page.dart';
 // import 'package:kingz_cut_mobile/screens/auth/create_account_screen.dart';
 import 'package:kingz_cut_mobile/screens/auth/login_screen.dart';
-import 'package:kingz_cut_mobile/state_providers/customer_provider.dart';
+import 'package:kingz_cut_mobile/state_providers/customer_notifer.dart';
+import 'package:kingz_cut_mobile/state_providers/staff_notifier.dart';
 import 'package:kingz_cut_mobile/utils/app_alert.dart';
 import 'package:kingz_cut_mobile/utils/custom_ui_block.dart';
 
@@ -27,7 +28,8 @@ class _CustomerProfilePageState extends ConsumerState<CustomerProfilePage> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    final currentCustomer = ref.watch(customerProvider);
+    // final currentCustomer = ref.watch(customerNotifier);
+    final currentUser = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
       body: SafeArea(
@@ -69,7 +71,7 @@ class _CustomerProfilePageState extends ConsumerState<CustomerProfilePage> {
                   // Name
                   Expanded(
                     child: Text(
-                      currentCustomer.value?.name ?? '',
+                      currentUser?.displayName ?? '',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -89,7 +91,7 @@ class _CustomerProfilePageState extends ConsumerState<CustomerProfilePage> {
                   Icon(Icons.email, color: colorScheme.onSurfaceVariant),
                   const SizedBox(width: 12),
                   Text(
-                    currentCustomer.value?.email ?? '',
+                    currentUser?.email ?? '',
                     style: TextStyle(
                       color: colorScheme.onSurface,
                       fontSize: 16,
@@ -252,6 +254,10 @@ class _CustomerProfilePageState extends ConsumerState<CustomerProfilePage> {
         await FirebaseAuth.instance.signOut();
         log('Successfully signed out from Firebase');
       }
+
+      // Clear customer and staff state
+      ref.read(customerNotifier.notifier).clearCustomer();
+      ref.read(staffNotifier.notifier).clearStaff();
 
       if (mounted) {
         CustomUiBlock.unblock(context);

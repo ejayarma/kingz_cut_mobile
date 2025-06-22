@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kingz_cut_mobile/enums/appointment_status.dart';
 import 'package:kingz_cut_mobile/models/appointment.dart';
-import 'package:kingz_cut_mobile/screens/customer/reviews_screen.dart';
+import 'package:kingz_cut_mobile/screens/reviews_screen.dart';
 import 'package:kingz_cut_mobile/state_providers/appointments_provider.dart';
-import 'package:kingz_cut_mobile/state_providers/customer_provider.dart';
+import 'package:kingz_cut_mobile/state_providers/customer_notifer.dart';
 import 'package:kingz_cut_mobile/state_providers/service_provider.dart';
 import 'package:kingz_cut_mobile/utils/app_alert.dart';
 
@@ -32,7 +32,7 @@ class _CustomerBookingsPageState extends ConsumerState<CustomerBookingsPage>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
           .read(appointmentsProvider.notifier)
-          .fetchAppointments(customerId: ref.read(customerProvider).value?.id);
+          .fetchAppointments(customerId: ref.read(customerNotifier).value?.id);
     });
   }
 
@@ -45,7 +45,7 @@ class _CustomerBookingsPageState extends ConsumerState<CustomerBookingsPage>
   Future<void> _refreshAppointments() async {
     await ref
         .read(appointmentsProvider.notifier)
-        .fetchAppointments(customerId: ref.read(customerProvider).value?.id);
+        .fetchAppointments(customerId: ref.read(customerNotifier).value?.id);
   }
 
   List<Appointment> _filterAppointmentsByStatus(
@@ -115,7 +115,7 @@ class _CustomerBookingsPageState extends ConsumerState<CustomerBookingsPage>
       onRefresh: _refreshAppointments,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        child: Container(
+        child: SizedBox(
           height: MediaQuery.of(context).size.height * 0.5,
           child: Center(
             child: Column(

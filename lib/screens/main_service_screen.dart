@@ -6,7 +6,7 @@ import 'package:kingz_cut_mobile/models/service.dart';
 import 'package:kingz_cut_mobile/models/service_category.dart';
 // import 'package:kingz_cut_mobile/providers/service_provider.dart';
 // import 'package:kingz_cut_mobile/providers/service_category_provider.dart';
-import 'package:kingz_cut_mobile/screens/customer/service_selection_screen.dart';
+import 'package:kingz_cut_mobile/screens/service_selection_screen.dart';
 import 'package:kingz_cut_mobile/state_providers/appointment_booking_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/service_category_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/service_provider.dart';

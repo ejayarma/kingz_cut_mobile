@@ -1,6 +1,11 @@
+import 'dart:developer';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:introduction_screen/introduction_screen.dart';
+import 'package:kingz_cut_mobile/screens/home/dashboard_screen.dart';
 import 'package:kingz_cut_mobile/screens/launch_screen.dart';
 import 'package:kingz_cut_mobile/state_providers/app_config_notifier.dart';
 
@@ -94,15 +99,22 @@ class _OnBoardingScreenState extends ConsumerState<OnBoardingScreen> {
     );
   }
 
-  void _goHomepage(BuildContext context) async {
+  void _logAppConfig() async {
+    final appConfig = await ref.read(appConfigProvider.future);
+    log('🔧 AppConfig loaded: = ${appConfig?.toJson().toString()}');
+  }
+
+  Future<void> _goHomepage(BuildContext context) async {
     final notifier = ref.read(appConfigProvider.notifier);
     await notifier.setOnboarded(true);
 
-    if (!mounted) return;
+    _logAppConfig();
 
-    Navigator.of(
-      context,
-    ).pushReplacement(MaterialPageRoute(builder: (_) => const LaunchScreen()));
+    if (!mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const LaunchScreen()),
+      );
+    }
   }
 
   Widget _introImage(String assetName) {

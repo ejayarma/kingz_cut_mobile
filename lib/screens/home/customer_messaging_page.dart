@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:kingz_cut_mobile/screens/customer/calls_screen.dart';
-import 'package:kingz_cut_mobile/screens/customer/chat_screen.dart';
+import 'package:kingz_cut_mobile/screens/calls_screen.dart';
+import 'package:kingz_cut_mobile/screens/chat_screen.dart';
 
 class CustomerMessagingPage extends StatefulWidget {
   const CustomerMessagingPage({super.key});

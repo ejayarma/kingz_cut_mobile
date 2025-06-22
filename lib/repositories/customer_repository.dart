@@ -12,7 +12,6 @@ class CustomerRepository {
       _auth = auth ?? FirebaseAuth.instance;
 
   final String _customersCollection = 'customers';
-  // final String _staffCollection = 'staff';
 
   /// Create a new customer (let Firestore auto-generate ID)
   Future<Customer> createCustomer(Customer customer) async {
