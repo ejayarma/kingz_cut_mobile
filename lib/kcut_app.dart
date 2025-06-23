@@ -59,8 +59,7 @@ class _KCutAppState extends ConsumerState<KCutApp> {
         // If staff exists, navigate to staff dashboard
         ref.read(staffNotifier.notifier).setStaff(staff);
       } else {
-        // If customer does not exist, navigate to login
-        ref.read(customerNotifier.notifier).clearCustomer();
+        // If neither customer nor staff, navigate to login
         _navigateToLogin();
       }
     } catch (e) {
@@ -71,11 +70,12 @@ class _KCutAppState extends ConsumerState<KCutApp> {
   }
 
   void _navigateToLogin() {
-    if (!mounted) return;
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
-      (route) => false,
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (route) => false,
+      );
+    });
   }
 
   @override
