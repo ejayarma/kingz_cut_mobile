@@ -12,9 +12,7 @@ import 'package:kingz_cut_mobile/state_providers/app_config_notifier.dart';
 class DashboardScreen extends ConsumerStatefulWidget {
   final int initialPageIndex;
 
-  const DashboardScreen({super.key, required this.initialPageIndex});
-
-  const DashboardScreen.withInitialPage({super.key, this.initialPageIndex = 0});
+  const DashboardScreen({super.key, this.initialPageIndex = 0});
 
   @override
   ConsumerState<DashboardScreen> createState() =>
