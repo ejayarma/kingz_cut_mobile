@@ -164,7 +164,7 @@ class CustomerHomePage extends ConsumerWidget {
           ),
         ),
 
-        SizedBox(height: 30),
+        SizedBox(height: 20),
 
         Expanded(
           child: categoriesAsync.when(
