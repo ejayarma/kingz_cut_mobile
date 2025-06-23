@@ -1,8 +1,12 @@
+import 'dart:developer';
+
+import 'package:dartx/dartx_io.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kingz_cut_mobile/enums/appointment_status.dart';
 import 'package:kingz_cut_mobile/models/appointment.dart';
 import 'package:kingz_cut_mobile/state_providers/appointments_provider.dart';
+import 'package:kingz_cut_mobile/state_providers/customers_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/service_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/staff_notifier.dart';
 import 'package:kingz_cut_mobile/utils/app_alert.dart';
@@ -28,10 +32,8 @@ class _BarberBookingsPageState extends ConsumerState<BarberBookingsPage>
     _tabController = TabController(length: 3, vsync: this);
 
     // Fetch all appointments for barber view
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(appointmentsProvider.notifier)
-          .fetchAppointments(staffId: ref.read(staffNotifier).value?.id);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _refreshAppointments();
     });
   }
 
@@ -43,6 +45,7 @@ class _BarberBookingsPageState extends ConsumerState<BarberBookingsPage>
   }
 
   Future<void> _refreshAppointments() async {
+    await ref.read(customersProvider.notifier).refreshCustomers();
     await ref
         .read(appointmentsProvider.notifier)
         .fetchAppointments(staffId: ref.read(staffNotifier).value?.id);
@@ -76,13 +79,12 @@ class _BarberBookingsPageState extends ConsumerState<BarberBookingsPage>
           filteredAppointments
               .where(
                 (appointment) =>
-                    appointment.customerId?.toLowerCase().contains(
-                      searchQuery.toLowerCase(),
-                    ) ??
-                    false ||
-                        _getServiceNames(
-                          appointment,
-                        ).toLowerCase().contains(searchQuery.toLowerCase()),
+                    _getCustomerName(
+                      appointment,
+                    ).toLowerCase().contains(searchQuery.toLowerCase()) ||
+                    _getServiceNames(
+                      appointment,
+                    ).toLowerCase().contains(searchQuery.toLowerCase()),
               )
               .toList();
     }
@@ -99,6 +101,17 @@ class _BarberBookingsPageState extends ConsumerState<BarberBookingsPage>
         .where((service) => appointment.serviceIds.contains(service.id))
         .map((service) => service.name)
         .join(', ');
+  }
+
+  String _getCustomerName(Appointment appointment) {
+    final customers = ref.read(customersProvider).value ?? [];
+    log(customers.toString());
+    return customers
+            .firstOrNullWhere(
+              (customer) => appointment.customerId == customer.id,
+            )
+            ?.name ??
+        'Unknown Customer';
   }
 
   Future<void> _selectDate() async {
@@ -144,7 +157,7 @@ class _BarberBookingsPageState extends ConsumerState<BarberBookingsPage>
               TabBar(
                 controller: _tabController,
                 tabs: const [
-                  Tab(text: 'Upcoming'),
+                  Tab(text: 'Confirmed'),
                   Tab(text: 'Completed'),
                   Tab(text: 'Cancelled'),
                 ],
@@ -242,7 +255,7 @@ class _BarberBookingsPageState extends ConsumerState<BarberBookingsPage>
                         : TabBarView(
                           controller: _tabController,
                           children: [
-                            _buildUpcomingTab(appointmentsState.appointments),
+                            _buildConfirmedTab(appointmentsState.appointments),
                             _buildCompletedTab(appointmentsState.appointments),
                             _buildCancelledTab(appointmentsState.appointments),
                           ],
@@ -291,9 +304,9 @@ class _BarberBookingsPageState extends ConsumerState<BarberBookingsPage>
     );
   }
 
-  Widget _buildUpcomingTab(List<Appointment> appointments) {
+  Widget _buildConfirmedTab(List<Appointment> appointments) {
     final upcomingAppointments = _filterAppointmentsByStatus(appointments, [
-      AppointmentStatus.pending,
+      // AppointmentStatus.pending,
       AppointmentStatus.confirmed,
     ]);
 
@@ -425,7 +438,7 @@ class _BarberBookingsPageState extends ConsumerState<BarberBookingsPage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  appointment.customerId ?? 'Unknown Customer',
+                  _getCustomerName(appointment),
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,

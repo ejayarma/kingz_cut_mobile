@@ -70,8 +70,8 @@ class _OnBoardingScreenState extends ConsumerState<OnBoardingScreen> {
             decoration: pageDecoration,
           ),
         ],
-        onDone: () => _goHomepage(context),
-        onSkip: () => _goHomepage(context),
+        onDone: () => _goLaunchScreen(context),
+        onSkip: () => _goLaunchScreen(context),
         showSkipButton: true,
         showNextButton: true,
         skip: Text(
@@ -104,13 +104,13 @@ class _OnBoardingScreenState extends ConsumerState<OnBoardingScreen> {
     log('🔧 AppConfig loaded: = ${appConfig?.toJson().toString()}');
   }
 
-  Future<void> _goHomepage(BuildContext context) async {
+  Future<void> _goLaunchScreen(BuildContext context) async {
     final notifier = ref.read(appConfigProvider.notifier);
     await notifier.setOnboarded(true);
 
     _logAppConfig();
 
-    if (!mounted) {
+    if (mounted) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const LaunchScreen()),
       );
