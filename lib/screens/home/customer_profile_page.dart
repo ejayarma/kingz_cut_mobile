@@ -8,6 +8,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kingz_cut_mobile/screens/about_page.dart';
 // import 'package:kingz_cut_mobile/screens/auth/create_account_screen.dart';
 import 'package:kingz_cut_mobile/screens/auth/login_screen.dart';
+import 'package:kingz_cut_mobile/state_providers/app_config_notifier.dart';
 import 'package:kingz_cut_mobile/state_providers/customer_notifer.dart';
 import 'package:kingz_cut_mobile/state_providers/staff_notifier.dart';
 import 'package:kingz_cut_mobile/utils/app_alert.dart';
@@ -258,6 +259,7 @@ class _CustomerProfilePageState extends ConsumerState<CustomerProfilePage> {
       // Clear customer and staff state
       ref.read(customerNotifier.notifier).clearCustomer();
       ref.read(staffNotifier.notifier).clearStaff();
+      ref.read(appConfigProvider.notifier).reset();
 
       if (mounted) {
         CustomUiBlock.unblock(context);

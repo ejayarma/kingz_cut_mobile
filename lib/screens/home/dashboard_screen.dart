@@ -10,9 +10,9 @@ import 'package:kingz_cut_mobile/screens/home/customer_profile_page.dart';
 import 'package:kingz_cut_mobile/state_providers/app_config_notifier.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
-  final dynamic initialPageIndex;
+  final int initialPageIndex;
 
-  const DashboardScreen({super.key, this.initialPageIndex});
+  const DashboardScreen({super.key, required this.initialPageIndex});
 
   const DashboardScreen.withInitialPage({super.key, this.initialPageIndex = 0});
 

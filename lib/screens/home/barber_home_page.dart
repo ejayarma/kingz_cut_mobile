@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kingz_cut_mobile/screens/home/dashboard_screen.dart';
 import 'package:kingz_cut_mobile/state_providers/appointments_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/staff_notifier.dart';
 import 'package:kingz_cut_mobile/models/appointment.dart';
 import 'package:kingz_cut_mobile/enums/appointment_status.dart';
+import 'package:kingz_cut_mobile/utils/dashboard_page.dart';
 
 class BarberHomePage extends ConsumerStatefulWidget {
   const BarberHomePage({super.key});
@@ -15,11 +17,13 @@ class BarberHomePage extends ConsumerStatefulWidget {
 class _BarberHomePageState extends ConsumerState<BarberHomePage> {
   void _goToBookingsScreen(BuildContext context) {
     // Navigate to bookings/calendar screen
-    // Navigator.of(context).push(
-    //   MaterialPageRoute(
-    //     builder: (_) => BookingsScreen(),
-    //   ),
-    // );
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder:
+            (_) =>
+                DashboardScreen(initialPageIndex: DashboardPage.bookings.index),
+      ),
+    );
   }
 
   @override
@@ -33,11 +37,11 @@ class _BarberHomePageState extends ConsumerState<BarberHomePage> {
     });
   }
 
-  Future<void> _refreshAppointments() async {
-    await ref
-        .read(appointmentsProvider.notifier)
-        .fetchAppointments(customerId: ref.read(staffNotifier).value?.id);
-  }
+  // Future<void> _refreshAppointments() async {
+  //   await ref
+  //       .read(appointmentsProvider.notifier)
+  //       .fetchAppointments(customerId: ref.read(staffNotifier).value?.id);
+  // }
 
   @override
   Widget build(BuildContext context) {
