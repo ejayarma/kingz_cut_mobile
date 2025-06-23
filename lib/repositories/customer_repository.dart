@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:riverpod/riverpod.dart';
@@ -113,6 +115,16 @@ class CustomerRepository {
 
     await createCustomer(customer);
     return customer;
+  }
+
+  Future<List<Customer>> fetchCustomers() async {
+    final snapshot = await _firestore.collection(_customersCollection).get();
+
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      log('Fetched customer: ${data['name']} with ID: ${doc.id}');
+      return Customer.fromJson({...data, 'id': doc.id});
+    }).toList();
   }
 }
 

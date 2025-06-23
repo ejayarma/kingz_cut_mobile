@@ -163,7 +163,8 @@ class CustomerHomePage extends ConsumerWidget {
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
           ),
         ),
-        SizedBox(height: 50),
+
+        SizedBox(height: 30),
 
         Expanded(
           child: categoriesAsync.when(

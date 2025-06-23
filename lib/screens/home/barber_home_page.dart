@@ -1,7 +1,12 @@
+import 'dart:developer';
+
+import 'package:dartx/dartx_io.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kingz_cut_mobile/screens/home/dashboard_screen.dart';
 import 'package:kingz_cut_mobile/state_providers/appointments_provider.dart';
+import 'package:kingz_cut_mobile/state_providers/customers_provider.dart';
+import 'package:kingz_cut_mobile/state_providers/service_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/staff_notifier.dart';
 import 'package:kingz_cut_mobile/models/appointment.dart';
 import 'package:kingz_cut_mobile/enums/appointment_status.dart';
@@ -30,18 +35,26 @@ class _BarberHomePageState extends ConsumerState<BarberHomePage> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(appointmentsProvider.notifier)
-          .fetchAppointments(staffId: ref.read(staffNotifier).value?.id);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _refreshAppointments();
     });
   }
 
-  // Future<void> _refreshAppointments() async {
-  //   await ref
-  //       .read(appointmentsProvider.notifier)
-  //       .fetchAppointments(customerId: ref.read(staffNotifier).value?.id);
-  // }
+  Future<void> _refreshAppointments() async {
+    await ref.read(customersProvider.notifier).refreshCustomers();
+    await ref
+        .read(appointmentsProvider.notifier)
+        .fetchAppointments(staffId: ref.read(staffNotifier).value?.id);
+  }
+
+  Future<void> _onRefresh() async {
+    // Show loading indicator and refresh data
+    await _refreshAppointments();
+
+    // Invalidate providers to trigger rebuild with fresh data
+    ref.invalidate(todaysAppointmentsProvider);
+    ref.invalidate(todaysSalesProvider);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,226 +62,243 @@ class _BarberHomePageState extends ConsumerState<BarberHomePage> {
     final todaysAppointmentsAsync = ref.watch(todaysAppointmentsProvider);
     final todaysSalesAsync = ref.watch(todaysSalesProvider);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Top search bar and notification (keeping same as customer)
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Search appointments, customers',
-                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                    filled: true,
-                    fillColor: Colors.grey.shade200,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              const Badge(
-                label: Text('0'), // change as needed
-                child: Icon(Icons.notifications),
-              ),
-            ],
-          ),
-        ),
-
-        // Welcome banner (adapted for barber)
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Colors.black, Color.fromARGB(183, 10, 10, 41)],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
+    return RefreshIndicator(
+      onRefresh: _onRefresh,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Top search bar and notification (keeping same as customer)
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 8.0,
             ),
-            borderRadius: BorderRadius.circular(12),
-            image: const DecorationImage(
-              image: AssetImage('assets/images/barber_working.png'),
-              fit: BoxFit.cover,
-              opacity: 0.3,
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Text(
-                  "Welcome,\n${currentStaff.value?.name ?? 'Barber'}",
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  'Visit the calendar section to view your appointments',
-                  style: TextStyle(color: Colors.white, fontSize: 14),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: SizedBox(
-                        height: 60,
-                        width: 200,
-                        child: ElevatedButton(
-                          onPressed: () => _goToBookingsScreen(context),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFF9A826),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          child: const Text(
-                            'View Bookings',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
-                            ),
-                          ),
-                        ),
+                Expanded(
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Search appointments, customers',
+                      prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                      filled: true,
+                      fillColor: Colors.grey.shade200,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        borderSide: BorderSide.none,
                       ),
                     ),
-                  ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                const Badge(
+                  label: Text('0'), // change as needed
+                  child: Icon(Icons.notifications),
                 ),
               ],
             ),
           ),
-        ),
 
-        // Today's Appointments Section
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8.0),
-          child: Text(
-            'Today\'s Appointments',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-          ),
-        ),
-
-        // Appointments List
-        Expanded(
-          flex: 2,
-          child: todaysAppointmentsAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, _) => Center(child: Text('Error: $err')),
-            data: (appointments) {
-              if (appointments.isEmpty) {
-                return const Center(
-                  child: Text(
-                    'No appointments today',
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
-                  ),
-                );
-              }
-              return ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: appointments.length,
-                itemBuilder: (context, index) {
-                  final appointment = appointments[index];
-                  return _buildAppointmentCard(appointment, ref);
-                },
-              );
-            },
-          ),
-        ),
-
-        // Today's Sales Section
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8.0),
-          child: Text(
-            'Today\'s Sales',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-          ),
-        ),
-
-        // Sales Summary Card
-        Container(
-          margin: const EdgeInsets.all(16),
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: const Color(0xFFE8F5E8),
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.shade300,
-                blurRadius: 8,
-                spreadRadius: 1,
-                offset: const Offset(0, 2),
+          // Welcome banner (adapted for barber)
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Colors.black, Color.fromARGB(183, 10, 10, 41)],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
               ),
-            ],
-          ),
-          child: todaysSalesAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, _) => Text('Error: $err'),
-            data: (salesData) {
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              borderRadius: BorderRadius.circular(12),
+              image: const DecorationImage(
+                image: AssetImage('assets/images/barber_working.png'),
+                fit: BoxFit.cover,
+                opacity: 0.3,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Appointments',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      Text(
-                        '${salesData['appointmentCount'] ?? 10}',
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
+                  Text(
+                    "Welcome,\n${currentStaff.value?.name ?? 'Barber'}",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Visit the calendar section to view your appointments',
+                    style: TextStyle(color: Colors.white, fontSize: 14),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
-                        'Total Income',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      Text(
-                        'GHS ${salesData['totalIncome'] ?? '300.00'}',
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey,
+                      Expanded(
+                        child: SizedBox(
+                          height: 60,
+                          width: 200,
+                          child: ElevatedButton(
+                            onPressed: () => _goToBookingsScreen(context),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFF9A826),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: const Text(
+                              'View Bookings',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ],
-              );
-            },
+              ),
+            ),
           ),
-        ),
-      ],
+
+          // Today's Appointments Section
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8.0),
+            child: Text(
+              'Today\'s Appointments',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+          ),
+
+          // Appointments List - Keeping the original Expanded structure
+          Expanded(
+            flex: 2,
+            child: todaysAppointmentsAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, _) => Center(child: Text('Error: $err')),
+              data: (appointments) {
+                if (appointments.isEmpty) {
+                  return ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: const [
+                      SizedBox(height: 100),
+                      Center(
+                        child: Text(
+                          'No appointments today',
+                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                        ),
+                      ),
+                    ],
+                  );
+                }
+                return ListView.builder(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: appointments.length,
+                  itemBuilder: (context, index) {
+                    final appointment = appointments[index];
+                    return _buildAppointmentCard(appointment, ref);
+                  },
+                );
+              },
+            ),
+          ),
+
+          // Today's Sales Section
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8.0),
+            child: Text(
+              'Today\'s Sales',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+          ),
+
+          // Sales Summary Card
+          Container(
+            margin: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE8F5E8),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.shade300,
+                  blurRadius: 8,
+                  spreadRadius: 1,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: todaysSalesAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, _) => Text('Error: $err'),
+              data: (salesData) {
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Appointments',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Text(
+                          '${salesData['appointmentCount'] ?? 10}',
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        const Text(
+                          'Total Income',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Text(
+                          'GHS ${salesData['totalIncome'] ?? '300.00'}',
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildAppointmentCard(Appointment appointment, WidgetRef ref) {
     // You'll need to fetch customer and service details based on IDs
-    final customerName = 'Customer'; // Replace with actual customer lookup
-    final serviceName = 'Service'; // Replace with actual service lookup
+    final customerName = _getCustomerName(
+      appointment,
+    ); // Replace with actual customer lookup
+    final serviceName = _getServiceNames(
+      appointment,
+    ); // Replace with actual service lookup
     final price = appointment.totalPrice ?? 0.0;
 
     // Format time from DateTime
@@ -335,6 +365,25 @@ class _BarberHomePageState extends ConsumerState<BarberHomePage> {
         ],
       ),
     );
+  }
+
+  String _getServiceNames(Appointment appointment) {
+    final services = ref.read(servicesProvider).value ?? [];
+    return services
+        .where((service) => appointment.serviceIds.contains(service.id))
+        .map((service) => service.name)
+        .join(', ');
+  }
+
+  String _getCustomerName(Appointment appointment) {
+    final customers = ref.read(customersProvider).value ?? [];
+    log(customers.toString());
+    return customers
+            .firstOrNullWhere(
+              (customer) => appointment.customerId == customer.id,
+            )
+            ?.name ??
+        'Unknown Customer';
   }
 }
 

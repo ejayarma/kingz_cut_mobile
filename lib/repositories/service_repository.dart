@@ -10,7 +10,7 @@ class ServiceRepository {
 
     return snapshot.docs.map((doc) {
       final data = doc.data();
-      return Service.fromJson({'id': doc.id, ...data});
+      return Service.fromJson({...data, 'id': doc.id});
     }).toList();
   }
 }

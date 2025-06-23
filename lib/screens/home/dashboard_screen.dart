@@ -10,9 +10,9 @@ import 'package:kingz_cut_mobile/screens/home/customer_profile_page.dart';
 import 'package:kingz_cut_mobile/state_providers/app_config_notifier.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
-  final int initialPageIndex;
+  final int? initialPageIndex;
 
-  const DashboardScreen({super.key, this.initialPageIndex = 0});
+  const DashboardScreen({super.key, this.initialPageIndex});
 
   @override
   ConsumerState<DashboardScreen> createState() =>
@@ -21,6 +21,15 @@ class DashboardScreen extends ConsumerStatefulWidget {
 
 class _CustomerDashboardScreenState extends ConsumerState<DashboardScreen> {
   int _pageIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Set the initial page index only once when the widget is first created
+    if (widget.initialPageIndex != null) {
+      _pageIndex = widget.initialPageIndex!;
+    }
+  }
 
   List<Widget> _buildPages() {
     final userType = ref.read(appConfigProvider).value?.userType;
@@ -42,13 +51,12 @@ class _CustomerDashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget build(BuildContext context) {
     final pages = _buildPages();
     return Scaffold(
-      body: SafeArea(child: pages[widget.initialPageIndex ?? _pageIndex]),
+      body: SafeArea(child: pages[_pageIndex]),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Theme.of(context).colorScheme.primary,
         unselectedItemColor: Colors.grey,
-        currentIndex: widget.initialPageIndex ?? _pageIndex,
-
+        currentIndex: _pageIndex,
         onTap: (value) {
           setState(() => _pageIndex = value);
         },

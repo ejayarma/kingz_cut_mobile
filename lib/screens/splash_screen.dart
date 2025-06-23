@@ -39,12 +39,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const OnBoardingScreen()),
       );
+      return;
     }
     if (appConfig?.userType == null) {
       // Navigate to onboarding
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const LaunchScreen()),
       );
+      return;
     }
 
     if (FirebaseAuth.instance.currentUser != null) {
@@ -52,6 +54,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const DashboardScreen()),
       );
+      return;
     }
   }
 
