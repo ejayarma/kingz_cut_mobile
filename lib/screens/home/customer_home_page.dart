@@ -164,8 +164,7 @@ class CustomerHomePage extends ConsumerWidget {
           ),
         ),
 
-        SizedBox(height: 20),
-
+        // SizedBox(height: 20),
         Expanded(
           child: categoriesAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
