@@ -24,7 +24,7 @@ class _KCutAppState extends ConsumerState<KCutApp> {
   @override
   void initState() {
     super.initState();
-    _listenAuthState();
+    // _listenAuthState();
     _logAppConfig();
   }
 

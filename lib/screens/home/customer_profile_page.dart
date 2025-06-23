@@ -8,6 +8,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kingz_cut_mobile/screens/about_page.dart';
 // import 'package:kingz_cut_mobile/screens/auth/create_account_screen.dart';
 import 'package:kingz_cut_mobile/screens/auth/login_screen.dart';
+import 'package:kingz_cut_mobile/screens/splash_screen.dart';
 import 'package:kingz_cut_mobile/state_providers/app_config_notifier.dart';
 import 'package:kingz_cut_mobile/state_providers/customer_notifer.dart';
 import 'package:kingz_cut_mobile/state_providers/staff_notifier.dart';
@@ -267,7 +268,7 @@ class _CustomerProfilePageState extends ConsumerState<CustomerProfilePage> {
         // Use pushAndRemoveUntil to clear the navigation stack
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
+          MaterialPageRoute(builder: (context) => const SplashScreen()),
           (route) => false, // Remove all previous routes
         );
       }

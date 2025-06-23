@@ -164,7 +164,7 @@ class CustomerHomePage extends ConsumerWidget {
           ),
         ),
 
-        // SizedBox(height: 20),
+        SizedBox(height: 20),
         Expanded(
           child: categoriesAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
@@ -174,7 +174,7 @@ class CustomerHomePage extends ConsumerWidget {
                 crossAxisCount: 2,
                 mainAxisSpacing: 16,
                 crossAxisSpacing: 16,
-                childAspectRatio: 5 / 3,
+                childAspectRatio: 4 / 3,
                 padding: const EdgeInsets.all(16),
                 children:
                     categories.map((category) {
