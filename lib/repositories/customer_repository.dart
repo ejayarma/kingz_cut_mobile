@@ -122,7 +122,7 @@ class CustomerRepository {
 
     return snapshot.docs.map((doc) {
       final data = doc.data();
-      log('Fetched customer: ${data['name']} with ID: ${doc.id}');
+      // log('Fetched customer: ${data['name']} with ID: ${doc.id}');
       return Customer.fromJson({...data, 'id': doc.id});
     }).toList();
   }

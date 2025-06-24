@@ -15,15 +15,14 @@ import 'package:kingz_cut_mobile/state_providers/staff_notifier.dart';
 import 'package:kingz_cut_mobile/utils/app_alert.dart';
 import 'package:kingz_cut_mobile/utils/custom_ui_block.dart';
 
-class CustomerProfilePage extends ConsumerStatefulWidget {
-  const CustomerProfilePage({super.key});
+class ProfilePage extends ConsumerStatefulWidget {
+  const ProfilePage({super.key});
 
   @override
-  ConsumerState<CustomerProfilePage> createState() =>
-      _CustomerProfilePageState();
+  ConsumerState<ProfilePage> createState() => _CustomerProfilePageState();
 }
 
-class _CustomerProfilePageState extends ConsumerState<CustomerProfilePage> {
+class _CustomerProfilePageState extends ConsumerState<ProfilePage> {
   bool notificationsEnabled = true;
 
   @override
@@ -118,27 +117,26 @@ class _CustomerProfilePageState extends ConsumerState<CustomerProfilePage> {
               const SizedBox(height: 32),
 
               // Settings section
-              Text(
-                'Setting',
-                style: TextStyle(fontSize: 16, color: colorScheme.tertiary),
-              ),
+              // Text(
+              //   'Setting',
+              //   style: TextStyle(fontSize: 16, color: colorScheme.tertiary),
+              // ),
               const SizedBox(height: 16),
 
               // Settings list
-              _buildSettingItem(
-                title: 'Notification',
-                trailing: Switch(
-                  value: notificationsEnabled,
-                  onChanged: (value) {
-                    setState(() {
-                      notificationsEnabled = value;
-                    });
-                  },
-                ),
-              ),
-
-              _buildSettingItemWithArrow(title: 'Account'),
-              _buildSettingItemWithArrow(title: 'Security'),
+              // _buildSettingItem(
+              //   title: 'Notification',
+              //   trailing: Switch(
+              //     value: notificationsEnabled,
+              //     onChanged: (value) {
+              //       setState(() {
+              //         notificationsEnabled = value;
+              //       });
+              //     },
+              //   ),
+              // ),
+              // _buildSettingItemWithArrow(title: 'Account'),
+              // _buildSettingItemWithArrow(title: 'Security'),
               _buildSettingItemWithArrow(
                 title: 'About',
                 onTap: () {
@@ -150,8 +148,8 @@ class _CustomerProfilePageState extends ConsumerState<CustomerProfilePage> {
                   );
                 },
               ),
-              _buildSettingItemWithArrow(title: 'Contact Us'),
 
+              // _buildSettingItemWithArrow(title: 'Contact Us'),
               const Spacer(),
 
               // Logout button

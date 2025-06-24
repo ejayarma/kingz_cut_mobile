@@ -4,15 +4,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:kingz_cut_mobile/enums/booking_type.dart';
 import 'package:kingz_cut_mobile/models/about.dart';
+import 'package:kingz_cut_mobile/models/appointment.dart';
 import 'package:kingz_cut_mobile/models/appointment_booking_state.dart';
 // import 'package:kingz_cut_mobile/models/service.dart';
 import 'package:kingz_cut_mobile/models/working_hour.dart';
 import 'package:kingz_cut_mobile/state_providers/about_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/appointment_booking_provider.dart';
+import 'package:kingz_cut_mobile/state_providers/appointments_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/customer_notifer.dart';
+import 'package:kingz_cut_mobile/state_providers/customers_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/service_provider.dart';
 import 'package:kingz_cut_mobile/screens/home/dashboard_screen.dart';
 import 'package:kingz_cut_mobile/utils/app_alert.dart';
+import 'package:kingz_cut_mobile/utils/dashboard_page.dart';
 
 class BookingScreen extends ConsumerStatefulWidget {
   // final String customerId; // Customer ID parameter
@@ -33,22 +37,18 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
       0; // Get total duration from state
   BookingType? _bookingType = BookingType.walkInService;
 
-  // Sample booked time ranges - replace with your actual data source
-  final List<Map<String, DateTime>> _bookedTimeRanges = [
-    {
-      'start': DateTime(2025, 6, 18, 10, 30),
-      'end': DateTime(2025, 6, 18, 12, 0),
-    },
-    {
-      'start': DateTime(2025, 6, 18, 14, 0),
-      'end': DateTime(2025, 6, 18, 15, 30),
-    },
-  ];
-
   @override
   void initState() {
     super.initState();
     _initializeBookingState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _refreshAppointments();
+    });
+  }
+
+  Future<void> _refreshAppointments() async {
+    await ref.read(appointmentsProvider.notifier).fetchAppointments();
   }
 
   void _calculateTotalDurationAndPrice() {
@@ -655,6 +655,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
             .bookAppointment(customer?.id ?? '');
 
         if (success) {
+          ref.read(appointmentBookingProvider.notifier).clearBookingState();
           if (mounted) {
             AppAlert.snackBarSuccessAlert(
               context,
@@ -678,7 +679,11 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   void _navigateToHomScreen() {
     if (!mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const DashboardScreen()),
+      MaterialPageRoute(
+        builder:
+            (_) =>
+                DashboardScreen(initialPageIndex: DashboardPage.bookings.index),
+      ),
       (route) => false,
     );
   }
@@ -731,9 +736,9 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   }
 
   bool _isTimeSlotBooked(DateTime startTime, DateTime endTime) {
-    for (final bookedRange in _bookedTimeRanges) {
-      final bookedStart = bookedRange['start']!;
-      final bookedEnd = bookedRange['end']!;
+    for (final Appointment ap in ref.read(appointmentsProvider).appointments) {
+      final bookedStart = ap.startTime;
+      final bookedEnd = ap.endTime;
 
       // Check if the time slots overlap
       if (startTime.isBefore(bookedEnd) && endTime.isAfter(bookedStart)) {

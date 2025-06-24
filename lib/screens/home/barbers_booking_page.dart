@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kingz_cut_mobile/enums/appointment_status.dart';
 import 'package:kingz_cut_mobile/models/appointment.dart';
+import 'package:kingz_cut_mobile/screens/receipt_page.dart';
 import 'package:kingz_cut_mobile/state_providers/appointments_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/customers_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/service_provider.dart';
@@ -105,13 +106,23 @@ class _BarberBookingsPageState extends ConsumerState<BarberBookingsPage>
 
   String _getCustomerName(Appointment appointment) {
     final customers = ref.read(customersProvider).value ?? [];
-    log(customers.toString());
+    // log(customers.toString());
     return customers
             .firstOrNullWhere(
               (customer) => appointment.customerId == customer.id,
             )
             ?.name ??
         'Unknown Customer';
+  }
+
+  String _getCustomerPhone(Appointment appointment) {
+    final customers = ref.read(customersProvider).value ?? [];
+    return customers
+            .firstOrNullWhere(
+              (customer) => appointment.customerId == customer.id,
+            )
+            ?.phone ??
+        'N/A';
   }
 
   Future<void> _selectDate() async {
@@ -132,6 +143,120 @@ class _BarberBookingsPageState extends ConsumerState<BarberBookingsPage>
     setState(() {
       selectedDate = null;
     });
+  }
+
+  Future<void> _showCompleteDialog(Appointment appointment) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Complete Booking'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(
+                  'Are you sure you want to complete this booking for ${_getCustomerName(appointment)}?',
+                ),
+                const SizedBox(height: 8),
+                const Text('This will change the status back to pending.'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Complete'),
+              onPressed: () async {
+                Navigator.of(context).pop();
+                final success = await ref
+                    .read(appointmentsProvider.notifier)
+                    .completeAppointment(appointment.id!);
+
+                if (success) {
+                  AppAlert.snackBarSuccessAlert(
+                    context,
+                    'Booking completed successfully',
+                  );
+                } else {
+                  AppAlert.snackBarErrorAlert(
+                    context,
+                    'Failed to complete booking',
+                  );
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _showCancelDialog(Appointment appointment) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Cancel Booking'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(
+                  'Are you sure you want to cancel this booking for ${_getCustomerName(appointment)}?',
+                ),
+                const SizedBox(height: 8),
+                const Text('This action cannot be undone.'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Keep Booking'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Cancel Booking'),
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              onPressed: () async {
+                Navigator.of(context).pop();
+                final success = await ref
+                    .read(appointmentsProvider.notifier)
+                    .cancelAppointment(appointment.id!);
+
+                if (success) {
+                  AppAlert.snackBarSuccessAlert(
+                    context,
+                    'Booking cancelled successfully',
+                  );
+                } else {
+                  AppAlert.snackBarErrorAlert(
+                    context,
+                    'Failed to cancel booking',
+                  );
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _navigateToReceipt(Appointment appointment) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ReceiptPage(appointment: appointment),
+      ),
+    );
   }
 
   @override
@@ -306,7 +431,6 @@ class _BarberBookingsPageState extends ConsumerState<BarberBookingsPage>
 
   Widget _buildConfirmedTab(List<Appointment> appointments) {
     final upcomingAppointments = _filterAppointmentsByStatus(appointments, [
-      // AppointmentStatus.pending,
       AppointmentStatus.confirmed,
     ]);
 
@@ -320,7 +444,10 @@ class _BarberBookingsPageState extends ConsumerState<BarberBookingsPage>
                 itemCount: upcomingAppointments.length,
                 itemBuilder: (context, index) {
                   final appointment = upcomingAppointments[index];
-                  return _buildBarberBookingCard(appointment: appointment);
+                  return _buildBarberBookingCard(
+                    appointment: appointment,
+                    isConfirmedTab: true,
+                  );
                 },
               ),
     );
@@ -405,7 +532,10 @@ class _BarberBookingsPageState extends ConsumerState<BarberBookingsPage>
     return '$hour:$minute$period';
   }
 
-  Widget _buildBarberBookingCard({required Appointment appointment}) {
+  Widget _buildBarberBookingCard({
+    required Appointment appointment,
+    bool isConfirmedTab = false,
+  }) {
     final timeRange =
         '${_formatTime(appointment.startTime)}- ${_formatTime(appointment.endTime ?? appointment.startTime.add(const Duration(hours: 1)))}';
 
@@ -417,67 +547,102 @@ class _BarberBookingsPageState extends ConsumerState<BarberBookingsPage>
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey.shade200),
       ),
-      child: Row(
+      child: Column(
         children: [
-          // Customer Avatar
-          CircleAvatar(
-            radius: 30,
-            backgroundColor: Colors.grey.shade300,
-            // backgroundImage: appointment.customerAvatar != null
-            //     ? NetworkImage(appointment.customerAvatar!)
-            //     : null,
-            // child: appointment.customerAvatar == null
-            //     ? const Icon(Icons.person, size: 30, color: Colors.grey)
-            //     : null,
-            child: const Icon(Icons.person, size: 30, color: Colors.grey),
-          ),
-          const SizedBox(width: 16),
-          // Appointment Details
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _getCustomerName(appointment),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+          Row(
+            children: [
+              // Customer Avatar
+              CircleAvatar(
+                radius: 30,
+                backgroundColor: Colors.grey.shade300,
+                child: const Icon(Icons.person, size: 30, color: Colors.grey),
+              ),
+              const SizedBox(width: 16),
+              // Appointment Details
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _getCustomerName(appointment),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      timeRange,
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _getServiceNames(appointment),
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'GHS ${appointment.totalPrice?.toStringAsFixed(2) ?? '0.00'}',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // View Receipt Button
+              TextButton(
+                onPressed: () => _navigateToReceipt(appointment),
+                child: Text(
+                  'View Receipt',
+                  style: TextStyle(
+                    color:
+                        appointment.status == AppointmentStatus.cancelled
+                            ? Theme.of(context).colorScheme.error
+                            : primaryColor,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  timeRange,
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+              ),
+            ],
+          ),
+
+          // Action buttons for confirmed tab
+          if (isConfirmedTab) ...[
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => _showCancelDialog(appointment),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Colors.red),
+                      foregroundColor: Colors.red,
+                    ),
+                    child: const Text('Cancel'),
+                  ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  _getServiceNames(appointment),
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'GHS ${appointment.totalPrice?.toStringAsFixed(2) ?? '0.00'}',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: () => _showCompleteDialog(appointment),
+                    style: FilledButton.styleFrom(
+                      // side: BorderSide(color: Theme.of(context).colorScheme.secondary),
+                      backgroundColor: Theme.of(context).colorScheme.secondary,
+                    ),
+                    child: const Text('Complete'),
                   ),
                 ),
               ],
             ),
-          ),
-          // View Receipt Button
-          TextButton(
-            onPressed: () {
-              AppAlert.snackBarInfoAlert(context, 'View receipt coming soon');
-            },
-            child: Text(
-              'View Receipt',
-              style: TextStyle(
-                color: primaryColor,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
+          ],
         ],
       ),
     );

@@ -6,7 +6,7 @@ import 'package:kingz_cut_mobile/screens/home/barbers_booking_page.dart';
 import 'package:kingz_cut_mobile/screens/home/customer_bookings_page.dart';
 import 'package:kingz_cut_mobile/screens/home/customer_home_page.dart';
 import 'package:kingz_cut_mobile/screens/home/customer_messaging_page.dart';
-import 'package:kingz_cut_mobile/screens/home/customer_profile_page.dart';
+import 'package:kingz_cut_mobile/screens/home/profile_page.dart';
 import 'package:kingz_cut_mobile/state_providers/app_config_notifier.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -43,7 +43,7 @@ class _CustomerDashboardScreenState extends ConsumerState<DashboardScreen> {
           : const BarberBookingsPage(),
 
       const CustomerMessagingPage(),
-      const CustomerProfilePage(),
+      const ProfilePage(),
     ];
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kingz_cut_mobile/enums/appointment_status.dart';
 import 'package:kingz_cut_mobile/models/appointment.dart';
+import 'package:kingz_cut_mobile/screens/receipt_page.dart';
 import 'package:kingz_cut_mobile/screens/reviews_screen.dart';
 import 'package:kingz_cut_mobile/state_providers/appointments_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/customer_notifer.dart';
@@ -445,9 +446,17 @@ class _CustomerBookingsPageState extends ConsumerState<CustomerBookingsPage>
                 Expanded(
                   child: FilledButton(
                     onPressed: () {
-                      AppAlert.snackBarInfoAlert(
+                      // AppAlert.snackBarInfoAlert(
+                      //   context,
+                      //   'View receipt coming soon',
+                      // );
+                      Navigator.push(
                         context,
-                        'View receipt coming soon',
+                        MaterialPageRoute(
+                          builder:
+                              (context) =>
+                                  ReceiptPage(appointment: appointment),
+                        ),
                       );
                     },
                     style: FilledButton.styleFrom(

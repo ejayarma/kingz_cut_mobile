@@ -24,7 +24,7 @@ class _KCutAppState extends ConsumerState<KCutApp> {
   @override
   void initState() {
     super.initState();
-    // _listenAuthState();
+    _listenAuthState();
     _logAppConfig();
   }
 
@@ -32,7 +32,7 @@ class _KCutAppState extends ConsumerState<KCutApp> {
     FirebaseAuth.instance.authStateChanges().listen((User? user) async {
       if (user == null) {
         debugPrint('User is currently signed out!');
-        _navigateToLogin();
+        // _navigateToLogin();
       } else {
         debugPrint('User is signed in!');
         await _handleSignedInUser(user);
@@ -42,7 +42,12 @@ class _KCutAppState extends ConsumerState<KCutApp> {
 
   void _logAppConfig() async {
     final appConfig = await ref.read(appConfigProvider.future);
+    final customer = ref.read(customerNotifier).value;
+    final staff = ref.read(staffNotifier).value;
+
     log('🔧 AppConfig loaded: = ${appConfig?.toJson().toString()}');
+    log('🔧 Customer loaded: = ${customer?.toJson().toString()}');
+    log('🔧 Staff loaded: = ${staff?.toJson().toString()}');
   }
 
   Future<void> _handleSignedInUser(User user) async {
@@ -58,9 +63,10 @@ class _KCutAppState extends ConsumerState<KCutApp> {
       } else if (staff != null) {
         // If staff exists, navigate to staff dashboard
         ref.read(staffNotifier.notifier).setStaff(staff);
+        _logAppConfig();
       } else {
         // If neither customer nor staff, navigate to login
-        _navigateToLogin();
+        // _navigateToLogin();
       }
     } catch (e) {
       debugPrint('Error fetching customer: $e');

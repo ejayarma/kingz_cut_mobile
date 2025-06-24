@@ -3,16 +3,20 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:kingz_cut_mobile/state_providers/about_provider.dart';
+import 'package:kingz_cut_mobile/utils/app_alert.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:kingz_cut_mobile/models/about.dart';
-// import 'package:kingz_cut_mobile/providers/about_provider.dart'; // Adjust import path
-import 'package:kingz_cut_mobile/utils/app_alert.dart';
 
-class AboutScreen extends ConsumerWidget {
+class AboutScreen extends ConsumerStatefulWidget {
   const AboutScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AboutScreen> createState() => _AboutScreenState();
+}
+
+class _AboutScreenState extends ConsumerState<AboutScreen> {
+  @override
+  Widget build(BuildContext context) {
     final aboutAsync = ref.watch(aboutProvider); // Adjust provider name
 
     return Scaffold(
@@ -372,15 +376,38 @@ class AboutScreen extends ConsumerWidget {
 
   Future<void> _launchUrl(String url) async {
     try {
-      final uri = Uri.parse(url);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      String formattedUrl = url;
+      if (!url.startsWith('http://') &&
+          !url.startsWith('https://') &&
+          !url.startsWith('tel:') &&
+          !url.startsWith('mailto:')) {
+        formattedUrl = 'https://$url';
+      }
+
+      debugPrint('Attempting to launch: $formattedUrl'); // Add this line
+
+      final uri = Uri.parse(formattedUrl);
+
+      final canLaunch = await canLaunchUrl(uri);
+      debugPrint('Can launch URL: $canLaunch'); // Add this line
+
+      if (canLaunch) {
+        final result = await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication,
+        );
+        debugPrint('Launch result: $result'); // Add this line
       } else {
-        // Handle error - could show a snackbar or alert
-        debugPrint('Could not launch $url');
+        debugPrint('Cannot launch $formattedUrl');
+        if (mounted) {
+          AppAlert.snackBarErrorAlert(context, 'Could not open $formattedUrl');
+        }
       }
     } catch (e) {
       debugPrint('Error launching URL: $e');
+      if (mounted) {
+        AppAlert.snackBarErrorAlert(context, 'Error opening link');
+      }
     }
   }
 }

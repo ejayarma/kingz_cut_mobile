@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:dartx/dartx_io.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:kingz_cut_mobile/screens/home/dashboard_screen.dart';
 import 'package:kingz_cut_mobile/state_providers/appointments_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/customers_provider.dart';
@@ -10,6 +11,7 @@ import 'package:kingz_cut_mobile/state_providers/service_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/staff_notifier.dart';
 import 'package:kingz_cut_mobile/models/appointment.dart';
 import 'package:kingz_cut_mobile/enums/appointment_status.dart';
+import 'package:kingz_cut_mobile/utils/app_alert.dart';
 import 'package:kingz_cut_mobile/utils/dashboard_page.dart';
 
 class BarberHomePage extends ConsumerStatefulWidget {
@@ -50,10 +52,6 @@ class _BarberHomePageState extends ConsumerState<BarberHomePage> {
   Future<void> _onRefresh() async {
     // Show loading indicator and refresh data
     await _refreshAppointments();
-
-    // Invalidate providers to trigger rebuild with fresh data
-    ref.invalidate(todaysAppointmentsProvider);
-    ref.invalidate(todaysSalesProvider);
   }
 
   @override
@@ -68,35 +66,35 @@ class _BarberHomePageState extends ConsumerState<BarberHomePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Top search bar and notification (keeping same as customer)
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 8.0,
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Search appointments, customers',
-                      prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                      filled: true,
-                      fillColor: Colors.grey.shade200,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                const Badge(
-                  label: Text('0'), // change as needed
-                  child: Icon(Icons.notifications),
-                ),
-              ],
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.symmetric(
+          //     horizontal: 16.0,
+          //     vertical: 8.0,
+          //   ),
+          //   child: Row(
+          //     children: [
+          //       Expanded(
+          //         child: TextField(
+          //           decoration: InputDecoration(
+          //             hintText: 'Search appointments, customers',
+          //             prefixIcon: const Icon(Icons.search, color: Colors.grey),
+          //             filled: true,
+          //             fillColor: Colors.grey.shade200,
+          //             border: OutlineInputBorder(
+          //               borderRadius: BorderRadius.circular(15),
+          //               borderSide: BorderSide.none,
+          //             ),
+          //           ),
+          //         ),
+          //       ),
+          //       const SizedBox(width: 10),
+          //       const Badge(
+          //         label: Text('0'), // change as needed
+          //         child: Icon(Icons.notifications),
+          //       ),
+          //     ],
+          //   ),
+          // ),
 
           // Welcome banner (adapted for barber)
           Container(
@@ -133,34 +131,34 @@ class _BarberHomePageState extends ConsumerState<BarberHomePage> {
                     style: TextStyle(color: Colors.white, fontSize: 14),
                   ),
                   const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: SizedBox(
-                          height: 60,
-                          width: 200,
-                          child: ElevatedButton(
-                            onPressed: () => _goToBookingsScreen(context),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFF9A826),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            child: const Text(
-                              'View Bookings',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.center,
+                  //   children: [
+                  //     Expanded(
+                  //       child: SizedBox(
+                  //         height: 60,
+                  //         width: 200,
+                  //         child: ElevatedButton(
+                  //           onPressed: () => _goToBookingsScreen(context),
+                  //           style: ElevatedButton.styleFrom(
+                  //             backgroundColor: const Color(0xFFF9A826),
+                  //             shape: RoundedRectangleBorder(
+                  //               borderRadius: BorderRadius.circular(10),
+                  //             ),
+                  //           ),
+                  //           child: const Text(
+                  //             'View Bookings',
+                  //             style: TextStyle(
+                  //               color: Colors.white,
+                  //               fontWeight: FontWeight.bold,
+                  //               fontSize: 20,
+                  //             ),
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
                 ],
               ),
             ),
@@ -322,49 +320,213 @@ class _BarberHomePageState extends ConsumerState<BarberHomePage> {
           ),
         ],
       ),
-      child: Row(
+      child: Column(
         children: [
-          // Customer Avatar
-          const CircleAvatar(
-            radius: 25,
-            backgroundImage: AssetImage('assets/images/default_avatar.png'),
-          ),
-          const SizedBox(width: 16),
+          Row(
+            children: [
+              // Customer Avatar
+              const CircleAvatar(
+                radius: 25,
+                backgroundImage: AssetImage('assets/images/default_avatar.png'),
+              ),
+              const SizedBox(width: 16),
 
-          // Appointment Details
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              // Appointment Details
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      customerName, // You'll need to implement customer lookup
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      serviceName, // You'll need to implement service lookup
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'GHS ${price.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Time
+              Text(
+                '$startTime - $endTime',
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+              ),
+            ],
+          ),
+
+          // Action Buttons - Only show for pending appointments
+          if (appointment.status == AppointmentStatus.pending) ...[
+            const SizedBox(height: 12),
+            Row(
               children: [
-                Text(
-                  customerName, // You'll need to implement customer lookup
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                // Accept Button
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed:
+                        () => _showConfirmationDialog(
+                          context,
+                          'Accept Appointment',
+                          'Are you sure you want to accept this appointment with $customerName?',
+                          'Accept',
+                          () => _acceptAppointment(appointment.id!, ref),
+                        ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFF9A826),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      'Accept',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  serviceName, // You'll need to implement service lookup
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'GHS ${price.toStringAsFixed(2)}',
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                const SizedBox(width: 12),
+                // Cancel Button
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed:
+                        () => _showConfirmationDialog(
+                          context,
+                          'Cancel Appointment',
+                          'Are you sure you want to cancel this appointment with $customerName?',
+                          'Cancel',
+                          () => _cancelAppointment(appointment.id!, ref),
+                          isDestructive: true,
+                        ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.red,
+                      side: const BorderSide(color: Colors.red),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
-          ),
-
-          // Time
-          Text(
-            '$startTime - $endTime',
-            style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
-          ),
+          ],
         ],
       ),
     );
+  }
+
+  // Show confirmation dialog
+  Future<void> _showConfirmationDialog(
+    BuildContext context,
+    String title,
+    String message,
+    String actionButtonText,
+    VoidCallback onConfirm, {
+    bool isDestructive = false,
+  }) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                onConfirm();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                    isDestructive ? Colors.red : const Color(0xFFF9A826),
+                foregroundColor: Colors.white,
+              ),
+              child: Text(actionButtonText),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Accept appointment
+  Future<void> _acceptAppointment(String appointmentId, WidgetRef ref) async {
+    final success = await ref
+        .read(appointmentsProvider.notifier)
+        .confirmAppointment(appointmentId);
+
+    if (success) {
+      // Show success message
+      if (mounted) {
+        AppAlert.snackBarSuccessAlert(
+          context,
+          'Appointment accepted successfully',
+        );
+      }
+      // Refresh the appointments
+      await _refreshAppointments();
+    } else {
+      // Show error message
+      if (mounted) {
+        AppAlert.snackBarErrorAlert(context, 'Failed to accept appointment');
+      }
+    }
+  }
+
+  // Cancel appointment
+  Future<void> _cancelAppointment(String appointmentId, WidgetRef ref) async {
+    final success = await ref
+        .read(appointmentsProvider.notifier)
+        .cancelAppointment(appointmentId);
+
+    if (success) {
+      // Show success message
+      if (mounted) {
+        AppAlert.snackBarSuccessAlert(
+          context,
+          'Appointment cancelled successfully',
+        );
+      }
+      // Refresh the appointments
+      await _refreshAppointments();
+    } else {
+      // Show error message
+      if (mounted) {
+        AppAlert.snackBarErrorAlert(context, 'Failed to cancel appointment');
+      }
+    }
   }
 
   String _getServiceNames(Appointment appointment) {
@@ -377,7 +539,7 @@ class _BarberHomePageState extends ConsumerState<BarberHomePage> {
 
   String _getCustomerName(Appointment appointment) {
     final customers = ref.read(customersProvider).value ?? [];
-    log(customers.toString());
+    // log(customers.toString());
     return customers
             .firstOrNullWhere(
               (customer) => appointment.customerId == customer.id,
@@ -394,33 +556,33 @@ final todaysAppointmentsProvider = FutureProvider<List<Appointment>>((
   final currentStaff = await ref.watch(staffNotifier.future);
   if (currentStaff == null) return [];
 
-  // Get today's date range
-  final now = DateTime.now();
-  final today = DateTime(now.year, now.month, now.day);
-  // final tomorrow = today.add(const Duration(days: 1));
+  // Get today using Jiffy
+  final today = Jiffy.now();
 
   // Use the existing appointments provider with staff filter
   final appointmentsState = ref.watch(appointmentsProvider);
 
+  if (appointmentsState.appointments.isEmpty) return [];
+
   // Filter appointments for today and current staff
   final todaysAppointments =
       appointmentsState.appointments.where((appointment) {
-        final appointmentDate = DateTime(
-          appointment.startTime.year,
-          appointment.startTime.month,
-          appointment.startTime.day,
-        );
-        return appointmentDate.isAtSameMomentAs(today) &&
-            appointment.staffId == currentStaff.id &&
-            appointment.status == AppointmentStatus.pending;
+        // Convert appointment start time to Jiffy and check if it's the same day
+        final appointmentJiffy = Jiffy.parseFromDateTime(appointment.startTime);
+
+        return appointmentJiffy.isSame(today, unit: Unit.day) &&
+            appointment.staffId == currentStaff.id
+        // && appointment.status == AppointmentStatus.pending
+        ;
       }).toList();
+
+  log('Appointments for today: ${todaysAppointments.toString()}');
 
   // Sort by start time
   todaysAppointments.sort((a, b) => a.startTime.compareTo(b.startTime));
 
   return todaysAppointments;
 });
-
 final todaysSalesProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   final todaysAppointments = await ref.watch(todaysAppointmentsProvider.future);
 

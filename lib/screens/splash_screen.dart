@@ -55,6 +55,12 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         MaterialPageRoute(builder: (_) => const DashboardScreen()),
       );
       return;
+    } else {
+      // Navigate to login screen
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const LaunchScreen()),
+      );
+      return;
     }
   }
 

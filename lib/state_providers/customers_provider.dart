@@ -17,8 +17,6 @@ class CustomerNotifier extends StateNotifier<AsyncValue<List<Customer>>> {
     fetchCustomers();
   }
 
-  
-
   // Fetch customers from the repository and update the state
   Future<void> fetchCustomers() async {
     try {

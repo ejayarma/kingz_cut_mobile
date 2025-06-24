@@ -455,7 +455,7 @@ class ServiceCard extends ConsumerWidget {
                 final bookingNotifier = ref.read(
                   appointmentBookingProvider.notifier,
                 );
-                bookingNotifier.clearBookingState();
+                // bookingNotifier.clearBookingState();
                 bookingNotifier.selectService(service.id);
 
                 Navigator.of(context).push(
