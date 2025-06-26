@@ -1,7 +1,9 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:kingz_cut_mobile/services/notification_service.dart';
 import 'package:riverpod/riverpod.dart';
 import '../models/customer.dart';
 
@@ -61,10 +63,31 @@ class CustomerRepository {
 
   /// Update an existing customer
   Future<void> updateCustomer(String customerId, Customer customer) async {
-    await _firestore
-        .collection(_customersCollection)
-        .doc(customerId)
-        .update(customer.toJson());
+    await _firestore.collection(_customersCollection).doc(customerId).update({
+      ...customer.toJson(),
+      'updatedAt': DateTime.now().toIso8601String(),
+    });
+
+    // Prepare non-null fields for update
+    final Map<String, dynamic> userUpdateData = {
+      'email': customer.email,
+      'displayName': customer.name,
+      'phoneNumber': customer.phone,
+      if (customer.imageUrl != null) 'photoURL': customer.imageUrl,
+    };
+
+    final data = {'userId': customer.userId, 'updateData': userUpdateData};
+
+    log("Customer update api data: $data");
+
+    // Call external API if there is any data to update
+    if (userUpdateData.isNotEmpty) {
+      final response = await Dio().put(
+        'https://kingz-cut-admin.vercel.app/api/users',
+        data: data,
+      );
+      log("Customer update response: ${response.data?.toString()}");
+    }
   }
 
   /// Delete a customer
@@ -100,10 +123,13 @@ class CustomerRepository {
       }
     }
 
+    final fcmToken = await NotificationService.getFCMToken();
+
     // Create a new customer
     customer = Customer(
       active: true,
       email: firebaseUser.email ?? '',
+      fcmToken: fcmToken ?? '',
       id: '', // Let Firestore generate the ID
       imageUrl: firebaseUser.photoURL,
       name: name,

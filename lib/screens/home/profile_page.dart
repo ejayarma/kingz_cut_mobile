@@ -5,12 +5,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:kingz_cut_mobile/enums/user_type.dart';
 import 'package:kingz_cut_mobile/screens/about_page.dart';
 // import 'package:kingz_cut_mobile/screens/auth/create_account_screen.dart';
 import 'package:kingz_cut_mobile/screens/auth/login_screen.dart';
+import 'package:kingz_cut_mobile/screens/auth/update_profile_screen.dart';
 import 'package:kingz_cut_mobile/screens/splash_screen.dart';
 import 'package:kingz_cut_mobile/state_providers/app_config_notifier.dart';
 import 'package:kingz_cut_mobile/state_providers/customer_notifer.dart';
+import 'package:kingz_cut_mobile/state_providers/notification_notifier.dart';
 import 'package:kingz_cut_mobile/state_providers/staff_notifier.dart';
 import 'package:kingz_cut_mobile/utils/app_alert.dart';
 import 'package:kingz_cut_mobile/utils/custom_ui_block.dart';
@@ -81,7 +84,41 @@ class _CustomerProfilePageState extends ConsumerState<ProfilePage> {
                   ),
 
                   // Edit button
-                  IconButton(onPressed: () {}, icon: const Icon(Icons.edit)),
+                  IconButton(
+                    onPressed: () {
+                      final userType =
+                          ref.read(appConfigProvider).value?.userType;
+
+                      String? name = '';
+                      String? email = '';
+                      String? phone = '';
+
+                      if (userType == UserType.customer) {
+                        final user = ref.read(customerNotifier).value;
+                        name = user?.name;
+                        email = user?.email;
+                        phone = user?.phone;
+                      } else if (userType == UserType.barber) {
+                        final user = ref.read(staffNotifier).value;
+                        name = user?.name;
+                        email = user?.email;
+                        phone = user?.phone;
+                      }
+
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return UpdateProfileScreen(
+                              initialEmail: email ?? '',
+                              initialName: name ?? '',
+                              initialPhone: phone ?? '',
+                            );
+                          },
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.edit),
+                  ),
                 ],
               ),
               const SizedBox(height: 24),
@@ -159,7 +196,7 @@ class _CustomerProfilePageState extends ConsumerState<ProfilePage> {
                   width: double.infinity,
                   height: 56,
                   child: ElevatedButton(
-                    onPressed: _handleLogout,
+                    onPressed: _showLogoutConfirmationDialog,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: colorScheme.secondary,
                       foregroundColor: colorScheme.onSecondary,
@@ -223,6 +260,31 @@ class _CustomerProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
+  Future<void> _showLogoutConfirmationDialog() async {
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Confirm Logout'),
+            content: const Text('Are you sure you want to log out?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Logout'),
+              ),
+            ],
+          ),
+    );
+
+    if (shouldLogout == true) {
+      await _handleLogout();
+    }
+  }
+
   Future<void> _handleLogout() async {
     try {
       if (mounted) {
@@ -259,6 +321,7 @@ class _CustomerProfilePageState extends ConsumerState<ProfilePage> {
       ref.read(customerNotifier.notifier).clearCustomer();
       ref.read(staffNotifier.notifier).clearStaff();
       ref.read(appConfigProvider.notifier).reset();
+      ref.invalidate(notificationNotifierProvider);
 
       if (mounted) {
         CustomUiBlock.unblock(context);

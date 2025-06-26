@@ -23,6 +23,7 @@ mixin _$Customer {
   String get id => throw _privateConstructorUsedError;
   bool get active => throw _privateConstructorUsedError;
   String get email => throw _privateConstructorUsedError;
+  String? get fcmToken => throw _privateConstructorUsedError;
   @JsonKey(name: 'image')
   String? get imageUrl => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
@@ -53,6 +54,7 @@ abstract class $CustomerCopyWith<$Res> {
       {String id,
       bool active,
       String email,
+      String? fcmToken,
       @JsonKey(name: 'image') String? imageUrl,
       String name,
       String phone,
@@ -79,6 +81,7 @@ class _$CustomerCopyWithImpl<$Res, $Val extends Customer>
     Object? id = null,
     Object? active = null,
     Object? email = null,
+    Object? fcmToken = freezed,
     Object? imageUrl = freezed,
     Object? name = null,
     Object? phone = null,
@@ -99,6 +102,10 @@ class _$CustomerCopyWithImpl<$Res, $Val extends Customer>
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
               as String,
+      fcmToken: freezed == fcmToken
+          ? _value.fcmToken
+          : fcmToken // ignore: cast_nullable_to_non_nullable
+              as String?,
       imageUrl: freezed == imageUrl
           ? _value.imageUrl
           : imageUrl // ignore: cast_nullable_to_non_nullable
@@ -139,6 +146,7 @@ abstract class _$$CustomerImplCopyWith<$Res>
       {String id,
       bool active,
       String email,
+      String? fcmToken,
       @JsonKey(name: 'image') String? imageUrl,
       String name,
       String phone,
@@ -163,6 +171,7 @@ class __$$CustomerImplCopyWithImpl<$Res>
     Object? id = null,
     Object? active = null,
     Object? email = null,
+    Object? fcmToken = freezed,
     Object? imageUrl = freezed,
     Object? name = null,
     Object? phone = null,
@@ -183,6 +192,10 @@ class __$$CustomerImplCopyWithImpl<$Res>
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
               as String,
+      fcmToken: freezed == fcmToken
+          ? _value.fcmToken
+          : fcmToken // ignore: cast_nullable_to_non_nullable
+              as String?,
       imageUrl: freezed == imageUrl
           ? _value.imageUrl
           : imageUrl // ignore: cast_nullable_to_non_nullable
@@ -218,6 +231,7 @@ class _$CustomerImpl implements _Customer {
       {required this.id,
       required this.active,
       required this.email,
+      required this.fcmToken,
       @JsonKey(name: 'image') this.imageUrl,
       required this.name,
       required this.phone,
@@ -234,6 +248,8 @@ class _$CustomerImpl implements _Customer {
   final bool active;
   @override
   final String email;
+  @override
+  final String? fcmToken;
   @override
   @JsonKey(name: 'image')
   final String? imageUrl;
@@ -253,7 +269,7 @@ class _$CustomerImpl implements _Customer {
 
   @override
   String toString() {
-    return 'Customer(id: $id, active: $active, email: $email, imageUrl: $imageUrl, name: $name, phone: $phone, userId: $userId, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'Customer(id: $id, active: $active, email: $email, fcmToken: $fcmToken, imageUrl: $imageUrl, name: $name, phone: $phone, userId: $userId, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -264,6 +280,8 @@ class _$CustomerImpl implements _Customer {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.active, active) || other.active == active) &&
             (identical(other.email, email) || other.email == email) &&
+            (identical(other.fcmToken, fcmToken) ||
+                other.fcmToken == fcmToken) &&
             (identical(other.imageUrl, imageUrl) ||
                 other.imageUrl == imageUrl) &&
             (identical(other.name, name) || other.name == name) &&
@@ -277,8 +295,8 @@ class _$CustomerImpl implements _Customer {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, active, email, imageUrl,
-      name, phone, userId, createdAt, updatedAt);
+  int get hashCode => Object.hash(runtimeType, id, active, email, fcmToken,
+      imageUrl, name, phone, userId, createdAt, updatedAt);
 
   /// Create a copy of Customer
   /// with the given fields replaced by the non-null parameter values.
@@ -301,6 +319,7 @@ abstract class _Customer implements Customer {
           {required final String id,
           required final bool active,
           required final String email,
+          required final String? fcmToken,
           @JsonKey(name: 'image') final String? imageUrl,
           required final String name,
           required final String phone,
@@ -318,6 +337,8 @@ abstract class _Customer implements Customer {
   bool get active;
   @override
   String get email;
+  @override
+  String? get fcmToken;
   @override
   @JsonKey(name: 'image')
   String? get imageUrl;

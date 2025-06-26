@@ -23,6 +23,7 @@ mixin _$Staff {
   String get id => throw _privateConstructorUsedError;
   bool get active => throw _privateConstructorUsedError;
   String get email => throw _privateConstructorUsedError;
+  String? get fcmToken => throw _privateConstructorUsedError;
   double? get rating => throw _privateConstructorUsedError;
   @JsonKey(name: 'image')
   String? get imageUrl => throw _privateConstructorUsedError;
@@ -53,6 +54,7 @@ abstract class $StaffCopyWith<$Res> {
       {String id,
       bool active,
       String email,
+      String? fcmToken,
       double? rating,
       @JsonKey(name: 'image') String? imageUrl,
       String name,
@@ -82,6 +84,7 @@ class _$StaffCopyWithImpl<$Res, $Val extends Staff>
     Object? id = null,
     Object? active = null,
     Object? email = null,
+    Object? fcmToken = freezed,
     Object? rating = freezed,
     Object? imageUrl = freezed,
     Object? name = null,
@@ -105,6 +108,10 @@ class _$StaffCopyWithImpl<$Res, $Val extends Staff>
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
               as String,
+      fcmToken: freezed == fcmToken
+          ? _value.fcmToken
+          : fcmToken // ignore: cast_nullable_to_non_nullable
+              as String?,
       rating: freezed == rating
           ? _value.rating
           : rating // ignore: cast_nullable_to_non_nullable
@@ -156,6 +163,7 @@ abstract class _$$StaffImplCopyWith<$Res> implements $StaffCopyWith<$Res> {
       {String id,
       bool active,
       String email,
+      String? fcmToken,
       double? rating,
       @JsonKey(name: 'image') String? imageUrl,
       String name,
@@ -183,6 +191,7 @@ class __$$StaffImplCopyWithImpl<$Res>
     Object? id = null,
     Object? active = null,
     Object? email = null,
+    Object? fcmToken = freezed,
     Object? rating = freezed,
     Object? imageUrl = freezed,
     Object? name = null,
@@ -206,6 +215,10 @@ class __$$StaffImplCopyWithImpl<$Res>
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
               as String,
+      fcmToken: freezed == fcmToken
+          ? _value.fcmToken
+          : fcmToken // ignore: cast_nullable_to_non_nullable
+              as String?,
       rating: freezed == rating
           ? _value.rating
           : rating // ignore: cast_nullable_to_non_nullable
@@ -253,6 +266,7 @@ class _$StaffImpl implements _Staff {
       {required this.id,
       required this.active,
       required this.email,
+      required this.fcmToken,
       required this.rating,
       @JsonKey(name: 'image') this.imageUrl,
       required this.name,
@@ -273,6 +287,8 @@ class _$StaffImpl implements _Staff {
   final bool active;
   @override
   final String email;
+  @override
+  final String? fcmToken;
   @override
   final double? rating;
   @override
@@ -302,7 +318,7 @@ class _$StaffImpl implements _Staff {
 
   @override
   String toString() {
-    return 'Staff(id: $id, active: $active, email: $email, rating: $rating, imageUrl: $imageUrl, name: $name, phone: $phone, role: $role, serviceIds: $serviceIds, createdAt: $createdAt, updatedAt: $updatedAt, userId: $userId)';
+    return 'Staff(id: $id, active: $active, email: $email, fcmToken: $fcmToken, rating: $rating, imageUrl: $imageUrl, name: $name, phone: $phone, role: $role, serviceIds: $serviceIds, createdAt: $createdAt, updatedAt: $updatedAt, userId: $userId)';
   }
 
   @override
@@ -313,6 +329,8 @@ class _$StaffImpl implements _Staff {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.active, active) || other.active == active) &&
             (identical(other.email, email) || other.email == email) &&
+            (identical(other.fcmToken, fcmToken) ||
+                other.fcmToken == fcmToken) &&
             (identical(other.rating, rating) || other.rating == rating) &&
             (identical(other.imageUrl, imageUrl) ||
                 other.imageUrl == imageUrl) &&
@@ -335,6 +353,7 @@ class _$StaffImpl implements _Staff {
       id,
       active,
       email,
+      fcmToken,
       rating,
       imageUrl,
       name,
@@ -366,6 +385,7 @@ abstract class _Staff implements Staff {
       {required final String id,
       required final bool active,
       required final String email,
+      required final String? fcmToken,
       required final double? rating,
       @JsonKey(name: 'image') final String? imageUrl,
       required final String name,
@@ -384,6 +404,8 @@ abstract class _Staff implements Staff {
   bool get active;
   @override
   String get email;
+  @override
+  String? get fcmToken;
   @override
   double? get rating;
   @override

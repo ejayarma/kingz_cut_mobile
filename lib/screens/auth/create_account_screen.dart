@@ -7,10 +7,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:kingz_cut_mobile/enums/user_type.dart';
 import 'package:kingz_cut_mobile/repositories/customer_repository.dart';
+import 'package:kingz_cut_mobile/repositories/staff_repositoy.dart';
 import 'package:kingz_cut_mobile/screens/auth/login_screen.dart';
+import 'package:kingz_cut_mobile/screens/auth/otp_verification_page.dart';
 import 'package:kingz_cut_mobile/screens/home/dashboard_screen.dart';
+import 'package:kingz_cut_mobile/state_providers/app_config_notifier.dart';
 import 'package:kingz_cut_mobile/state_providers/customer_notifer.dart';
+import 'package:kingz_cut_mobile/state_providers/staff_notifier.dart';
 import 'package:kingz_cut_mobile/utils/app_alert.dart';
 import 'package:kingz_cut_mobile/utils/custom_ui_block.dart';
 import 'package:kingz_cut_mobile/utils/firebase_error_mapper.dart';
@@ -28,6 +33,7 @@ class CreateAccountScreen extends ConsumerStatefulWidget {
 
 class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -36,6 +42,8 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
   @override
   void dispose() {
     _nameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -351,7 +359,12 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) {
-              return DashboardScreen();
+              return OtpVerificationScreen(
+                phone: null,
+                validatePhone: true,
+                onPhoneNumberSubmitted: _handleOtpVerification,
+              );
+              // return DashboardScreen();
             },
           ),
         );
@@ -473,10 +486,62 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) {
-            return DashboardScreen();
+            return OtpVerificationScreen(
+              phone: null,
+              validatePhone: true,
+              onPhoneNumberSubmitted: _handleOtpVerification,
+            );
+            // return DashboardScreen();
           },
         ),
       );
+    }
+  }
+
+  Future<void> _handleOtpVerification(
+    String phone,
+    bool verified,
+    WidgetRef ref,
+  ) async {
+    if (verified) {
+      final userType = ref.read(appConfigProvider).value?.userType;
+      if (userType == UserType.customer) {
+        final customer = await ref
+            .read(customerRepositoryProvider)
+            .getCustomerByUserId(FirebaseAuth.instance.currentUser?.uid ?? '');
+        if (customer != null) {
+          await ref
+              .read(customerRepositoryProvider)
+              .updateCustomer(customer.id, customer.copyWith(phone: phone));
+        }
+
+        ref.invalidate(customerNotifier);
+      }
+
+      if (userType == UserType.barber) {
+        final staff = await ref
+            .read(staffRepositoryProvider)
+            .getStaffByUserId(FirebaseAuth.instance.currentUser?.uid ?? '');
+        if (staff != null) {
+          await ref
+              .read(staffRepositoryProvider)
+              .updateStaff(staff.id, staff.copyWith(phone: phone));
+        }
+        ref.invalidate(staffNotifier);
+      }
+
+      await FirebaseAuth.instance.currentUser?.reload();
+      await Future.delayed(Durations.long2);
+
+      if (ref.context.mounted) {
+        Navigator.of(ref.context).pushReplacement(
+          MaterialPageRoute(
+            builder: (_) {
+              return DashboardScreen();
+            },
+          ),
+        );
+      }
     }
   }
 }

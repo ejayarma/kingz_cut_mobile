@@ -9,6 +9,7 @@ class Staff with _$Staff {
     required String id,
     required bool active,
     required String email,
+    required String? fcmToken,
     required double? rating,
     @JsonKey(name: 'image') String? imageUrl,
     required String name,

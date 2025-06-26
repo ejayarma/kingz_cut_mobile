@@ -9,6 +9,7 @@ class Customer with _$Customer {
     required String id,
     required bool active,
     required String email,
+    required String? fcmToken,
     @JsonKey(name: 'image') String? imageUrl,
     required String name,
     required String phone,

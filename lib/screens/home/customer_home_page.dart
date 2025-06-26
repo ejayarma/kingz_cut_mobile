@@ -6,6 +6,7 @@ import 'package:kingz_cut_mobile/models/service_category.dart';
 import 'package:kingz_cut_mobile/screens/main_service_screen.dart';
 import 'package:kingz_cut_mobile/state_providers/customer_notifer.dart';
 import 'package:kingz_cut_mobile/state_providers/service_category_provider.dart';
+import 'package:kingz_cut_mobile/widgets/notification_badge.dart';
 
 class CustomerHomePage extends ConsumerWidget {
   const CustomerHomePage({super.key});
@@ -61,32 +62,33 @@ class CustomerHomePage extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Top search bar and notification
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Search barbers, services',
-                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                    filled: true,
-                    fillColor: Colors.grey.shade200,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              const Badge(
-                label: Text('0'), // change as needed
-                child: Icon(Icons.notifications),
-              ),
-            ],
-          ),
-        ),
+        // Padding(
+        //   padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        //   child: Row(
+        //     children: [
+        //       Expanded(
+        //         child: TextField(
+        //           decoration: InputDecoration(
+        //             hintText: 'Search barbers, services',
+        //             prefixIcon: const Icon(Icons.search, color: Colors.grey),
+        //             filled: true,
+        //             fillColor: Colors.grey.shade200,
+        //             border: OutlineInputBorder(
+        //               borderRadius: BorderRadius.circular(15),
+        //               borderSide: BorderSide.none,
+        //             ),
+        //           ),
+        //         ),
+        //       ),
+        //       const SizedBox(width: 10),
+        //       // const Badge(
+        //       //   label: Text('0'), // change as needed
+        //       //   child: Icon(Icons.notifications),
+        //       // ),
+        //       NotificationIconButton(),
+        //     ],
+        //   ),
+        // ),
 
         // Welcome banner
         Container(

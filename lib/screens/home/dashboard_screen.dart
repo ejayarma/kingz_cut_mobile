@@ -7,7 +7,9 @@ import 'package:kingz_cut_mobile/screens/home/customer_bookings_page.dart';
 import 'package:kingz_cut_mobile/screens/home/customer_home_page.dart';
 import 'package:kingz_cut_mobile/screens/home/customer_messaging_page.dart';
 import 'package:kingz_cut_mobile/screens/home/profile_page.dart';
+import 'package:kingz_cut_mobile/screens/notifications_page.dart';
 import 'package:kingz_cut_mobile/state_providers/app_config_notifier.dart';
+import 'package:kingz_cut_mobile/widgets/notification_badge.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   final int? initialPageIndex;
@@ -42,7 +44,8 @@ class _CustomerDashboardScreenState extends ConsumerState<DashboardScreen> {
           ? const CustomerBookingsPage()
           : const BarberBookingsPage(),
 
-      const CustomerMessagingPage(),
+      const NotificationsPage(),
+      // const CustomerMessagingPage(),
       const ProfilePage(),
     ];
   }
@@ -60,7 +63,7 @@ class _CustomerDashboardScreenState extends ConsumerState<DashboardScreen> {
         onTap: (value) {
           setState(() => _pageIndex = value);
         },
-        items: const [
+        items: [
           BottomNavigationBarItem(
             tooltip: 'Home',
             icon: ImageIcon(AssetImage('assets/images/icons/home.png')),
@@ -72,10 +75,13 @@ class _CustomerDashboardScreenState extends ConsumerState<DashboardScreen> {
             label: 'Bookings',
           ),
           BottomNavigationBarItem(
-            tooltip: 'Messaging',
-            icon: ImageIcon(AssetImage('assets/images/icons/messaging.png')),
+            tooltip: 'Notifications',
+            icon: NotificationIconButton(iconColor: Colors.grey),
+            activeIcon: NotificationIconButton(
+              iconColor: Theme.of(context).colorScheme.primary,
+            ),
             // activeIcon: Icon(CupertinoIcons.chat_bubble_text_fill),
-            label: 'Messaging',
+            label: 'Notifications',
           ),
           BottomNavigationBarItem(
             tooltip: 'Profile',

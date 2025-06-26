@@ -47,6 +47,10 @@ dependencies:
   url_launcher: ^6.3.1
   fpdart: ^1.1.1
   qr_flutter: ^4.1.0
+  webview_flutter: ^4.13.0
+  firebase_messaging: ^15.2.7
+  flutter_local_notifications: ^19.3.0
+  timeago: ^3.7.1
 
 dev_dependencies:
   flutter_test:

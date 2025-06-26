@@ -3,53 +3,59 @@ import 'dart:developer';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kingz_cut_mobile/state_providers/otp_provider.dart';
 
 import '../../utils/app_alert.dart';
 
-class OtpVerificationPage extends StatefulWidget {
-  const OtpVerificationPage({
+class OtpVerificationScreen extends ConsumerStatefulWidget {
+  const OtpVerificationScreen({
     super.key,
-    required this.phone,
+    this.phone,
+    this.validatePhone = false,
+    required this.onPhoneNumberSubmitted,
   });
-  final String phone;
 
-  static const route = '/otp';
+  final String? phone;
+  final bool? validatePhone;
+
+  // async callback
+  final Future<void> Function(String phoneNumber, bool verified, WidgetRef ref)
+  onPhoneNumberSubmitted;
 
   @override
-  State<OtpVerificationPage> createState() => _OtpVerificationPageState();
+  ConsumerState<OtpVerificationScreen> createState() =>
+      _OtpVerificationPageState();
 }
 
-class _OtpVerificationPageState extends State<OtpVerificationPage> {
+class _OtpVerificationPageState extends ConsumerState<OtpVerificationScreen> {
   late TapGestureRecognizer _tapRecognizer;
+  late TextEditingController _phoneController;
 
   late List<TextEditingController> _pinTextControllers;
   late List<FocusNode> _pinFocusNodes;
   bool _resending = false;
   bool _verifying = false;
   int _secondsLeft = -1;
+  bool _otpSent = false;
+  String _otpId = '';
 
   @override
   void initState() {
     super.initState();
 
-    _handleResend().then((_) => _tickTimer());
-
-    _tapRecognizer = TapGestureRecognizer()..onTap = _handleResend;
-
-    _pinTextControllers = List.generate(
-      4,
-      (_) => TextEditingController(),
+    _tapRecognizer = TapGestureRecognizer()..onTap = _handleSendOtp;
+    _phoneController = TextEditingController(
+      text: widget.phone?.replaceAll(' ', ''),
     );
-
-    _pinFocusNodes = List.generate(
-      4,
-      (_) => FocusNode(),
-    );
+    _pinTextControllers = List.generate(4, (_) => TextEditingController());
+    _pinFocusNodes = List.generate(4, (_) => FocusNode());
   }
 
   @override
   void dispose() {
     _tapRecognizer.dispose();
+    _phoneController.dispose();
 
     for (final controller in _pinTextControllers) {
       controller.dispose();
@@ -67,155 +73,263 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
       } else if (_secondsLeft == 0) {
         AppAlert.snackBarErrorAlert(context, 'OTP expired');
         setState(() => _secondsLeft = -1);
+        timer.cancel();
       }
     });
   }
 
-  Future<void> _handleResend() async {
-    if (_resending) {
+  Future<void> _handleSendOtp() async {
+    final phone = _phoneController.text.trim();
+    final isValid = RegExp(r'^\d{10}$').hasMatch(phone);
+
+    log("Phone $phone");
+    if (!isValid) {
+      log("validity $isValid");
+      AppAlert.snackBarErrorAlert(context, 'Enter a valid 10-digit number');
       return;
     }
-    setState(() => _resending = true);
-    var data = {
-      'phone_number': widget.phone,
-      "email": '',
-      // "email": context.read<AuthStateService>().userEmail,
-    };
 
-    // await ApiBase.httpClient
-    //     .post(
-    //   '${ApiBase.otpServiceUrl}/generateOtp',
-    //   data: data,
-    // )
-    //     .then((response) async {
-    //   if (response.statusCode == 200 &&
-    //       response.data['api_status'] == 'success') {
-    //     int minutes = response.data['api_data']['duration'];
-    //     setState(() {
-    //       _secondsLeft = 60 * minutes;
-    //     });
-    //     AppAlert.snackBarSuccessAlert(context, 'OTP sent');
-    //   }
-    // }).catchError(ApiBase.onErrorWithContext(context));
+    setState(() {
+      _resending = true;
 
-    setState(() => _resending = false);
+      for (final c in _pinTextControllers) {
+        c.clear();
+      }
+    });
+    try {
+      final otpService = ref.read(otpProvider);
+
+      log('should validate phone: ${widget.validatePhone}');
+      // Check if no user has phone Number
+      if (widget.validatePhone == true) {
+        final phoneExists = await otpService.checkPhoneNumber(phone);
+        log('Phone number $phone has been used already');
+        log('Phone exists: $phoneExists');
+        if (mounted && phoneExists) {
+          AppAlert.snackBarErrorAlert(
+            context,
+            'Phone number has already been taken.',
+          );
+
+          throw Exception('Phone already exists');
+        }
+      }
+
+      final otpId = await otpService.sendOtp(phone);
+
+      if (otpId != null) {
+        setState(() {
+          _otpId = otpId;
+          _otpSent = true;
+          _secondsLeft = 300;
+        });
+        _tickTimer();
+
+        if (mounted) {
+          AppAlert.snackBarSuccessAlert(context, 'OTP sent to $phone');
+        }
+      }
+    } catch (e) {
+      AppAlert.snackBarErrorAlert(context, 'Failed to send OTP');
+    } finally {
+      setState(() => _resending = false);
+    }
   }
+
+  // Future<void> _handleResend() async {
+  //   await _handleSendOtp();
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 3.5 * kToolbarHeight,
-        backgroundColor: Theme.of(context).colorScheme.onPrimary,
-        automaticallyImplyLeading: false,
-        centerTitle: true,
-        title: Image.asset(
-          'assets/images/bdr_splash_small.png',
-          width: double.maxFinite,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        leading: IconButton(
+          icon: Icon(
+            Icons.chevron_left,
+            color: Theme.of(context).colorScheme.onPrimary,
+          ),
+          onPressed: () => Navigator.of(context).pop(),
         ),
-        // title: IntroAppBarTitle(
-        //   title: 'Enter OTP',
-        //   subtitle: 'Please enter verification code sent to +${widget.phone}',
-        // ),
+        title: const Text('Confirm Phone number'),
+        centerTitle: true,
+        titleTextStyle: Theme.of(context).textTheme.titleMedium!.copyWith(
+          color: Theme.of(context).colorScheme.onPrimary,
+          fontWeight: FontWeight.bold,
+        ),
       ),
       body: Container(
-        // height:
-        //     MediaQuery.of(context).size.height - 3.5 * kToolbarHeight - 64.0,
         padding: const EdgeInsets.symmetric(vertical: 32.0, horizontal: 16.0),
-        child: Column(
-          // mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            const SizedBox(height: 20),
-            Text(
-              'VERIFY OTP',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium!
-                  .copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            if (_secondsLeft > 0)
-              Text.rich(TextSpan(
-                  text: 'OTP will expire in ',
-                  style: Theme.of(context).textTheme.titleMedium,
-                  children: [
-                    TextSpan(
-                      text: '$_secondsLeft',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium!
-                          .copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    const TextSpan(text: ' seconds'),
-                  ])),
-            const SizedBox(height: 20),
-            SizedBox(
-              height: 70.0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Expanded(
-                    child: OtpTextField(
-                        index: 0,
-                        pinFocusNodes: _pinFocusNodes,
-                        pinTextControllers: _pinTextControllers),
-                  ),
-                  Expanded(
-                    child: OtpTextField(
-                      index: 1,
-                      pinFocusNodes: _pinFocusNodes,
-                      pinTextControllers: _pinTextControllers,
-                    ),
-                  ),
-                  Expanded(
-                    child: OtpTextField(
-                      index: 2,
-                      pinFocusNodes: _pinFocusNodes,
-                      pinTextControllers: _pinTextControllers,
-                    ),
-                  ),
-                  Expanded(
-                    child: OtpTextField(
-                      index: 3,
-                      pinFocusNodes: _pinFocusNodes,
-                      pinTextControllers: _pinTextControllers,
-                    ),
-                  ),
-                ],
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              const SizedBox(height: 20),
+              Text(
+                _otpSent ? 'VERIFY OTP' : 'ENTER PHONE NUMBER',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
               ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
+              const SizedBox(height: 20),
+
+              // Phone number input section
+              ...[
+                TextField(
+                  controller: _phoneController,
+                  keyboardType: TextInputType.phone,
+                  readOnly: widget.phone != null,
+                  style: Theme.of(context).textTheme.titleMedium,
+                  decoration: InputDecoration(
+                    labelText: 'Phone Number',
+                    hintText: 'Enter your phone number',
+                    // prefixText: '+',
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary,
+                        width: 2.0,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.inversePrimary,
+                        width: 2.0,
+                      ),
+                    ),
+                  ),
+                  onSubmitted: (_) => _handleSendOtp(),
+                ),
+                const SizedBox(height: 32),
+                _otpSent
+                    ? SizedBox()
+                    : SizedBox(
+                      height: 50,
+                      width: double.infinity,
+                      child: FilledButton(
+                        style: FilledButton.styleFrom(
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        onPressed: _resending ? null : _handleSendOtp,
+                        child:
+                            _resending
+                                ? SizedBox(
+                                  width: 25,
+                                  height: 25,
+                                  child: CircularProgressIndicator(
+                                    backgroundColor:
+                                        Theme.of(context).colorScheme.onPrimary,
+                                  ),
+                                )
+                                : Text(
+                                  'Send OTP',
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.titleMedium!.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                      ),
+                    ),
+              ],
+
+              // OTP verification section
+              if (_otpSent) ...[
+                Text(
+                  'Please enter verification code sent to ${_phoneController.text}',
+                  style: Theme.of(context).textTheme.bodyLarge,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                if (_secondsLeft > 0)
+                  Text.rich(
+                    TextSpan(
+                      text: 'OTP will expire in ',
+                      style: Theme.of(context).textTheme.titleMedium,
+                      children: [
+                        TextSpan(
+                          text: '$_secondsLeft',
+                          style: Theme.of(context).textTheme.titleMedium!
+                              .copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        const TextSpan(text: ' seconds'),
+                      ],
+                    ),
+                  ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  height: 70.0,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Expanded(
+                        child: OtpTextField(
+                          index: 0,
+                          pinFocusNodes: _pinFocusNodes,
+                          pinTextControllers: _pinTextControllers,
+                        ),
+                      ),
+                      Expanded(
+                        child: OtpTextField(
+                          index: 1,
+                          pinFocusNodes: _pinFocusNodes,
+                          pinTextControllers: _pinTextControllers,
+                        ),
+                      ),
+                      Expanded(
+                        child: OtpTextField(
+                          index: 2,
+                          pinFocusNodes: _pinFocusNodes,
+                          pinTextControllers: _pinTextControllers,
+                        ),
+                      ),
+                      Expanded(
+                        child: OtpTextField(
+                          index: 3,
+                          pinFocusNodes: _pinFocusNodes,
+                          pinTextControllers: _pinTextControllers,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 const SizedBox(height: 32.0),
                 SizedBox(
                   height: 50,
+                  width: double.infinity,
                   child: FilledButton(
                     style: FilledButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        )),
+                      backgroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
                     onPressed: _resending || _verifying ? null : _verifyOtp,
-                    child: _resending || _verifying
-                        ? SizedBox(
-                            width: 25,
-                            height: 25,
-                            child: CircularProgressIndicator(
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.onPrimary,
+                    child:
+                        _resending || _verifying
+                            ? SizedBox(
+                              width: 25,
+                              height: 25,
+                              child: CircularProgressIndicator(
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.onPrimary,
+                              ),
+                            )
+                            : Text(
+                              'Verify',
+                              style: Theme.of(
+                                context,
+                              ).textTheme.titleLarge!.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          )
-                        : Text(
-                            'Verify',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge!
-                                .copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
                   ),
                 ),
                 const SizedBox(height: 10.0),
@@ -239,53 +353,56 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                       ),
                     ],
                   ),
-                )
+                ),
               ],
-            )
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
   Future<void> _verifyOtp() async {
-    setState(() => _verifying = true);
+    final code = _pinTextControllers.map((c) => c.text).join();
 
-    String userOtpCode = '';
-    for (final controller in _pinTextControllers) {
-      userOtpCode += controller.text;
-    }
-
-    if (userOtpCode.length != 4) {
-      AppAlert.snackBarErrorAlert(context, "Invalid OTP");
-      setState(() => _verifying = false);
+    if (code.length != 4) {
+      AppAlert.snackBarErrorAlert(context, 'Enter the 4-digit OTP');
       return;
     }
 
-    var data = {
-      'phone_number': widget.phone,
-      'email': '',
-      'code': userOtpCode,
-    };
+    setState(() => _verifying = true);
+    try {
+      final otpService = ref.read(otpProvider);
+      final verified = await otpService.verifyOtp(_otpId, code);
 
-    log(data.toString());
-    // return;
+      log('OTP ID $_otpId');
+      log('OTP code $code');
 
-    // await ApiBase.httpClient
-    //     .post(
-    //   '${ApiBase.otpServiceUrl}/verifyOtp',
-    //   data: data,
-    // )
-    //     .then((response) {
-    //   if (response.statusCode == 200) {
-    //     // AppAlert.snackBarSuccessAlert(context, 'OTP Verification successful');
-    //     GoRouter.of(context).pop(true);
-    //   } else {
-    //     // AppAlert.snackBarErrorAlert(context, 'OTP Verification failed');
-    //     GoRouter.of(context).pop(false);
-    //   }
-    // }).catchError(ApiBase.onErrorWithContext(context));
-    setState(() => _verifying = false);
+      if (verified) {
+        await widget.onPhoneNumberSubmitted(
+          _phoneController.text.trim(),
+          verified,
+          ref,
+        );
+
+        if (mounted) {
+          AppAlert.snackBarSuccessAlert(context, 'OTP Verified');
+        }
+
+        // Navigate to dashboard or next screen
+      } else {
+        if (mounted) {
+          AppAlert.snackBarErrorAlert(context, 'Invalid OTP');
+        }
+      }
+    } catch (e) {
+      log("VERIFICATION RESPONSE: " + e.toString());
+      if (mounted) {
+        AppAlert.snackBarErrorAlert(context, 'Failed to verify OTP');
+      }
+    } finally {
+      setState(() => _verifying = false);
+    }
   }
 }
 
@@ -296,10 +413,10 @@ class OtpTextField extends StatelessWidget {
     required List<FocusNode> pinFocusNodes,
     required List<TextEditingController> pinTextControllers,
     EdgeInsetsGeometry padding = const EdgeInsets.all(8.0),
-  })  : _pinFocusNodes = pinFocusNodes,
-        _pinTextControllers = pinTextControllers,
-        _padding = padding,
-        _index = index;
+  }) : _pinFocusNodes = pinFocusNodes,
+       _pinTextControllers = pinTextControllers,
+       _padding = padding,
+       _index = index;
 
   final int _index;
   final List<FocusNode> _pinFocusNodes;
@@ -313,12 +430,16 @@ class OtpTextField extends StatelessWidget {
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
         borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.primary, width: 2.0),
+          color: Theme.of(context).colorScheme.primary,
+          width: 2.0,
+        ),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
         borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.inversePrimary, width: 2.0),
+          color: Theme.of(context).colorScheme.inversePrimary,
+          width: 2.0,
+        ),
       ),
     );
 
@@ -330,7 +451,6 @@ class OtpTextField extends StatelessWidget {
         controller: _pinTextControllers[_index],
         style: Theme.of(context).textTheme.titleLarge,
         textAlign: TextAlign.center,
-        // obscureText: true,
         maxLength: 1,
         decoration: inputDecorator,
         autofocus: _index == 0,
@@ -352,8 +472,6 @@ class OtpTextField extends StatelessWidget {
             FocusScope.of(context).nextFocus();
           }
         },
-
-        // onEditingComplete: () {},
       ),
     );
   }
