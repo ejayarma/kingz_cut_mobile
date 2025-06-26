@@ -14,8 +14,15 @@ _$AppointmentImpl _$$AppointmentImplFromJson(Map<String, dynamic> json) =>
       startTime: DateTime.parse(json['startTime'] as String),
       endTime: DateTime.parse(json['endTime'] as String),
       staffId: json['staffId'] as String,
+      paymentReference: json['paymentReference'] as String?,
       status: $enumDecodeNullable(_$AppointmentStatusEnumMap, json['status']) ??
           AppointmentStatus.pending,
+      paymentType:
+          $enumDecodeNullable(_$PaymentTypeEnumMap, json['paymentType']) ??
+              PaymentType.cash,
+      paymentStatus:
+          $enumDecodeNullable(_$PaymentStatusEnumMap, json['paymentStatus']) ??
+              PaymentStatus.pending,
       serviceIds: (json['serviceIds'] as List<dynamic>)
           .map((e) => e as String)
           .toList(),
@@ -39,7 +46,10 @@ Map<String, dynamic> _$$AppointmentImplToJson(_$AppointmentImpl instance) =>
       'startTime': instance.startTime.toIso8601String(),
       'endTime': instance.endTime.toIso8601String(),
       'staffId': instance.staffId,
+      'paymentReference': instance.paymentReference,
       'status': _$AppointmentStatusEnumMap[instance.status]!,
+      'paymentType': _$PaymentTypeEnumMap[instance.paymentType],
+      'paymentStatus': _$PaymentStatusEnumMap[instance.paymentStatus],
       'serviceIds': instance.serviceIds,
       'createdAt': instance.createdAt?.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),
@@ -54,6 +64,17 @@ const _$AppointmentStatusEnumMap = {
   AppointmentStatus.cancelled: 'cancelled',
   AppointmentStatus.completed: 'completed',
   AppointmentStatus.noShow: 'noShow',
+};
+
+const _$PaymentTypeEnumMap = {
+  PaymentType.cash: 'cash',
+  PaymentType.mobileMoney: 'mobileMoney',
+};
+
+const _$PaymentStatusEnumMap = {
+  PaymentStatus.pending: 'pending',
+  PaymentStatus.success: 'success',
+  PaymentStatus.failed: 'failed',
 };
 
 const _$BookingTypeEnumMap = {

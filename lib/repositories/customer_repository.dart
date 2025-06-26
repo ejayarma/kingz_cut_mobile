@@ -25,6 +25,16 @@ class CustomerRepository {
     return Customer.fromJson({'id': docRef.id, ...customer.toJson()});
   }
 
+  /// Create a new customer with a custom ID
+  Future<Customer> createCustomerWithId(String id, Customer customer) async {
+    await _firestore
+        .collection(_customersCollection)
+        .doc(id)
+        .set(customer.toJson());
+
+    return Customer.fromJson({'id': id, ...customer.toJson()});
+  }
+
   Future<Customer?> getCustomerByUserId(String uid) async {
     // Example with Firestore
     final querySnapshot =

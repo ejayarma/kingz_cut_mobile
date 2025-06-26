@@ -8,13 +8,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kingz_cut_mobile/enums/user_type.dart';
+import 'package:kingz_cut_mobile/models/notification_model.dart';
 import 'package:kingz_cut_mobile/repositories/customer_repository.dart';
+import 'package:kingz_cut_mobile/repositories/notification_repository.dart';
 import 'package:kingz_cut_mobile/repositories/staff_repositoy.dart';
 import 'package:kingz_cut_mobile/screens/auth/login_screen.dart';
 import 'package:kingz_cut_mobile/screens/auth/otp_verification_page.dart';
 import 'package:kingz_cut_mobile/screens/home/dashboard_screen.dart';
 import 'package:kingz_cut_mobile/state_providers/app_config_notifier.dart';
 import 'package:kingz_cut_mobile/state_providers/customer_notifer.dart';
+import 'package:kingz_cut_mobile/state_providers/notification_notifier.dart';
 import 'package:kingz_cut_mobile/state_providers/staff_notifier.dart';
 import 'package:kingz_cut_mobile/utils/app_alert.dart';
 import 'package:kingz_cut_mobile/utils/custom_ui_block.dart';
@@ -503,6 +506,8 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
     bool verified,
     WidgetRef ref,
   ) async {
+    final notificationRepo = ref.read(notificationRepositoryProvider);
+
     if (verified) {
       final userType = ref.read(appConfigProvider).value?.userType;
       if (userType == UserType.customer) {
@@ -513,6 +518,20 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
           await ref
               .read(customerRepositoryProvider)
               .updateCustomer(customer.id, customer.copyWith(phone: phone));
+
+          // Send customer registration  message
+          final customerMessage =
+              "Hello ${customer.name}, Welcome to Kingz Cut Mobile. Your customer account has been set up. You can start booking appointments. Enjoy!";
+
+          log(
+            'Sending message to customer: ${customer.toString()}, MESSAGE: $customerMessage',
+          );
+          await notificationRepo.createNotification(
+            CreateNotificationRequest(
+              uid: customer.userId,
+              message: customerMessage,
+            ),
+          );
         }
 
         ref.invalidate(customerNotifier);
@@ -526,12 +545,26 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
           await ref
               .read(staffRepositoryProvider)
               .updateStaff(staff.id, staff.copyWith(phone: phone));
+          // Send staff registration  message
+          final staffMessage =
+              "Hello ${staff.name}, Welcome to Kingz Cut Mobile. Your barber account has been set up. You can start receiving appointment bookings. Enjoy!";
+          log(
+            'Sending message to staff: ${staff.toString()}, MESSAGE: $staffMessage',
+          );
+          await notificationRepo.createNotification(
+            CreateNotificationRequest(uid: staff.userId, message: staffMessage),
+          );
         }
+
         ref.invalidate(staffNotifier);
       }
 
       await FirebaseAuth.instance.currentUser?.reload();
       await Future.delayed(Durations.long2);
+
+      await ref
+          .read(notificationNotifierProvider.notifier)
+          .fetchNotifications(FirebaseAuth.instance.currentUser?.uid ?? '');
 
       if (ref.context.mounted) {
         Navigator.of(ref.context).pushReplacement(

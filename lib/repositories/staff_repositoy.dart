@@ -62,6 +62,19 @@ class StaffRepository {
     }
   }
 
+  Future<Staff?> getStaff(String staffId) async {
+    // Example with Firestore
+    final querySnapshot =
+        await _firestore.collection(_staffCollection).doc(staffId).get();
+
+    if (querySnapshot.exists) {
+      final data = querySnapshot.data()!;
+      return Staff.fromJson({...data, 'id': querySnapshot.id});
+    } else {
+      return null;
+    }
+  }
+
   /// Update an existing staff
   Future<void> updateStaff(String staffId, Staff staff) async {
     // Update Firestore

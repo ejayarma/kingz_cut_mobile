@@ -169,31 +169,30 @@ class _ChooseStylistScreenState extends ConsumerState<ChooseStylistScreen> {
                               appointmentBookingProvider,
                             );
                             print('=== BOOKING STATE UPDATED ===');
-                            print(
-                              'Selected Services: ${currentBookingState.selectedServiceIds}',
-                            );
-                            print(
-                              'Selected Staff ID: ${currentBookingState.selectedStaffId}',
-                            );
-                            print('Selected Staff Name: ${staff.name}');
-                            print(
-                              'Selected Date: ${currentBookingState.selectedDate}',
-                            );
-                            print(
-                              'Selected Start Time: ${currentBookingState.selectedStartTime}',
-                            );
-                            print(
-                              'Selected End Time: ${currentBookingState.selectedEndTime}',
-                            );
-                            print(
-                              'TotalPrice: ${currentBookingState.totalPrice}',
-                            );
-                            print(
-                              'Can Proceed to DateTime Selection: ${currentBookingState.canProceedToDateTimeSelection}',
-                            );
-                            print(
-                              'Can Book Appointment: ${currentBookingState.canBookAppointment}',
-                            );
+                            print('${currentBookingState.toString()}');
+                            // print(
+                            //   'Selected Services: ${currentBookingState.selectedServiceIds}',
+                            // );
+                            // print(
+                            //   'Selected Staff ID: ${currentBookingState.selectedStaffId}',
+                            // );
+                            // print('Selected Staff Name: ${staff.name}');
+                            // print(
+                            //   'Selected Date: ${currentBookingState.selectedDate}',
+                            // );
+                            // print(
+                            //   'Selected Start Time: ${currentBookingState.selectedStartTime}',
+                            // );
+                            // print(
+                            //   'Selected End Time: ${currentBookingState.selectedEndTime}',
+                            // );
+                            // print(
+                            //   'TotalPrice: ${currentBookingState.totalPrice}',
+                            // );
+                            // print(
+                            //   'Can Proceed to DateTime Selection: ${currentBookingState.canProceedToDateTimeSelection}',
+                            // );
+                            // print( 'Can Book Appointment: ${currentBookingState.canBookAppointment}', );
                             print('=============================');
 
                             // Close the bottom sheet

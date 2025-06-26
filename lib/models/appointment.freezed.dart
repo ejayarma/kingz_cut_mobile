@@ -27,7 +27,10 @@ mixin _$Appointment {
   DateTime get startTime => throw _privateConstructorUsedError;
   DateTime get endTime => throw _privateConstructorUsedError;
   String get staffId => throw _privateConstructorUsedError;
+  String? get paymentReference => throw _privateConstructorUsedError;
   AppointmentStatus get status => throw _privateConstructorUsedError;
+  PaymentType? get paymentType => throw _privateConstructorUsedError;
+  PaymentStatus? get paymentStatus => throw _privateConstructorUsedError;
   List<String> get serviceIds => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
   DateTime? get updatedAt => throw _privateConstructorUsedError;
@@ -58,7 +61,10 @@ abstract class $AppointmentCopyWith<$Res> {
       DateTime startTime,
       DateTime endTime,
       String staffId,
+      String? paymentReference,
       AppointmentStatus status,
+      PaymentType? paymentType,
+      PaymentStatus? paymentStatus,
       List<String> serviceIds,
       DateTime? createdAt,
       DateTime? updatedAt,
@@ -88,7 +94,10 @@ class _$AppointmentCopyWithImpl<$Res, $Val extends Appointment>
     Object? startTime = null,
     Object? endTime = null,
     Object? staffId = null,
+    Object? paymentReference = freezed,
     Object? status = null,
+    Object? paymentType = freezed,
+    Object? paymentStatus = freezed,
     Object? serviceIds = null,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
@@ -121,10 +130,22 @@ class _$AppointmentCopyWithImpl<$Res, $Val extends Appointment>
           ? _value.staffId
           : staffId // ignore: cast_nullable_to_non_nullable
               as String,
+      paymentReference: freezed == paymentReference
+          ? _value.paymentReference
+          : paymentReference // ignore: cast_nullable_to_non_nullable
+              as String?,
       status: null == status
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
               as AppointmentStatus,
+      paymentType: freezed == paymentType
+          ? _value.paymentType
+          : paymentType // ignore: cast_nullable_to_non_nullable
+              as PaymentType?,
+      paymentStatus: freezed == paymentStatus
+          ? _value.paymentStatus
+          : paymentStatus // ignore: cast_nullable_to_non_nullable
+              as PaymentStatus?,
       serviceIds: null == serviceIds
           ? _value.serviceIds
           : serviceIds // ignore: cast_nullable_to_non_nullable
@@ -168,7 +189,10 @@ abstract class _$$AppointmentImplCopyWith<$Res>
       DateTime startTime,
       DateTime endTime,
       String staffId,
+      String? paymentReference,
       AppointmentStatus status,
+      PaymentType? paymentType,
+      PaymentStatus? paymentStatus,
       List<String> serviceIds,
       DateTime? createdAt,
       DateTime? updatedAt,
@@ -196,7 +220,10 @@ class __$$AppointmentImplCopyWithImpl<$Res>
     Object? startTime = null,
     Object? endTime = null,
     Object? staffId = null,
+    Object? paymentReference = freezed,
     Object? status = null,
+    Object? paymentType = freezed,
+    Object? paymentStatus = freezed,
     Object? serviceIds = null,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
@@ -229,10 +256,22 @@ class __$$AppointmentImplCopyWithImpl<$Res>
           ? _value.staffId
           : staffId // ignore: cast_nullable_to_non_nullable
               as String,
+      paymentReference: freezed == paymentReference
+          ? _value.paymentReference
+          : paymentReference // ignore: cast_nullable_to_non_nullable
+              as String?,
       status: null == status
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
               as AppointmentStatus,
+      paymentType: freezed == paymentType
+          ? _value.paymentType
+          : paymentType // ignore: cast_nullable_to_non_nullable
+              as PaymentType?,
+      paymentStatus: freezed == paymentStatus
+          ? _value.paymentStatus
+          : paymentStatus // ignore: cast_nullable_to_non_nullable
+              as PaymentStatus?,
       serviceIds: null == serviceIds
           ? _value._serviceIds
           : serviceIds // ignore: cast_nullable_to_non_nullable
@@ -271,7 +310,10 @@ class _$AppointmentImpl implements _Appointment {
       required this.startTime,
       required this.endTime,
       required this.staffId,
+      required this.paymentReference,
       this.status = AppointmentStatus.pending,
+      this.paymentType = PaymentType.cash,
+      this.paymentStatus = PaymentStatus.pending,
       required final List<String> serviceIds,
       this.createdAt,
       this.updatedAt,
@@ -298,8 +340,16 @@ class _$AppointmentImpl implements _Appointment {
   @override
   final String staffId;
   @override
+  final String? paymentReference;
+  @override
   @JsonKey()
   final AppointmentStatus status;
+  @override
+  @JsonKey()
+  final PaymentType? paymentType;
+  @override
+  @JsonKey()
+  final PaymentStatus? paymentStatus;
   final List<String> _serviceIds;
   @override
   List<String> get serviceIds {
@@ -321,7 +371,7 @@ class _$AppointmentImpl implements _Appointment {
 
   @override
   String toString() {
-    return 'Appointment(id: $id, customerId: $customerId, reviewed: $reviewed, startTime: $startTime, endTime: $endTime, staffId: $staffId, status: $status, serviceIds: $serviceIds, createdAt: $createdAt, updatedAt: $updatedAt, totalPrice: $totalPrice, totalTimeframe: $totalTimeframe, bookingType: $bookingType)';
+    return 'Appointment(id: $id, customerId: $customerId, reviewed: $reviewed, startTime: $startTime, endTime: $endTime, staffId: $staffId, paymentReference: $paymentReference, status: $status, paymentType: $paymentType, paymentStatus: $paymentStatus, serviceIds: $serviceIds, createdAt: $createdAt, updatedAt: $updatedAt, totalPrice: $totalPrice, totalTimeframe: $totalTimeframe, bookingType: $bookingType)';
   }
 
   @override
@@ -338,7 +388,13 @@ class _$AppointmentImpl implements _Appointment {
                 other.startTime == startTime) &&
             (identical(other.endTime, endTime) || other.endTime == endTime) &&
             (identical(other.staffId, staffId) || other.staffId == staffId) &&
+            (identical(other.paymentReference, paymentReference) ||
+                other.paymentReference == paymentReference) &&
             (identical(other.status, status) || other.status == status) &&
+            (identical(other.paymentType, paymentType) ||
+                other.paymentType == paymentType) &&
+            (identical(other.paymentStatus, paymentStatus) ||
+                other.paymentStatus == paymentStatus) &&
             const DeepCollectionEquality()
                 .equals(other._serviceIds, _serviceIds) &&
             (identical(other.createdAt, createdAt) ||
@@ -363,7 +419,10 @@ class _$AppointmentImpl implements _Appointment {
       startTime,
       endTime,
       staffId,
+      paymentReference,
       status,
+      paymentType,
+      paymentStatus,
       const DeepCollectionEquality().hash(_serviceIds),
       createdAt,
       updatedAt,
@@ -395,7 +454,10 @@ abstract class _Appointment implements Appointment {
       required final DateTime startTime,
       required final DateTime endTime,
       required final String staffId,
+      required final String? paymentReference,
       final AppointmentStatus status,
+      final PaymentType? paymentType,
+      final PaymentStatus? paymentStatus,
       required final List<String> serviceIds,
       final DateTime? createdAt,
       final DateTime? updatedAt,
@@ -419,7 +481,13 @@ abstract class _Appointment implements Appointment {
   @override
   String get staffId;
   @override
+  String? get paymentReference;
+  @override
   AppointmentStatus get status;
+  @override
+  PaymentType? get paymentType;
+  @override
+  PaymentStatus? get paymentStatus;
   @override
   List<String> get serviceIds;
   @override

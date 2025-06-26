@@ -1,26 +1,25 @@
+import 'dart:developer';
+
 import 'package:dartx/dartx_io.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:kingz_cut_mobile/enums/booking_type.dart';
+import 'package:kingz_cut_mobile/enums/payment_type.dart';
 import 'package:kingz_cut_mobile/models/about.dart';
 import 'package:kingz_cut_mobile/models/appointment.dart';
 import 'package:kingz_cut_mobile/models/appointment_booking_state.dart';
-// import 'package:kingz_cut_mobile/models/service.dart';
 import 'package:kingz_cut_mobile/models/working_hour.dart';
+import 'package:kingz_cut_mobile/screens/booking_confirmation_screen.dart';
 import 'package:kingz_cut_mobile/state_providers/about_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/appointment_booking_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/appointments_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/customer_notifer.dart';
 import 'package:kingz_cut_mobile/state_providers/customers_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/service_provider.dart';
-import 'package:kingz_cut_mobile/screens/home/dashboard_screen.dart';
 import 'package:kingz_cut_mobile/utils/app_alert.dart';
-import 'package:kingz_cut_mobile/utils/dashboard_page.dart';
 
 class BookingScreen extends ConsumerStatefulWidget {
-  // final String customerId; // Customer ID parameter
-
   const BookingScreen({super.key});
 
   @override
@@ -33,9 +32,9 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   DateTime? _selectedEndTime;
   List<DateTime> _availableStartTimes = [];
   int get _totalDurationMinutes =>
-      ref.read(appointmentBookingProvider).totalTimeframe ??
-      0; // Get total duration from state
+      ref.read(appointmentBookingProvider).totalTimeframe ?? 0;
   BookingType? _bookingType = BookingType.walkInService;
+  PaymentType? _paymentType = PaymentType.cash;
 
   @override
   void initState() {
@@ -56,8 +55,6 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     final bookingNotifier = ref.read(appointmentBookingProvider.notifier);
     final servicesState = ref.read(servicesProvider).value ?? [];
 
-    // Calculate total duration from selected services in the state
-
     final totalDurationMinutes = servicesState
         .where(
           (service) => bookingState.selectedServiceIds.contains(service.id),
@@ -75,8 +72,6 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   }
 
   void _initializeBookingState() {
-    // The booking state should already be initialized from previous screens
-    // Just log the current state
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _logCurrentState();
       _calculateTotalDurationAndPrice();
@@ -85,16 +80,17 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 
   void _logCurrentState() {
     final bookingState = ref.read(appointmentBookingProvider);
-    debugPrint('=== Current Booking State ===');
-    debugPrint('Selected Service IDs: ${bookingState.selectedServiceIds}');
-    debugPrint('Selected Staff ID: ${bookingState.selectedStaffId}');
-    debugPrint('Selected Date: ${bookingState.selectedDate}');
-    debugPrint('Selected Start Time: ${bookingState.selectedStartTime}');
-    debugPrint('Selected End Time: ${bookingState.selectedEndTime}');
-    debugPrint('Total Duration: $_totalDurationMinutes minutes');
-    debugPrint('Can Book Appointment: ${bookingState.canBookAppointment}');
-    debugPrint('TotalPrice: ${bookingState.totalPrice}');
-    debugPrint('=============================');
+    log('=== Current Booking State ===');
+    log("${bookingState.toString()}");
+    // debugPrint('Selected Service IDs: ${bookingState.selectedServiceIds}');
+    // debugPrint('Selected Staff ID: ${bookingState.selectedStaffId}');
+    // debugPrint('Selected Date: ${bookingState.selectedDate}');
+    // debugPrint('Selected Start Time: ${bookingState.selectedStartTime}');
+    // debugPrint('Selected End Time: ${bookingState.selectedEndTime}');
+    // debugPrint('Total Duration: $_totalDurationMinutes minutes');
+    // debugPrint('Can Book Appointment: ${bookingState.canBookAppointment}');
+    // debugPrint('TotalPrice: ${bookingState.totalPrice}');
+    log('=============================');
   }
 
   @override
@@ -134,69 +130,103 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     About about,
     AppointmentBookingState bookingState,
   ) {
-    return Stack(
+    return Column(
       children: [
-        Column(
-          children: [
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(16.0),
-                children: [
-                  _buildServicesSection(),
-                  const SizedBox(height: 24),
-                  _buildBookingTypeSection(),
-                  const SizedBox(height: 24),
-                  _buildDateSection(about.workingHours),
-                  const SizedBox(height: 32),
-                  if (_selectedDate != null) _buildTimeSection(),
-                ],
-              ),
-            ),
-            _buildConfirmButton(bookingState),
-          ],
-        ),
-        if (bookingState.isLoading)
-          Container(
-            color: Colors.black54,
-            child: const Center(child: CircularProgressIndicator()),
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.all(16.0),
+            children: [
+              _buildServicesSection(),
+              const SizedBox(height: 24),
+              _buildBookingTypeSection(),
+              const SizedBox(height: 24),
+              _buildPaymentTypeSection(),
+              const SizedBox(height: 24),
+              _buildDateSection(about.workingHours),
+              const SizedBox(height: 32),
+              if (_selectedDate != null) _buildTimeSection(),
+            ],
           ),
+        ),
+        _buildContinueButton(bookingState),
       ],
     );
   }
 
-  Column _buildBookingTypeSection() {
+  Widget _buildBookingTypeSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
+      children: [
         const Text(
           'Select Booking Type',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
-
-        RadioListTile<BookingType>(
-          title: const Text('Home Service'),
-          value: BookingType.homeService,
-          groupValue: _bookingType,
+        const SizedBox(height: 12),
+        DropdownButtonFormField<BookingType>(
+          value: _bookingType,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 16,
+            ),
+          ),
+          items:
+              BookingType.values.map((BookingType type) {
+                return DropdownMenuItem<BookingType>(
+                  value: type,
+                  child: Text(
+                    type == BookingType.homeService
+                        ? 'Home Service'
+                        : 'Walk-in Service',
+                  ),
+                );
+              }).toList(),
           onChanged: (BookingType? value) {
-            if (value == null) return;
-            final bookingNotifier = ref.read(
-              appointmentBookingProvider.notifier,
-            );
-            bookingNotifier.updateBookingType(value);
-            setState(() => _bookingType = value);
+            if (value != null) {
+              final bookingNotifier = ref.read(
+                appointmentBookingProvider.notifier,
+              );
+              bookingNotifier.updateBookingType(value);
+              setState(() => _bookingType = value);
+            }
           },
         ),
-        RadioListTile<BookingType>(
-          title: const Text('Walk-in Service'),
-          value: BookingType.walkInService,
-          groupValue: _bookingType,
-          onChanged: (BookingType? value) {
-            if (value == null) return;
-            final bookingNotifier = ref.read(
-              appointmentBookingProvider.notifier,
-            );
-            bookingNotifier.updateBookingType(value);
-            setState(() => _bookingType = value);
+      ],
+    );
+  }
+
+  Widget _buildPaymentTypeSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Select Payment Type',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 12),
+        DropdownButtonFormField<PaymentType>(
+          value: _paymentType,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 16,
+            ),
+          ),
+          items:
+              PaymentType.values.map((PaymentType type) {
+                return DropdownMenuItem<PaymentType>(
+                  value: type,
+                  child: Text(
+                    type == PaymentType.cash ? 'Cash Payment' : 'Mobile Money',
+                  ),
+                );
+              }).toList(),
+          onChanged: (PaymentType? value) {
+            if (value != null) {
+              setState(() => _paymentType = value);
+            }
           },
         ),
       ],
@@ -460,65 +490,66 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     );
   }
 
-  Widget _buildConfirmButton(AppointmentBookingState bookingState) {
-    final canBook =
+  Widget _buildContinueButton(AppointmentBookingState bookingState) {
+    final canContinue =
         _selectedDate != null &&
         _selectedStartTime != null &&
-        _selectedEndTime != null;
+        _selectedEndTime != null &&
+        _bookingType != null &&
+        _paymentType != null;
 
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (bookingState.error != null)
-              Container(
-                padding: const EdgeInsets.all(12),
-                margin: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: Colors.red.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.red.shade200),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.error_outline, color: Colors.red.shade600),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        bookingState.error!,
-                        style: TextStyle(color: Colors.red.shade600),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed:
-                    canBook && !bookingState.isLoading ? _confirmBooking : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                  disabledBackgroundColor: Colors.grey.shade300,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: Text(
-                  canBook ? 'Confirm Booking' : 'Select Date and Time',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+        child: SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: canContinue ? _navigateToConfirmation : null,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
+              disabledBackgroundColor: Colors.grey.shade300,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
               ),
             ),
-          ],
+            child: Text(
+              canContinue ? 'Continue to Confirmation' : 'Complete All Fields',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+          ),
         ),
+      ),
+    );
+  }
+
+  void _navigateToConfirmation() {
+    final customer = ref.read(customerNotifier).value;
+
+    if (customer == null) {
+      AppAlert.snackBarErrorAlert(
+        context,
+        'You must be logged in to book an appointment.',
+      );
+      return;
+    }
+
+    // Update booking provider with payment type
+    ref
+        .read(appointmentBookingProvider.notifier)
+        .updatePaymentType(_paymentType!);
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder:
+            (context) => BookingConfirmationScreen(
+              selectedDate: _selectedDate!,
+              selectedStartTime: _selectedStartTime!,
+              selectedEndTime: _selectedEndTime!,
+              bookingType: _bookingType!,
+              paymentType: _paymentType!,
+            ),
       ),
     );
   }
@@ -548,7 +579,6 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
         _availableStartTimes = _generateAvailableStartTimes(date, workingHours);
       });
 
-      // Update the booking provider
       ref.read(appointmentBookingProvider.notifier).selectDate(date);
       _logCurrentState();
     }
@@ -560,132 +590,10 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
       _selectedEndTime = endTime;
     });
 
-    // Update the booking provider
     ref
         .read(appointmentBookingProvider.notifier)
         .selectTimeSlot(startTime, endTime);
     _logCurrentState();
-  }
-
-  Future<void> _confirmBooking() async {
-    final bookingState = ref.read(appointmentBookingProvider);
-    final servicesState = ref.read(servicesProvider).value ?? [];
-    final customer = ref.read(customerNotifier).value;
-
-    if (customer == null) {
-      AppAlert.snackBarErrorAlert(
-        context,
-        'You must be logged in to book an appointment.',
-      );
-      return;
-    }
-
-    if (_selectedDate != null &&
-        _selectedStartTime != null &&
-        _selectedEndTime != null) {
-      final confirmed = await showDialog<bool>(
-        context: context,
-        builder:
-            (context) => AlertDialog(
-              title: const Text('Confirm Booking'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Date: ${DateFormat('EEEE, dd/MM/yyyy').format(_selectedDate!)}',
-                  ),
-                  Text(
-                    'Time: ${DateFormat('h:mm a').format(_selectedStartTime!)} - ${DateFormat('h:mm a').format(_selectedEndTime!)}',
-                  ),
-                  Text(
-                    'Total Price: GHS ${bookingState.totalPrice?.toStringAsFixed(2)}',
-                  ),
-                  Builder(
-                    builder: (context) {
-                      final bookingType =
-                          bookingState.bookingType == BookingType.walkInService
-                              ? 'Waliking Service'
-                              : 'Home Service';
-                      return Text('Booking Type: $bookingType');
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Services:',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  ...servicesState
-                      .where(
-                        (service) => bookingState.selectedServiceIds.contains(
-                          service.id,
-                        ),
-                      )
-                      .map(
-                        (service) => Text(
-                          '• ${service.name} (${service.timeframe} min)',
-                        ),
-                      ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Are you sure you want to book this appointment?',
-                    style: TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text('Cancel'),
-                ),
-                ElevatedButton(
-                  onPressed: () => Navigator.of(context).pop(true),
-                  child: const Text('Confirm'),
-                ),
-              ],
-            ),
-      );
-
-      if (confirmed == true) {
-        debugPrint('=== Creating Appointment ===');
-        _logCurrentState();
-
-        final success = await ref
-            .read(appointmentBookingProvider.notifier)
-            .bookAppointment(customer?.id ?? '');
-
-        if (success) {
-          ref.read(appointmentBookingProvider.notifier).clearBookingState();
-          if (mounted) {
-            AppAlert.snackBarSuccessAlert(
-              context,
-              'Appointment booked successfully!',
-            );
-            _navigateToHomScreen(); // Go back to previous screen
-          }
-        } else {
-          final bookingState = ref.read(appointmentBookingProvider);
-          if (mounted) {
-            AppAlert.snackBarErrorAlert(
-              context,
-              'Failed to book appointment: ${bookingState.error ?? "Unknown error"}',
-            );
-          }
-        }
-      }
-    }
-  }
-
-  void _navigateToHomScreen() {
-    if (!mounted) return;
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(
-        builder:
-            (_) =>
-                DashboardScreen(initialPageIndex: DashboardPage.bookings.index),
-      ),
-      (route) => false,
-    );
   }
 
   List<DateTime> _generateAvailableStartTimes(
@@ -715,7 +623,6 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     final availableSlots = <DateTime>[];
     var currentTime = openingTime;
 
-    // Generate slots with 30-minute intervals
     while (currentTime
             .add(Duration(minutes: _totalDurationMinutes))
             .isBefore(closingTime) ||
@@ -724,7 +631,6 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
             .isAtSameMomentAs(closingTime)) {
       final endTime = currentTime.add(Duration(minutes: _totalDurationMinutes));
 
-      // Check if this time slot conflicts with any booked appointments
       if (!_isTimeSlotBooked(currentTime, endTime)) {
         availableSlots.add(currentTime);
       }
@@ -740,7 +646,6 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
       final bookedStart = ap.startTime;
       final bookedEnd = ap.endTime;
 
-      // Check if the time slots overlap
       if (startTime.isBefore(bookedEnd) && endTime.isAfter(bookedStart)) {
         return true;
       }

@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kingz_cut_mobile/enums/booking_type.dart';
+import 'package:kingz_cut_mobile/enums/payment_status.dart';
+import 'package:kingz_cut_mobile/enums/payment_type.dart';
 import 'package:kingz_cut_mobile/models/appointment.dart';
 import 'package:kingz_cut_mobile/models/appointment_booking_state.dart';
 import 'package:kingz_cut_mobile/repositories/appointment_repository.dart';
@@ -78,6 +80,16 @@ class AppointmentBookingNotifier
     state = state.copyWith(bookingType: bookingType);
   }
 
+  // Payment type
+  void updatePaymentType(PaymentType paymentType) {
+    state = state.copyWith(paymentType: paymentType);
+  }
+
+  // Payment Status
+  void updatePaymentStatus(PaymentStatus paymentStatus) {
+    state = state.copyWith(paymentStatus: paymentStatus);
+  }
+
   // Total timeframe
   void updateTotalTimeframe(int totalTimeframe) {
     state = state.copyWith(totalTimeframe: totalTimeframe);
@@ -101,6 +113,9 @@ class AppointmentBookingNotifier
       totalPrice: state.totalPrice,
       bookingType: state.bookingType,
       totalTimeframe: state.totalTimeframe,
+      paymentReference: state.paymentReference,
+      paymentType: state.paymentType,
+      paymentStatus: state.paymentStatus,
     );
 
     final result = await _repository.createAppointment(appointment);
@@ -112,7 +127,7 @@ class AppointmentBookingNotifier
       },
       (appointment) {
         state = state.copyWith(isLoading: false);
-        clearBookingState();
+        // clearBookingState();
         return true;
       },
     );

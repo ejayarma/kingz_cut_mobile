@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kingz_cut_mobile/utils/custom_ui_block.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class CheckoutScreen extends StatefulWidget {
@@ -22,13 +23,18 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ..setJavaScriptMode(JavaScriptMode.unrestricted)
           ..setNavigationDelegate(
             NavigationDelegate(
-              onProgress: (int progress) {
-                // Update loading bar.
+              onPageStarted: (String url) {
+                CustomUiBlock.block(context, message: "Loading payment...");
               },
-              onPageStarted: (String url) {},
-              onPageFinished: (String url) {},
-              onHttpError: (HttpResponseError error) {},
-              onWebResourceError: (WebResourceError error) {},
+              onPageFinished: (String url) {
+                CustomUiBlock.unblock(context);
+              },
+              onHttpError: (HttpResponseError error) {
+                CustomUiBlock.unblock(context);
+              },
+              onWebResourceError: (WebResourceError error) {
+                CustomUiBlock.unblock(context);
+              },
               onNavigationRequest: (NavigationRequest request) {
                 if (!request.url.startsWith('https://checkout.paystack.com/')) {
                   return NavigationDecision.prevent;
@@ -64,26 +70,25 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.5), // Shadow color
-                  spreadRadius: 2, // Spread radius
-                  blurRadius: 8, // Blur radius
-                  offset: Offset(
-                    0,
-                    -4,
-                  ), // Offset in X and Y (negative Y for top shadow)
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 2,
+                  blurRadius: 8,
+                  offset: const Offset(0, -4),
                 ),
               ],
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(12),
                 topRight: Radius.circular(12),
-              ), // Optional: Rounded corners
+              ),
             ),
             child: ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(true); // returning success
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.onPrimaryFixed,
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                disabledBackgroundColor: Colors.grey.shade300,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -91,11 +96,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
               child: Text(
                 'DONE',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimary,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ),
           ),

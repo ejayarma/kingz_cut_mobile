@@ -41,6 +41,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('Notifications'),
         // backgroundColor: theme.primaryColor,
         // foregroundColor: Colors.white,

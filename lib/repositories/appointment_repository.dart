@@ -115,12 +115,22 @@ class FirebaseAppointmentRepository implements AppointmentRepository {
         return left('You already have an appointment for the selected day.');
       }
 
-      final docRef = await _firestore
-          .collection(_collection)
-          .add(appointmentData.toJson());
-
-      final createdAppointment = appointmentData.copyWith(id: docRef.id);
-      return right(createdAppointment);
+      if (appointment.paymentReference != null) {
+        await _firestore
+            .collection(_collection)
+            .doc(appointment.paymentReference)
+            .set(appointmentData.toJson());
+        final createdAppointment = appointmentData.copyWith(
+          id: appointment.paymentReference,
+        );
+        return right(createdAppointment);
+      } else {
+        final docRef = await _firestore
+            .collection(_collection)
+            .add(appointmentData.toJson());
+        final createdAppointment = appointmentData.copyWith(id: docRef.id);
+        return right(createdAppointment);
+      }
     } catch (e) {
       return left('Failed to create appointment: ${e.toString()}');
     }
