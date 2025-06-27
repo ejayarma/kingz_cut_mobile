@@ -147,13 +147,14 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
         final notification = state.notifications[index];
         return _NotificationCard(
           notification: notification,
-          onTap: () => _markAsRead(notification),
+          onTap: () => {},
+          // onTap: () => _markAsRead(notification),
         );
       },
     );
   }
 
-  void _markAsRead(NotificationModel notification) {
+  Future<void> _markAsRead(NotificationModel notification) async {
     if (!notification.read) {
       ref
           .read(notificationNotifierProvider.notifier)
