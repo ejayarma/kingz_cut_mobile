@@ -1,13 +1,18 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kingz_cut_mobile/enums/appointment_status.dart';
 import 'package:kingz_cut_mobile/models/appointment.dart';
+import 'package:kingz_cut_mobile/repositories/staff_repositoy.dart';
 import 'package:kingz_cut_mobile/screens/receipt_page.dart';
 import 'package:kingz_cut_mobile/screens/reviews_screen.dart';
 import 'package:kingz_cut_mobile/state_providers/appointments_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/customer_notifer.dart';
 import 'package:kingz_cut_mobile/state_providers/service_provider.dart';
 import 'package:kingz_cut_mobile/utils/app_alert.dart';
+import 'package:kingz_cut_mobile/utils/custom_ui_block.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CustomerBookingsPage extends ConsumerStatefulWidget {
   // final String customerId; // Add customer ID parameter
@@ -419,53 +424,59 @@ class _CustomerBookingsPageState extends ConsumerState<CustomerBookingsPage>
             ),
             const SizedBox(height: 16),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed:
-                        appointment.id != null
-                            ? () => _showCancelConfirmation(appointment.id!)
-                            : null,
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                IconButton.outlined(
+                  tooltip: 'Cancel Appointment',
+                  onPressed:
+                      appointment.id != null
+                          ? () => _showCancelConfirmation(appointment.id!)
+                          : null,
+                  style: IconButton.styleFrom(
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.error,
                     ),
-                    child: Text(
-                      'Cancel',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
+                  ),
+
+                  icon: Icon(
+                    Icons.close_rounded,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                ),
+                IconButton.outlined(
+                  tooltip: 'Call Barber',
+                  onPressed:
+                      appointment.id != null
+                          ? () => _triggerStaffPhoneCall(appointment)
+                          : null,
+                  style: IconButton.styleFrom(
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.primary,
                     ),
+                  ),
+
+                  icon: Icon(
+                    Icons.call,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 const SizedBox(width: 12),
-                Expanded(
-                  child: FilledButton(
-                    onPressed: () {
-                      // AppAlert.snackBarInfoAlert(
-                      //   context,
-                      //   'View receipt coming soon',
-                      // );
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (context) =>
-                                  ReceiptPage(appointment: appointment),
-                        ),
-                      );
-                    },
-                    style: FilledButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                FilledButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => ReceiptPage(appointment: appointment),
                       ),
+                    );
+                  },
+                  style: FilledButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Text('View Receipt'),
                   ),
+                  child: const Text('View Receipt'),
                 ),
               ],
             ),
@@ -566,30 +577,35 @@ class _CustomerBookingsPageState extends ConsumerState<CustomerBookingsPage>
               ],
             ),
             const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => ReviewsScreen()),
-                    );
-                  },
-                  child: Text(
-                    appointment.reviewed ? 'View Reviews' : 'Add Review',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
-                      decoration: TextDecoration.underline,
-                      decorationColor: Theme.of(context).colorScheme.secondary,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.end,
+            //   children: [
+            //     TextButton(
+            //       onPressed: () {
+            //         Navigator.push(
+            //           context,
+            //           MaterialPageRoute(builder: (context) => ReviewsScreen()),
+            //         );
+            //       },
+            //       child: Text(
+            //         appointment.reviewed ? 'View Reviews' : 'Add Review',
+            //         style: TextStyle(
+            //           color: Theme.of(context).colorScheme.secondary,
+            //           decoration: TextDecoration.underline,
+            //           decorationColor: Theme.of(context).colorScheme.secondary,
+            //         ),
+            //       ),
+            //     ),
+            //   ],
+            // ),
             FilledButton(
               onPressed: () {
-                AppAlert.snackBarInfoAlert(context, 'View receipt coming soon');
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ReceiptPage(appointment: appointment),
+                  ),
+                );
               },
               style: FilledButton.styleFrom(
                 minimumSize: const Size(double.infinity, 48),
@@ -698,5 +714,69 @@ class _CustomerBookingsPageState extends ConsumerState<CustomerBookingsPage>
         ),
       ),
     );
+  }
+
+  Future<void> _triggerStaffPhoneCall(Appointment appointment) async {
+    try {
+      CustomUiBlock.block(context);
+      final staff = await ref
+          .read(staffRepositoryProvider)
+          .getStaff(appointment.staffId);
+
+      log('STaff $staff');
+      if (staff != null) {
+        _launchUrl('tel:${staff.phone}');
+      } else {
+        if (mounted) {
+          AppAlert.snackBarErrorAlert(context, 'Staff phone number not found');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        AppAlert.snackBarErrorAlert(context, 'Staff phone number not found');
+      }
+      log(e.toString());
+    } finally {
+      if (mounted) {
+        CustomUiBlock.unblock(context);
+      }
+    }
+  }
+
+  Future<void> _launchUrl(String url) async {
+    try {
+      String formattedUrl = url;
+      if (!url.startsWith('http://') &&
+          !url.startsWith('https://') &&
+          !url.startsWith('tel:') &&
+          !url.startsWith('mailto:')) {
+        formattedUrl = 'https://$url';
+      }
+
+      debugPrint('Attempting to launch: $formattedUrl'); // Add this line
+
+      final uri = Uri.parse(formattedUrl);
+
+      final canLaunch = await canLaunchUrl(uri);
+      debugPrint('Can launch URL: $canLaunch'); // Add this line
+
+      if (canLaunch) {
+        final result = await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication,
+        );
+        debugPrint('Launch result: $result'); // Add this line
+      } else {
+        debugPrint('Cannot launch $formattedUrl');
+        if (mounted) {
+          AppAlert.snackBarErrorAlert(context, 'Could not open $formattedUrl');
+        }
+      }
+    } catch (e) {
+      debugPrint('Error launching URL: $e');
+      if (mounted) {
+        AppAlert.snackBarErrorAlert(context, 'Error opening link');
+      }
+    }
   }
 }

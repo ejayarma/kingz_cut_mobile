@@ -35,6 +35,19 @@ class CustomerRepository {
     return Customer.fromJson({'id': id, ...customer.toJson()});
   }
 
+  Future<Customer?> getCustomer(String customerId) async {
+    // Example with Firestore
+    final querySnapshot =
+        await _firestore.collection(_customersCollection).doc(customerId).get();
+
+    if (querySnapshot.exists) {
+      final data = querySnapshot.data()!;
+      return Customer.fromJson({...data, 'id': querySnapshot.id});
+    } else {
+      return null;
+    }
+  }
+
   Future<Customer?> getCustomerByUserId(String uid) async {
     // Example with Firestore
     final querySnapshot =

@@ -5,12 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kingz_cut_mobile/enums/appointment_status.dart';
 import 'package:kingz_cut_mobile/models/appointment.dart';
+import 'package:kingz_cut_mobile/repositories/customer_repository.dart';
+import 'package:kingz_cut_mobile/repositories/staff_repositoy.dart';
 import 'package:kingz_cut_mobile/screens/receipt_page.dart';
 import 'package:kingz_cut_mobile/state_providers/appointments_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/customers_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/service_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/staff_notifier.dart';
 import 'package:kingz_cut_mobile/utils/app_alert.dart';
+import 'package:kingz_cut_mobile/utils/custom_ui_block.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class BarberBookingsPage extends ConsumerStatefulWidget {
   const BarberBookingsPage({super.key});
@@ -223,7 +227,6 @@ class _BarberBookingsPageState extends ConsumerState<BarberBookingsPage>
               },
             ),
             TextButton(
-              child: const Text('Cancel Booking'),
               style: TextButton.styleFrom(foregroundColor: Colors.red),
               onPressed: () async {
                 Navigator.of(context).pop();
@@ -243,6 +246,7 @@ class _BarberBookingsPageState extends ConsumerState<BarberBookingsPage>
                   );
                 }
               },
+              child: const Text('Cancel Booking'),
             ),
           ],
         );
@@ -618,27 +622,74 @@ class _BarberBookingsPageState extends ConsumerState<BarberBookingsPage>
           if (isConfirmedTab) ...[
             const SizedBox(height: 12),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => _showCancelDialog(appointment),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.red),
-                      foregroundColor: Colors.red,
+                // Expanded(
+                //   child: OutlinedButton(
+                //     onPressed: () => _showCancelDialog(appointment),
+                //     style: OutlinedButton.styleFrom(
+                //       side: const BorderSide(color: Colors.red),
+                //       foregroundColor: Colors.red,
+                //     ),
+                //     child: const Text('Cancel'),
+                //   ),
+                // ),
+                IconButton.outlined(
+                  tooltip: 'Cancel Booking',
+                  onPressed: () => _showCancelDialog(appointment),
+
+                  style: IconButton.styleFrom(
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.error,
                     ),
-                    child: const Text('Cancel'),
+                  ),
+
+                  icon: Icon(
+                    Icons.cancel,
+                    color: Theme.of(context).colorScheme.error,
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: FilledButton(
-                    onPressed: () => _showCompleteDialog(appointment),
-                    style: FilledButton.styleFrom(
-                      // side: BorderSide(color: Theme.of(context).colorScheme.secondary),
-                      backgroundColor: Theme.of(context).colorScheme.secondary,
+
+                IconButton.outlined(
+                  tooltip: 'Call Customer',
+                  onPressed:
+                      appointment.id != null
+                          ? () => _triggerCustomerPhoneCall(appointment)
+                          : null,
+                  style: IconButton.styleFrom(
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.primary,
                     ),
-                    child: const Text('Complete'),
                   ),
+
+                  icon: Icon(
+                    Icons.call,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+
+                // const SizedBox(width: 12),
+                // Expanded(
+                //   child: FilledButton(
+                //     onPressed: () => _showCompleteDialog(appointment),
+                //     style: FilledButton.styleFrom(
+                //       // side: BorderSide(color: Theme.of(context).colorScheme.secondary),
+                //       backgroundColor: Theme.of(context).colorScheme.secondary,
+                //     ),
+                //     child: const Text('Complete'),
+                //   ),
+                // ),
+                IconButton.filled(
+                  tooltip: 'Complete Booking',
+                  onPressed: () => _showCompleteDialog(appointment),
+
+                  style: IconButton.styleFrom(
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+
+                  icon: Icon(Icons.cancel, color: Colors.white),
                 ),
               ],
             ),
@@ -646,5 +697,72 @@ class _BarberBookingsPageState extends ConsumerState<BarberBookingsPage>
         ],
       ),
     );
+  }
+
+  Future<void> _triggerCustomerPhoneCall(Appointment appointment) async {
+    try {
+      CustomUiBlock.block(context);
+      final customer = await ref
+          .read(customerRepositoryProvider)
+          .getCustomer(appointment.customerId);
+
+      log('customer $customer');
+      if (customer != null) {
+        _launchUrl('tel:${customer.phone}');
+      } else {
+        if (mounted) {
+          AppAlert.snackBarErrorAlert(
+            context,
+            'customer phone number not found',
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        AppAlert.snackBarErrorAlert(context, 'customer phone number not found');
+      }
+      log(e.toString());
+    } finally {
+      if (mounted) {
+        CustomUiBlock.unblock(context);
+      }
+    }
+  }
+
+  Future<void> _launchUrl(String url) async {
+    try {
+      String formattedUrl = url;
+      if (!url.startsWith('http://') &&
+          !url.startsWith('https://') &&
+          !url.startsWith('tel:') &&
+          !url.startsWith('mailto:')) {
+        formattedUrl = 'https://$url';
+      }
+
+      debugPrint('Attempting to launch: $formattedUrl'); // Add this line
+
+      final uri = Uri.parse(formattedUrl);
+
+      final canLaunch = await canLaunchUrl(uri);
+      debugPrint('Can launch URL: $canLaunch'); // Add this line
+
+      if (canLaunch) {
+        final result = await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication,
+        );
+        debugPrint('Launch result: $result'); // Add this line
+      } else {
+        debugPrint('Cannot launch $formattedUrl');
+        if (mounted) {
+          AppAlert.snackBarErrorAlert(context, 'Could not open $formattedUrl');
+        }
+      }
+    } catch (e) {
+      debugPrint('Error launching URL: $e');
+      if (mounted) {
+        AppAlert.snackBarErrorAlert(context, 'Error opening link');
+      }
+    }
   }
 }

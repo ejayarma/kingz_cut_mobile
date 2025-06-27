@@ -305,7 +305,7 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationScreen> {
                   width: double.infinity,
                   child: FilledButton(
                     style: FilledButton.styleFrom(
-                      backgroundColor: Colors.black,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),

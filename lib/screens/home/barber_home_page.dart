@@ -4,6 +4,7 @@ import 'package:dartx/dartx_io.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jiffy/jiffy.dart';
+import 'package:kingz_cut_mobile/repositories/customer_repository.dart';
 import 'package:kingz_cut_mobile/screens/home/dashboard_screen.dart';
 import 'package:kingz_cut_mobile/state_providers/appointments_provider.dart';
 import 'package:kingz_cut_mobile/state_providers/customers_provider.dart';
@@ -12,7 +13,9 @@ import 'package:kingz_cut_mobile/state_providers/staff_notifier.dart';
 import 'package:kingz_cut_mobile/models/appointment.dart';
 import 'package:kingz_cut_mobile/enums/appointment_status.dart';
 import 'package:kingz_cut_mobile/utils/app_alert.dart';
+import 'package:kingz_cut_mobile/utils/custom_ui_block.dart';
 import 'package:kingz_cut_mobile/utils/dashboard_page.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class BarberHomePage extends ConsumerStatefulWidget {
   const BarberHomePage({super.key});
@@ -375,63 +378,73 @@ class _BarberHomePageState extends ConsumerState<BarberHomePage> {
           if (appointment.status == AppointmentStatus.pending) ...[
             const SizedBox(height: 12),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                // Call button
+                IconButton.outlined(
+                  tooltip: 'Call Customer',
+                  onPressed:
+                      appointment.id != null
+                          ? () => _triggerCustomerPhoneCall(appointment)
+                          : null,
+                  style: IconButton.styleFrom(
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+
+                  icon: Icon(
+                    Icons.call,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+
                 // Accept Button
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed:
-                        () => _showConfirmationDialog(
-                          context,
-                          'Accept Appointment',
-                          'Are you sure you want to accept this appointment with $customerName?',
-                          'Accept',
-                          () => _acceptAppointment(appointment.id!, ref),
-                        ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFF9A826),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                ElevatedButton(
+                  onPressed:
+                      () => _showConfirmationDialog(
+                        context,
+                        'Accept Appointment',
+                        'Are you sure you want to accept this appointment with $customerName?',
+                        'Accept',
+                        () => _acceptAppointment(appointment.id!, ref),
                       ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFF9A826),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Text(
-                      'Accept',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
+                  ),
+                  child: const Text(
+                    'Accept',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                   ),
                 ),
                 const SizedBox(width: 12),
                 // Cancel Button
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed:
-                        () => _showConfirmationDialog(
-                          context,
-                          'Cancel Appointment',
-                          'Are you sure you want to cancel this appointment with $customerName?',
-                          'Cancel',
-                          () => _cancelAppointment(appointment.id!, ref),
-                          isDestructive: true,
-                        ),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.red,
-                      side: const BorderSide(color: Colors.red),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                OutlinedButton(
+                  onPressed:
+                      () => _showConfirmationDialog(
+                        context,
+                        'Cancel Appointment',
+                        'Are you sure you want to cancel this appointment with $customerName?',
+                        'Cancel',
+                        () => _cancelAppointment(appointment.id!, ref),
+                        isDestructive: true,
                       ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.red,
+                    side: const BorderSide(color: Colors.red),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Text(
-                      'Cancel',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
+                  ),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                   ),
                 ),
               ],
@@ -440,6 +453,73 @@ class _BarberHomePageState extends ConsumerState<BarberHomePage> {
         ],
       ),
     );
+  }
+
+  Future<void> _triggerCustomerPhoneCall(Appointment appointment) async {
+    try {
+      CustomUiBlock.block(context);
+      final customer = await ref
+          .read(customerRepositoryProvider)
+          .getCustomer(appointment.customerId);
+
+      log('customer $customer');
+      if (customer != null) {
+        _launchUrl('tel:${customer.phone}');
+      } else {
+        if (mounted) {
+          AppAlert.snackBarErrorAlert(
+            context,
+            'customer phone number not found',
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        AppAlert.snackBarErrorAlert(context, 'customer phone number not found');
+      }
+      log(e.toString());
+    } finally {
+      if (mounted) {
+        CustomUiBlock.unblock(context);
+      }
+    }
+  }
+
+  Future<void> _launchUrl(String url) async {
+    try {
+      String formattedUrl = url;
+      if (!url.startsWith('http://') &&
+          !url.startsWith('https://') &&
+          !url.startsWith('tel:') &&
+          !url.startsWith('mailto:')) {
+        formattedUrl = 'https://$url';
+      }
+
+      debugPrint('Attempting to launch: $formattedUrl'); // Add this line
+
+      final uri = Uri.parse(formattedUrl);
+
+      final canLaunch = await canLaunchUrl(uri);
+      debugPrint('Can launch URL: $canLaunch'); // Add this line
+
+      if (canLaunch) {
+        final result = await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication,
+        );
+        debugPrint('Launch result: $result'); // Add this line
+      } else {
+        debugPrint('Cannot launch $formattedUrl');
+        if (mounted) {
+          AppAlert.snackBarErrorAlert(context, 'Could not open $formattedUrl');
+        }
+      }
+    } catch (e) {
+      debugPrint('Error launching URL: $e');
+      if (mounted) {
+        AppAlert.snackBarErrorAlert(context, 'Error opening link');
+      }
+    }
   }
 
   // Show confirmation dialog
