@@ -645,7 +645,7 @@ class _BarberBookingsPageState extends ConsumerState<BarberBookingsPage>
                   ),
 
                   icon: Icon(
-                    Icons.cancel,
+                    Icons.close,
                     color: Theme.of(context).colorScheme.error,
                   ),
                 ),
@@ -689,7 +689,7 @@ class _BarberBookingsPageState extends ConsumerState<BarberBookingsPage>
                     ),
                   ),
 
-                  icon: Icon(Icons.cancel, color: Colors.white),
+                  icon: Icon(Icons.check, color: Colors.white),
                 ),
               ],
             ),

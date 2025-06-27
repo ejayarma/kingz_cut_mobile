@@ -399,52 +399,63 @@ class _BarberHomePageState extends ConsumerState<BarberHomePage> {
                   ),
                 ),
 
+                SizedBox(width: 10),
                 // Accept Button
-                ElevatedButton(
-                  onPressed:
-                      () => _showConfirmationDialog(
-                        context,
-                        'Accept Appointment',
-                        'Are you sure you want to accept this appointment with $customerName?',
-                        'Accept',
-                        () => _acceptAppointment(appointment.id!, ref),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed:
+                        () => _showConfirmationDialog(
+                          context,
+                          'Accept Appointment',
+                          'Are you sure you want to accept this appointment with $customerName?',
+                          'Accept',
+                          () => _acceptAppointment(appointment.id!, ref),
+                        ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFF9A826),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF9A826),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
                     ),
-                  ),
-                  child: const Text(
-                    'Accept',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                    child: const Text(
+                      'Accept',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
                 // Cancel Button
-                OutlinedButton(
-                  onPressed:
-                      () => _showConfirmationDialog(
-                        context,
-                        'Cancel Appointment',
-                        'Are you sure you want to cancel this appointment with $customerName?',
-                        'Cancel',
-                        () => _cancelAppointment(appointment.id!, ref),
-                        isDestructive: true,
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed:
+                        () => _showConfirmationDialog(
+                          context,
+                          'Cancel Appointment',
+                          'Are you sure you want to cancel this appointment with $customerName?',
+                          'Cancel',
+                          () => _cancelAppointment(appointment.id!, ref),
+                          isDestructive: true,
+                        ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.red,
+                      side: const BorderSide(color: Colors.red),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.red,
-                    side: const BorderSide(color: Colors.red),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
                     ),
-                  ),
-                  child: const Text(
-                    'Cancel',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
                   ),
                 ),
               ],

@@ -71,7 +71,7 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationScreen> {
       if (_secondsLeft > 0) {
         setState(() => _secondsLeft--);
       } else if (_secondsLeft == 0) {
-        AppAlert.snackBarErrorAlert(context, 'OTP expired');
+        // AppAlert.snackBarErrorAlert(context, 'OTP expired');
         setState(() => _secondsLeft = -1);
         timer.cancel();
       }
