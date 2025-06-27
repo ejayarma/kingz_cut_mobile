@@ -111,7 +111,8 @@ class _ChooseStylistScreenState extends ConsumerState<ChooseStylistScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              if (staff.rating != null) ...[
+              // STAFF RATING
+              ...[
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -119,7 +120,7 @@ class _ChooseStylistScreenState extends ConsumerState<ChooseStylistScreen> {
                     const Icon(Icons.star, color: Colors.amber, size: 16),
                     const SizedBox(width: 4),
                     Text(
-                      staff.rating!.toStringAsFixed(1),
+                      (staff.rating ?? 0).toStringAsFixed(1),
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
@@ -132,22 +133,22 @@ class _ChooseStylistScreenState extends ConsumerState<ChooseStylistScreen> {
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
               const SizedBox(height: 16),
-              SizedBox(
-                height: 56,
-                child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  onPressed: () {
-                    // Add "Send message" functionality here
-                    // You can pass staff.id or staff object for messaging
-                  },
-                  child: const Text("Send message"),
-                ),
-              ),
-              const SizedBox(height: 16),
+              // SizedBox(
+              //   height: 56,
+              //   child: OutlinedButton(
+              //     style: OutlinedButton.styleFrom(
+              //       shape: RoundedRectangleBorder(
+              //         borderRadius: BorderRadius.circular(8),
+              //       ),
+              //     ),
+              //     onPressed: () {
+              //       // Add "Send message" functionality here
+              //       // You can pass staff.id or staff object for messaging
+              //     },
+              //     child: const Text("Send message"),
+              //   ),
+              // ),
+              // const SizedBox(height: 16),
               SizedBox(
                 height: 56,
                 child: FilledButton(
@@ -211,35 +212,35 @@ class _ChooseStylistScreenState extends ConsumerState<ChooseStylistScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              SizedBox(
-                height: 32,
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (context) => ReviewsScreen(
-                                // You might want to pass staff.id for staff-specific reviews
-                                // staffId: staff.id,
-                              ),
-                        ),
-                      );
-                    },
-                    child: Text(
-                      "View Reviews",
-                      style: Theme.of(context).textTheme.labelSmall!.copyWith(
-                        color: Theme.of(context).colorScheme.secondary,
-                        decorationColor:
-                            Theme.of(context).colorScheme.secondary,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              // SizedBox(
+              //   height: 32,
+              //   child: Align(
+              //     alignment: Alignment.centerRight,
+              //     child: TextButton(
+              //       onPressed: () {
+              //         Navigator.push(
+              //           context,
+              //           MaterialPageRoute(
+              //             builder:
+              //                 (context) => ReviewsScreen(
+              //                   // You might want to pass staff.id for staff-specific reviews
+              //                   // staffId: staff.id,
+              //                 ),
+              //           ),
+              //         );
+              //       },
+              //       child: Text(
+              //         "View Reviews",
+              //         style: Theme.of(context).textTheme.labelSmall!.copyWith(
+              //           color: Theme.of(context).colorScheme.secondary,
+              //           decorationColor:
+              //               Theme.of(context).colorScheme.secondary,
+              //           decoration: TextDecoration.underline,
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              // ),
             ],
           ),
         );

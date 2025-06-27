@@ -435,7 +435,7 @@ class _CustomerBookingsPageState extends ConsumerState<CustomerBookingsPage>
                       ),
                     ),
                     child: Text(
-                      'Cancel Booking',
+                      'Cancel',
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.error,
                       ),

@@ -235,7 +235,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                   // Google Sign Up Button
                   OutlinedButton.icon(
                     icon: Icon(FontAwesomeIcons.google),
-                    onPressed: () {},
+                    onPressed: _registerWithGoogle,
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
@@ -297,7 +297,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
     );
   }
 
-  Future<UserCredential?> signInWithGoogle() async {
+  Future<UserCredential?> _registerWithGoogle() async {
     try {
       if (mounted) {
         CustomUiBlock.block(context);
